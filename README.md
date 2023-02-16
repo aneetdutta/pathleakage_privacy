@@ -1,6 +1,16 @@
 # Path Leakage 
 
 
+## Some notes
+
+ * Bunch of protocols (e.g., BT Classic, as well as some BLE protocols) are traceable for short windows of time. Does this also apply for others? E.g., WIFI, 5G? And does this hopping lets us trace better? Here is at least one paper in this direction by Ludant et al. at Northeastern: https://www.ccs.neu.edu/home/noubir/publications-local/LVNN2021.pdf
+
+ * There is also this paper on physical layer tracking re BT: http://www.computer.org/csdl/10.1109/SP46214.2022.00030  (https://cseweb.ucsd.edu/~schulman/docs/oakland22-bletracking.pdf)
+
+ * As well as a paper by Dehae and Reardon that goes a little bit into the infrastructure direction (I don't necessarily think this is a great paper, but is a start for something): https://dl.acm.org/doi/10.1145/3411497.3420219
+
+I also dropped in a project report in the Resources folder by one of my former students. The goals were quite different (it aimed at LoRa etc.) but might be an interesting quick read. Not for sharing.
+
 
 ## Getting started
 
