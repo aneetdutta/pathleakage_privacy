@@ -1,0 +1,88 @@
+\subsection{Recovering Location Traces}
+
+\newcommand{\code}[1]{\textsf{#1}}
+\newcommand{\protid}[1]{\ensuremath{\code{ID}_{#1}}\xspace}
+\newcommand{\protidname}[2]{\ensuremath{\code{ID}_{#1}^{#2}}\xspace}
+\newcommand{\linksto}{\leftrightsquigarrow}
+
+\newcommand{\protidset}[1]{\ensuremath{\code{SID}_{#1}}\xspace}
+\newcommand{\protidsetname}[2]{\ensuremath{\code{SID}_{#1}^{#2}}\xspace}
+
+\newcommand{\pos}{p}
+
+\begin{figure*}
+    \newcommand{\boxlabel}[1]{\protect\tikz[baseline=-1mm]{\protect\node[circle,draw=black,fill=red!20,inner sep=1pt] {#1};}}
+    % \newcommand{\boxlabel}[1]{\tikz{\draw[] circle {#1};}}
+    % \newcommand{\boxlabel}[1]{\tikz{\draw[circle] {};}#1}
+    %\renewcommand{\boxlabel}[1]{#1}
+    \input{images/linking_example}
+    \vspace{-5mm}
+    \caption{\label{fig:ex-linking} Example of linking rules shown for a simplified example with two protocols ($A$ and $B$), observations at 3 positions ($y$-axis) and time ($x$-axis). Applying rule 1 to the single device in box \boxlabel{1} reveals the intra-protocol link $\protidname{B}{4} \linksto \protidname{B}{5}$. Applying rule 2 to the single device in box \boxlabel{2} reveals the inter-protocol link $\protidname{A}{2} \linksto \protidname{B}{2}$. Applying rule 3 to the two sets of devices highlighted in box \boxlabel{3} shows that we are dealing with the same two devices (from protocol $A$) but one identifier for protocol $B$ changes, hence $\protidname{B}{3} \linksto \protidname{B}{5}$. Two observations in box $\boxlabel{4}$ reveals that the identifiers $\protidname{A}{1}$ and $\protidname{B}{1}$ appear together in two otherwise disjoint set of devices, rule 4 therefore concludes that $\protidname{A}{1} \linksto \protidname{B}{1}$. Applying rule 5 to the identifiers in box \boxlabel{5} shows that identifiers $\protidname{A}{4}$ and $\protidname{B}{6}$ appear together and thus that $\protidname{A}{4} \linksto \protidname{B}{6}$. Finally, after applying elimination, the observation in box \boxlabel{6} reduces to $\{ \protidname{A}{3}, \protidname{B}{3} \}$; after applying rule 2 we now get $\protidname{A}{3} \linksto \protidname{B}{3}.$}
+\end{figure*}
+
+In this section we describe how an eavesdropper can observations from different vantage points to recover location traces of devices. To do so, our eavesdropper first links different temporary identifiers. It aims to detect two type of links between identifiers. One, it detects \emph{intra-protocol} links, where an identifier \protidname{A}{1} for protocol $A$ of a specific device gets changed / randomized into an identifier \protidname{A}{2} for the same protocol $A$. Second; it detects \emph{inter-protocol} links, where it concludes that the current identifier $\protid{A}$ for protocol $A$ is transmitted by a device that is currently also using identifier $\protid{B}$ for protocol $B$. In both cases we write $\protidname{A}{1} \linksto \protidname{A}{2}$ respectively $\protid{A} \linksto \protid{B}$.
+
+We assume that eavesdroppers process the data that they receive from each protocol $P$ into samples of the form $(P, t, \protid{P}, \pos)$ to denote that for a given protocol $P$, it observed an identifier $\protid{P}$ at time $t$ and approximate position $\pos$.
+\wl{Not sure here, maybe we'll actually need to include some kind of approximation or explicit uncertainty of the position}
+For example, at time $t$, the eavesdropper might observe a BLE MAC address at position $\pos$ with an accuracy of 20\,cm.
+
+We propose a new location-trace recovery algorithm that turns these individual samples into a set of partial traces. The algorithm alternates a linking phase and a elimination phase. In the linking phase, we use a set of rules (described below) to identify intra-protocol and inter-protocol links between identifiers. Crucially, almost all rules use the fact that our eavesdropper can observe identifiers from multiple protocols \emph{at the same time}.
+
+Sometimes, however, it is impossible to determine inter-protocol links directly. Consider the setting where at a time $t$ and position $\pos$, the eavesdropper observes two identifiers for protocol $A$: $\{ \protidname{A}{1}, \protidname{A}{2} \}$ as well as two identifiers for another protocol $B$: $\{ \protidname{B}{1}, \protidname{B}{2} \}$. Based on these observations along, we cannot determine whether $\protidname{A}{1} \linksto \protidname{B}{1}$ (and thus $\protidname{A}{2} \linksto \protidname{B}{2}$) or vice versa that $\protidname{A}{1} \linksto \protidname{B}{2}$ (and thus $\protidname{A}{2} \linksto \protidname{B}{1}$). However, if using other observations we concluded that $\protidname{A}{1} \linksto \protidname{B}{2}$, then we can simplify our setting observations, and pretend that the eavesdropper only observed $\protidname{A}{2}$ and $\protidname{B}{1}$ at time $t$ and position $\pos$. During the next linking phase, we would then conclude that at this position $p$ there is only one device present and thus conclude $\protidname{A}{2} \linksto \protidname{B}{1}$ as well.
+\wl{I'm not super happy with this description of elimination yet. To me it is not as clear as it should be, and this shows that we're not fully understanding the mechanicks of how we'd implement / describe elimination. In particular, it is not clear how/if/when we should "remove" things.}
+
+\subsubsection{Linking phase}
+
+\paragraph{Rule 1: isolated device, intra protocol.} The first rule that we present links two identifiers $\protid{A}$ and $\protidname{A}{\prime}$ for the same protocol $A$ when these must have been transmitted by the same device, i.e., when no other device is close by. Concretely, when the observer observes identifier $\protid{A}$ at time $t$ and position $\pos_1$ and then a short while later, at time $t + \delta_t$ it observes $\protidname{A}{\prime}$ at position $\pos_2$ that $\protid{A} \linksto \protidname{A}{\prime}$ provided the following conditions are met: (1) the observations are close in time (i.e., $\delta_t$ is small), (2) the two locations are physically close (i.e., $\lvert \pos_1 - \pos_2 \rvert < \delta_p$); and (3) no other identifiers for protocol $P$ were observed at these positions.
+
+We argue that both identifiers must have been transmitted by the same device. If this was not the case, then in time $\delta_t$ our first device must have moved out of range, i.e., moved more than $\delta_p$ distance, while the second device must have moved into range. For appropriate choices of $\delta_t$ and $\delta_p$ we can ensure that this cannot happen.
+
+This rule operates on a single protocol only. It does not matter that for another protocol, say LTE, the location accuracy is a little bit lower, and therefore the observer could not distinguish between two LTE identifiers. All that matters is that for a specific protocol $P$, no other device could have been at that position. All the following rules rely on more than one protocol.
+
+\paragraph{Rule 2: isolated device, inter protocol.} The second rule links two identifiers $\protid{A}$ and $\protid{B}$ for two protocols $A$ and $B$ when these can only have been transmitted by the same device. Concretely, when the observer observes identifiers $\protid{A}$ and $\protid{B}$ at time $t$ and position $\pos$ it concludes that $\protid{A} \linksto \protid{B}$ provided that for both protocols $A$ and $B$ the observer did not observe other identifiers that could be at location $\pos$ at time $t$.
+
+Under these conditions, both identifiers must have been transmitted by the same device. If there had been another device present then the eavesdropper would have observed more than one identifier for one of the two protocols, and the rule would not apply.
+
+\paragraph{Rule 3: multiple devices, intra protocol.} The third rule is a generalization of rule 1. Rule 1 links two identifiers $\protid{A}$ and $\protidname{A}{\prime}$ for the same protocol $A$ when a device is alone. Rule 3 links these identifiers when we are sure that the group of devices stays the same and identifier $\protid{A}$ changes to $\protidname{A}{\prime}$. Crucially, rule 3 uses information from another protocol $B$ to conclude that the eavesdropper is still considering the same group of devices.
+
+Rule 3 works as follows. Assume the eavesdropper observes the identifiers $\protidset{A} \cup \{ \protid{A} \}$ for protocol $A$ and the identifiers $\protidset{B}$ for protocol $B$ at time $t_1$ and position $\pos_1$. Moreover let $\protidset{A} \cup \{ \protidname{A}{\prime} \}$ and $\protidset{B}$ be the sets of identifiers for both protocols observed at time $t_2$ and position $\pos_2$. Rule 3 then concludes that $\protid{A} \linksto \protidname{A}{\prime}$ provided that the following conditions are met: (1) the linked identifiers do not themselves appear in $\protidset{A}$, i.e., $\protid{A}, \protidname{A}{\prime} \not\in \protidset{A}$; (2) the eavesdropper observes the same number of devices for both protocols, i.e. $\lvert \protidset{A} \rvert + 1 = \lvert \protidset{B} \rvert$; and (3) no other identifiers for protocols $A$ and $B$ at either time/position.
+
+We argue that both identifiers $\protid{A}$ and $\protidname{A}{\prime}$ must have been transmitted by the same device. Notice that for both observations, the set of identifiers $\protidset{B}$ is the same, and by condition (3) there are no other devices present (otherwise, the eavesdropper would have observed the corresponding identifiers). As a result, at both instances, the group of devices considered by the eavesdropper must be the same. Because of condition (1) and (3), the sets of identifiers $\protidset{A} \cup \{ \protid{A} \}$ and $\protidset{A} \cup \{ \protidname{A}{\prime}$ must therefore correspond to the same set of devices with protocol $B$ identifiers in $\protidset{B}$. Since only one identifier changed, we correctly conclude that $\protid{A} \linksto \protidname{A}{\prime}$.
+
+\paragraph{Rule 4: multiple devices, inter protocol.} The fourth rule is a generalization of rule 2. Rule 2 links two identifiers $\protid{A}$ and $\protid{B}$ of different protocols when there is only one device. Rule 4 links these identifiers when they appear together in otherwise disjoint groups of devices.
+
+Concretely, rule 4 works as follows. Assume the eavesdropper observes the identifiers $\protidset{A} \cup \{ \protid{A} \}$ for protocol $A$ and the identifiers $\protidset{B} \cup \{ \protid{B} \}$ for protocol $B$ at time $t_1$ and position $\pos_1$. Moreover let $\protidset{A}^\prime \cup \{ \protidname{A}{\prime}$ and $\protidset{B}^\prime \cup \{ \protid{B} \}$ be the sets of identifiers for both protocols observed at time $t_2$ and position $\pos_2$ (notice that identifiers $\protid{A}$ and $\protid{B}$ are observed at both instances). Rule 4 then concludes that $\protid{A} \linksto \protid{B}$ provided that the following conditions are met: (1) all identifiers other than $\protid{A}$ and $\protid{B}$ are different (i.e., $\protidset{A} \cap \protidset{A}^\prime = \emptyset$ and $\protidset{B} \cap \protidset{B}^\prime = \emptyset$); and (2) the eavesdropper observes no other identifiers for protocols $A$ and $B$ at either time/position.
+
+We argue that $\protid{A}$ and $\protid{B}$ must indeed have been transmitted by the same device. Because of condition (2) we know that at time $t_1$ $\protid{A}$ must correspond to one of the identifiers in $\protidset{B} \cup \{ \protid{B} \}$; and at time $t_2$ it must correspond to one of the identifiers in $\protidset{B}^\prime \cup \{ \protid{B} \}$. Since $\protidset{B} \cap \protidset{B} = \emptyset$ (per condition (1)), $\protid{A}$ must therefore correspond to $\protid{B}$. \wl{Ok. Something fishy going on here. I'm implicitly assuming that we're catching all identifiers. If we didn't, we might catch one more protocol $A$ identifier that appears in both observations, and then not know which one of those two link to $\protid{B}$. I'm not 100\% happy with the explanation so far.}
+
+\paragraph{Rule 5: multiple devices, new device, inter protocol.} Rule 5 links two identifiers $\protid{A}$ and $\protid{B}$ for protocols $A$ and $B$ if they appear together, while all other devices stay the same. Concretely, let $\protidset{A}$ and $\protidset{B}$ be the identifiers observed for protocols $A$ and $B$ at time $t_1$ and position $\pos_1$. And let $\protidset{A} \cup \{ \protid{A} \}$ and $\protidset{B} \cup \{ \protid{B} \}$ be the identifiers observed at time $t_2$ and position $\pos_2$. Then rule 5 concludes that $\protid{A} \linksto \protid{B}$ under the condition that the eavesdropper observes no other identifiers for protocols $A$ and $B$ at either time/position.
+
+We argue that $\protid{A} \linksto \protid{B}$. By design, identifier $\protid{A}$ corresponds to a device that was not present at time $t_1$ and position $\pos_1$. Similarly for $\protid{B}$. Since by our condition no other devices are present, therefore $\protid{A} \linksto \protid{B}$.
+
+\paragraph{Rule 6: multiple devices, disappearing device, inter protocol.} Rule 6 links two identifiers $\protid{A}$ and $\protid{B}$ for protocols $A$ and $B$ when they disappear together while all other devices stay the same. Concretely, let $\protidset{A} \cup \{ \protid{A} \}$ and $\protidset{B} \cup \{ \protid{B} \}$ be the identifiers observed for protocols $A$ and $B$ at time $t_1$ and position $\pos_1$. And let $\protidset{A}$ and $\protidset{B}$ be the identifiers observed at time $t_2$ and position $\pos_2$. Then rule 5 concludes that $\protid{A} \linksto \protid{B}$ under the condition that the eavesdropper observes no other identifiers for protocols $A$ and $B$ at either time/position. (The same argument of correctness applies as for rule 5, but now applied in reverse.)
+
+\subsection{Elimination phase}
+
+After linking some identifiers between protocols, it might be possible to simplify previous observations, enabling new rules to apply. Consider for example the observation in box 6 in \cref{fig:ex-linking}. Without other information, the observer cannot decide whether $\{ \protidname{A}{1} \linksto \protidname{B}{1}$, $\protidname{A}{3} \linksto \protidname{B}{3} \}$ or $\{ \protidname{A}{1} \linksto \protidname{B}{3}, \protidname{A}{3} \linksto \protidname{B}{1} \}$. However, after concluding that $\protidname{A}{1} \linksto \protidname{B}{1}$ we must conclude $\protidname{A}{3} \linksto \protidname{B}{3}$. The elimination generalizes this approach so we can reuse existing rules.
+
+Elimination applies to all rules that consider multiple protocols (rules 2 -- 6). Instead of considering the base observations of identifier sets $\protidset{A}$ and $\protidset{B}$ at a single time $t$ and position $\pos$, the protocol removes all previously linked identifiers that appear in both sets. As a result, rules that previously didn't apply, might now apply.
+
+
+\begin{itemize}
+ \item Rule 2: As we saw in the example above, removing already linked identifiers could enable rule 2 to now single out a device.
+ \item Rule 3: 
+\end{itemize}
+
+\begin{figure*}
+    \input{images/linking_rules_elimination}
+    \vspace{-5mm}
+    \caption{\label{fig:rules-elimination} Graphical representation of rules and an example of how elimination helps these rules to apply.}
+\end{figure*}
+
+\subsection{Reconstructing Traces}
+
+\textbf{TODO TODO TODO}
+
+
+
+

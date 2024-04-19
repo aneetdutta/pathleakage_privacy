@@ -1,0 +1,43 @@
+\section{Privacy Measurement of a device}
+
+In order to quantify the location privacy of any device, we consider the generic definition of privacy \cite{reza_loc} i.e., the adversary's expected error. 
+
+\begin{definition}
+    The privacy of any device is inversely proportional to the adversary's expected error.
+\end{definition}
+
+The two important factors for quantifying location privacy in wireless communication protocols are the accuracy of localizing the device and the time interval of randomizing the identifiers. To understand it clearly, if any device can be localized with high accuracy and the identifier is static then it can always be tracked. However, if any device even if it can be localized with high accuracy but randomizes the identifiers at faster rate, then it will be difficult to track considering the mobility of different users and density of other user devices in that region.
+
+Therefore, the privacy of any device for a particular protocol can be modeled by the accuracy of localizing the device and timing of randomizing the identifiers. The error of localizing the device for any particular protocol is denoted as $\Delta D$ in this work, and time interval between two randomized identifier for a same device is denoted as $\Delta T$. Higher the error of localization and faster the rate of randomization of the identifiers, user-tracking will be more difficult because localization error will lead to localize multiple devices within the same radius of localization and with faster randomization rate of the identifiers it will be difficult to keep track if any identifier belongs to the same device or it is a new device in that region. 
+
+\begin{definition}
+The privacy of any communication protocol is inversely proportional to the error of localization of the device for that particular protocol and the timing interval of randomized identifiers. Mathematically, privacy($p$) of a particular protocol can be denoted as,
+\begin{equation*}
+    p_{prot}\propto \frac{1}{\Delta D. \Delta T}
+\end{equation*}\label{def:privacy}
+\end{definition}
+
+From definition \ref{def:privacy} the privacy of any particular communication protocol can be measured.
+However, the communication protocols are simultaneously used by any device depending upon the user behavior. Considering the user behavior pattern nowadays, the user uses all the communication protocols simultaneously in a device for different use cases. Therefore, in order to measure the privacy of a device, all the communication protocols must be considered together instead of analyzing them individually.
+
+In any device, the deployed communication protocols functions individually. The randomization of identifiers happens at different time instances for different protocols. Therefore, if any passive observer can localize the device with high precision for all the communication protocols and knows the current identifiers, then when an identifier of a single protocol gets randomized, the observer can map the newly randomized identifier to the old one because the identifiers of the other communication protocols remains unchanged. Therefore, even if a particular communication protocol randomizes their identifiers at quick intervals but if the other protocols identifiers remains static still the user-tracking will be possible. This correlation among the identifiers of different protocols is the key insight to measure the privacy of the device as a whole rather than considering each protocols individually.
+
+Therefore, we extend our definition of privacy of any device from definition \ref{def:privacy} where the privacy of any device is measured by combining the privacy of individual protocols. The privacy of the entire device will depend upon the error of localization of the protocol which is maximum because that will give the granularity of identifying the device. Also, the privacy of the device will depend upon the time duration for which an identifier of the protocol is active because that identifier can be used as a reference point to keep track of the other randomized identifiers.
+
+\begin{definition}
+The privacy of a device is inversely proportional to the maximum localization error achieved among all the communication protocols and the communication protocol having the largest timing interval between two randomized identifiers.
+\begin{equation*}
+    p_{dev}\propto \frac{1}{\Delta D_{max}. \Delta T_{max}}
+\end{equation*}\label{def:privacy_device}
+\end{definition}
+
+The higher localization error($\Delta D$) will lead to observer thinking multiple devices to be present in the same radius. The number of devices will decrease with decrease in the error of localization.  Therefore, the privacy of a device directly depends upon the number of devices present within the radius of the error of localization. Let us denote the number of devices present within the radius of the error of localization as $\Delta n$.
+
+\begin{definition}
+    The privacy of a device at particular time instance $t$ is directly proportional to the number of devices present with the error margin during the time period for which it has atleast one of the identifiers unchanged($\Delta T)$. Therefore, the definition of the privacy can be extended from definition \ref{def:privacy_device} as follows
+\begin{equation*}
+    p_{dev}\propto \frac{\Delta n}{\Delta D_{max}. \Delta T_{max}}
+\end{equation*}\label{def:privacy_loc}
+\end{definition}
+
+In the following section, we will discuss our attacker strategy and how user-tracking can be possible under what scenario and conditions must be satisfied. In our model of privacy definition, we do not consider any auxiliary information present to the adversary.

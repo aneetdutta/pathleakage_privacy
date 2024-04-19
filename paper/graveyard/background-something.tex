@@ -1,0 +1,86 @@
+% \section{Background}
+
+
+% randomized identifer
+% why security
+% why privacy presetving technique
+% randomization of idenitifier to protect privacy
+% dp 3t
+% stanards
+% \subsection{Bluetooth}
+
+% A Bluetooth device communicates with the help of the 2.4 GHz ISM band. In 2010, with the introduction of Bluetooth Low Energy (BLE) in Bluetooth 4.0, BLE devices can operate with less power and consume fewer resources. BLE devices are also cheaper and easier to manufacture. With Bluetooth 5.0, various features and performance improvements were added specifically to a larger device communication range.
+
+% As a result of BLE technology, devices can utilize temporary, randomized addresses for broadcast communications. This enhances user privacy by avoiding the constant transmission of a device's actual, fixed address \cite{bluetoothprivacy}. In terms of privacy protection, the manufacturers are responsible for determining how much protection is provided. As BLE technology is especially suited for low-energy devices, such as wearables, the implementation of these privacy features is crucial, especially since these devices carry sensitive data about the user and are thus prime targets for tracking. In \cite{tracking_ble}, the authors have exposed vulnerabilities in BLE's address randomization where they showcased how the devices could be tracked beyong their randomization cycles. Moreover, they proposed an address carryover algorithm which exploited the asynchronous nature of MAC address randomization while extracting unique identifier tokens from the BLE data. This enabled them to track the mobile devices by just observing the BLE advertisement packets.
+
+% In BLE, 40 physical channels are spaced at 2 MHz intervals between 2402 MHz and 2480 MHz. Of these channels, there are three advertising channels at 2402 Mhz, 2426 Mhz, 2480 Mhz which interfere at minimal with the Wifi traffic of 2.4 GHz band \cite{bluetooth5}.
+
+
+
+
+% \subsection{Wifi}
+
+% With over billions of devices connected to the internet and to each other through WiFi technology (IEEE 802.11 standard), applications have reached every corner of our lives. Wifi connections can be established by active or passive discovery between devices and access points (APs). During the passive discovery, the AP makes itself known through periodic transmission of beacons messages that contain important information like the SSID, MAC address, etc. During the active discovery, the devices send probe requests to find the previously associated APs. The probe requests are broadcasted to the devices with an empty wildcard SSID field. The APs that receive this probe requests, would respond with the probe response back to the sender. The probe response has SSID of the AP along with various other information parameters \cite{10.1007/978-3-031-09234-3_19}. The downside of broadcasting the probe requests is that it makes the identity information trackable to any eavesdropper in the vicinity. To safeguard the privacy, the device manufacturers deploy the Media Access Control (MAC) address randomization technique in order to prevent the user tracking \cite{macrandom}.
+
+% A MAC Address, a layer-2 hardware identifier is found in 6 bytes hexadecimal notation. The first 3 bytes are the Organizationally Unique Identifier (OUI) for the device manufacturers and the last 3 bytes are used to identify the Network Interface Controller (NIC) that is produced by the manufacturer. With MAC Randomization in practise, the probe requests no longer utilize the actual MAC Address of the device. Instead a new MAC address is used for every scan iteration that consists of employing probe requests across all usable channels. Nearly every device including Apple, Windows and Android uses their own MAC Randomization schemes since no standard specification exists. In Android, MAC Randomization scheme is implemented based on two types: persistent randomization \& non-persistent randomization \cite{android}.
+
+% Persistent randomization is the default type of MAC randomization feature that is enabled in the device as factory setting. The persistent randomized MAC address contains network profile parameters like the SSID, FQDN, security type, etc. Due to this, the MAC address failed to re-randomize itself if the user reinitializes the saved Wifi network. This feature could be useful where the networks tend to depend on the MAC address persistence like parental controls, etc. While persistent randomization is used in Android 10 \& 11, the non-persistent randomization is used for Android 12 and higher version. Here, the MAC address is re-randomized by the Wifi module when the connection is reinitialized. The  Wifi module could re-randomize the MAC address if the DHCP lease duration expires or the device has been disconnected from the network for more than four hours or it has been 24 hours since last MAC randomization.
+
+
+
+% \subsection{LTE}
+
+
+
+% LTE is the most common and widely used cellular technologies used for communication. In order to ensure constant connectivity of the device to the internet, the LTE utilizes various networks components deployed across multiple geographical locations as provided below.
+
+% \subsubsection{4G \& 5G NSA components}
+% LTE network mainly consists of a Radio Access Network (RAN) which typically involves base stations called the evolved Node B (eNodeB) and the evolved packet core (EPC) that enables operations and coordination between various RAN, thereby ensuring smooth handover and user mobility. In the context of 5G networks, the 5G NSA (non-stand-alone) mode can be used interchangeably with the LTE technology as the control plane that co-ordinates the radio-specific functionality remains the same. Thus, in 5G NSA, the control plane messages between the UE and the core network transact through the LTE base station. Unlike this, in 5G SA (stand-alone) mode, the control plane messages are routed through the gNodeBs that operate on the NR wireless protocol \cite{10.1145/3495243.3560525}. In this paper, we focus mainly on the LTE \& 5G-NSA privacy leakage attacks. Specifically, we focus on the control plane messages on layer two (MAC) and layer three (RRC) for our use-case.
+
+% \subsubsection{LTE Identifiers}
+% Whenever, UE communicates with the base station to establish connection through layer two and layer three, different identifiers are exchanged between the eNodeB and UE. These identifiers play important role in analysing the privacy of the communication protocols. If the identifiers used for communication are not cryptographically secure, static or can be traced then they do not provide guarantee against privacy leakage and the device can be tracked. In the following section we describe about the identifiers of LTE protocols considered in our work. 
+% \begin{enumerate}
+%     \item \textbf{IMSI:} IMSI is a $15$-digit number that uniquely identifies a device in a cellular network. IMSI numbers are globally unique and is unique for each SIM card. Therefore, if an attacker gets to known the IMSI of a device and can continuously acquire it then a device can be tracked indefinitely.
+%     \item \textbf{TMSI:} TMSI (Temporary Mobile Subscriber Identity) is proposed as an alternative to the IMSI. Since, IMSI is unique for every device globally therefore it can be used for tracking a device. TMSI on the other hand is a temporary identifier which is unique for a particular enodeB. and is changed after regular intervals to prevent tracking. In the context of LTE, TMSI is often used interchangeably with M-TMSI as identified uniquely within the same MME. Also, the GUTI (Globally Unique Temporary ID) comprises of M-TMSI.
+%     \item \textbf{C-RNTI:} C-RNTI (Cell Radio Network Temporary Identifier) is an identifier at the MAC layer layer of the LTE protocol. C-RNTI is issued by enodeB to UE. C-RNTI is unique for every device connected to a particular enodeB.
+% \end{enumerate}
+
+% \subsubsection{Procedures}
+% Since, LTE features constant connectivity, various procedures related to initial connection setup, handover or link failure are utilized depending upon the situation. In this section, we will briefly look into these procedures and their related layers \& identifiers.
+
+
+% % are implemented in LTE for connection setup, connection reestablishment and connection reconfiguration which are invoked in different times depending upon different scenarios. Initially, when an UE initializes the connection and tries to establish the connection with the base station, RRC connection setup procedure is invoked and connection is established between the enodeB and the UE. But certainly specially in indoor situation, due to varied signal strength and other issues radio-link failure is a common phenomenon. Whenever, the radio-link failure happens UE device initiates an RRC reestablishment connection. Considering the mobility of the smartphone devices, handover is an important phenomenon in LTE communication protocol where the connection of UE device changes from one eNodeB to another on the basis of signal strength.
+
+
+% \paragraph{Initial Connection Setup}
+% {When the UE or the user device powers on, it initially searches for the nearest base station and tries to connect to it. It utilizes the synchronization signal block (SSB) from base station for downlink synchronization and primary random access channels for synchronization of uplink frames with the base station. After the synchronization is completed, it uses the Radio Resource Control protocol for connection establishment. It follows the contention resolution method for its initial connection. Here, three way handshake takes places where UE first sends RRC Connection Setup Request to the eNodeB, to which eNodeB responds with RRC Connection Setup and UE finally provides RRC Connection Setup Complete message to the eNodeB. As per the ETSI \cite{3gpp136331}, the RRC Connection Setup Request could contain either TMSI value or a random value in range of $0 … 2^{40}-1$. The RRC Connection Setup Complete Request whereas contains the TMSI value. Moreover, the messages on MAC Layer communicate C-RNTI values. After the RRC communication completes, the NAS attach procedure is invoked.}
+
+% \paragraph{Radio Link Failure}
+% {RRC Connection Reestablishment request is sent by the UE to the enodeB whenever radio-link between UE and enodeB fails for some reason. As stated in the standards \cite{3gpp136331}, the RRC Connection Reestablishment procedure takes place majorly when the radio link failure, handover failure, or the reconfiguration failure is detected. In RRC Connection Reestablishment phase, UE initially sends RRC reestablishment request with a new C-RNTI value to enodeB during instantiation. \cite{3gpp136331} states that the ue-Identity shall use the C-RNTI of the source primary cell during the failure. This C-RNTI is the old C-RNTI used during the previous contention resolution setup between UE \& eNodeB. Followed by the RRC Connection reestablishment request, the enodeB sends the RRC Connection reestablishment packet to the UE confirming the reestablishment if the UE context is correctly resolved. Finally the RRC Connection reestablishment complete message is sent by UE to enodeB.}
+
+% % To give the context to the enodeB about its already existing connection which is broken, in the same request UE also send its old C-RNTI value for UE context resolution to the enodeB. 
+
+% \paragraph{Intra-cell Handover}
+% During the intra-cell handover, the UE switches from one sector to another sector within the same cell or the eNodeB. To facilitate the handover smoothly, the RRC Connection Reconfiguration message command is used. 
+% RRC Connection Reconfiguration is the only message that is used to perform all physical, logical and transport channel configurations adhering to the Handover, resource measurements and NAS information. During the handover, UE initially provides its capability information to the base station. Upon receiving the information, the eNodeB sends the RRC Connection Reconfiguration message to the UE. The RRC Connection Reconfiguration message is again a plaintext message which includes the new UE-Identity (specifically the next C-RNTI value which would be assigned to it). Also, if the TMSI value changes, then the new TMSI value is also shared as a part of the reconfiguration message specific to this scenario. Once the RRC Connection Reconfiguration is completed, the UE and eNodeB communicate with the new C-RNTI value. Nevertheless if there is any link failure, the RRC Connection Reestablishment messages are invoked as seen earlier.
+
+
+% \subsubsection{Privacy Concern}
+% The frequency of the RRC Connections typically depend upon the linkability conditions between the UE \& eNodeB. Since the layer one (PHY), layer two (MAC) and layer three (RRC) are in plaintext, and are widely unprotected in nature, they constitute higher level of privacy concern. Moreover the identifiers exchanged can be eavesdropped by any malicious entity to track or identify the user within the network. 
+
+% 1. Discuss about the role of different identifiers in the following connections.
+% 2. MAC Layer and Physical layer communicates in plain-text.
+% 3. Frequency of the connections occured.
+% 4. Privacy attack.
+
+% \subsection{RRC Connection Setup}
+
+% RRC Connection setup is the initial connection between UE and enodeB. Firstly, UE sends Random Access Request(RAR) to the enodeB for the initiation of the connection. In response to it, enodeB sends a random access response to the UE containing the C-RNTI identifier. In the following step the UE sends an RRC connection request packet containing the TMSI of the UE. Finally, enodeB responds with a RRC connection setup complete message containg both the TMSI and C-RNTI at the same message.
+
+% \textbf{TOdo: Include figure}
+
+% \subsection{RRC Reestablishment Request}
+
+% RRC reestablishment request in sent by the UE to the enodeB whenever radio-link between UE and enodeB fails for some reason. In RRC reestablishment phase, first UE sends and RRC reestablishment request with a new C-RNTI value to enodeB for connection instantiating. To give the context to the enodeB about its already existing connection which is broken, in the same request UE also send its old C-RNTI value for UE context resolution to the enodeB. Followed by the RRC reestablishment request, the enodeB sends the RRC reestablishment packet to the UE confirming the reestablishment if the UE context is correctly resolved and finally RRC resstablishment complete request packet is sent from UE to enodeB.
+
+% \subsection{RRC Reconfiguration Request}

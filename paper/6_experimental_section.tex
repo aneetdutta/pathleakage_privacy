@@ -1,0 +1,262 @@
+\section{Experimental Analysis}
+We conducted several experiments to understand the feasibility of our attack. We conducted thorough experiments for different devices for the mentioned communication protocols to understand the parameters($\Delta D$ and $\Delta T$) in order to measure the privacy level of the devices. Finally, we demonstrate the linkability within the LTE identifiers that reduces the value of $\Delta n$ making the privacy leakage attack more feasible.
+
+\subsection{Overview}
+
+The experimental section tries to answer the following question.
+
+\begin{enumerate}
+    \item \textbf{How do precision of distance measurement effect attacker's success in user-tracking?}\\
+    The performance of the attack is highly dependent on how well the attacker can precisely locate a device. The precise location will enable the adversary to identify the identifiers of a particular device and carry out tracking. For WiFi and Bluetooth we can locate a device within an error range of $\pm 1$ meter with a precision of $98.3\%$. For LTE, the error of localization is around $20$ meter. 
+    \item \textbf{How frequently the observed identifiers are randomized?}\\
+    According to our observation from the experiment data, the WiFi MAC address remains same when scanning for a particular network. When the device tries to connect to another network then MAC address is randomized. There are certain devices where by default the randomized MAC address option is not enabled and broadcasts with the original MAC address of the device. The MAC address of Bluetooth is not randomized in most of the devices without having a setting in most devices where we can turn ON the randomization of Bluetooth MAC addresses from setting unlike WiFi. In LTE the randomization of identifiers happens based on different scenarios. But, the linkability within the LTE identifiers helps in tracking. 
+    \item \textbf{How frequently the adversary can observe the identifiers?}\\
+    The ability to track any device by the adversary depends upon the frequency at which any device transmits information to the adversary. Therefore, it is necessary to measure how frequently this identifiers are being transmitted by the devices. WiFi probe requests are being transmitted even after a device gets connected to the access point. LTE identifiers are transmitted based on different scenarios and whenever the identifier is randomized, RRC connections are sent and the identifiers can be linked with the previous one.
+\end{enumerate}
+
+
+\subsection{Real-world Experiments}
+\textcolor{red}{This is where we confirm and make device model explicit. Show that things work in the lab}
+
+\subsection{Simulated Tracing Evaluation}
+\textcolor{red}{This is where we show that applying the algorithm to simulated user movement patterns recovers large amounts of their movement traces. (Wishful thinking)}
+    
+   
+    
+    
+
+
+
+
+
+\subsection{Experimental Evaluation}
+\subsubsection{Experimental Setup}
+
+ To evaluate our attack practically, we used the following setup as shown in Fig \ref{setup}.\\
+
+% Exp Setup diagram here
+
+ \paragraph{UE:}{Multiple UEs were used during the experimental evaluation. For testing purposes of LTE, Sysmocom based programmable sim cards, which are ETSI/3GPP compliant were used.}
+
+ \paragraph{Base Station:}{The LTE eNodeB setup was implemented on srsRAN 4G, an open source cellular platform\cite{srsran}. USRP B210 was used as RF-Frontend. The srsRAN tool-kit was deployed on Ubuntu 22.04 platform featuring an 11\textsuperscript{th} Gen Intel Core i5 CPU and 16GB memory. Alternatively, we utilized entry grade version of Amarisoft Callbox to collect and verify our results.}
+
+ \paragraph{Sniffer:}{The Sniffer is based on \cite{ltesniffer}. Additionally, few more functionalities have been wrapped over it to suit our use-case. The code used is primarily based on srsLTE\cite{srsran}. For our purpose, we used an USRP X310 with 2 UBX-160 as the RF-Frontend to the sniffer. The WiFi and Bluetooth packets are captured in host PC with wireshark running.}
+
+ \paragraph{Core:}{The core network used is based on Open5GS\cite{open5gs} as it would support 4G as well as 5G NSA use-cases. It is connected to the srsRAN eNodeB setup for facilitating the core services with the RAN network.}
+
+% % \paragraph{Configuration:}{
+% % The srsRAN 4g eNodeB ran on Band 3 (FDD) with PLMN as the test network
+% % }
+
+Following the experimental setup, we evaluate the privacy of different communication protocols to answer the following questions.
+
+\subsubsection{Q1. How do precision of distance measurement effect attacker’s success in user-tracking?}
+
+\textbf{WiFi and Bluetooth}.\\
+
+In this section, we demonstrate the application of RSSI-based distance estimation to facilitate the localization of mobile devices. The Received Signal Strength Indicator (RSSI) is a measurement of the power present in a received radio signal. However, RSSI values for WiFi and Bluetooth cannot be directly compared due to the differences in signal strength inherent to the two technologies. WiFi signals are typically stronger and therefore can have higher RSSI values compared to Bluetooth signals, even at the same distance from the receiver. This discrepancy in scale requires a conversion of RSSI to a common metric which, in our case, is distance.
+
+In order to estimate the distance between devices within a building or densely populated area, our research employs the log-distance path loss model. This radio propagation model is designed to predict the path loss of a signal as it travels through space, accounting for the effects of various obstructions and environmental factors. Unlike the results obtained by Longo et al. \cite{Longo2018PairingWA}, who utilized the same fundamental formula, our methodology achieves greater accuracy in
+distance readings. This enhancement stems from fine-tuning of the path loss exponent and conducting a comprehensive set of measurements to calibrate the model to our specific environment and device characteristics.
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/log_bluetooth.png}
+  \caption{Bluetooth RSSI vs. Distance with Logarithmic Regression}
+  \label{fig:log_ble}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/log_wifi.png}
+  \caption{WiFi RSSI vs. Distance with Logarithmic Regression}
+  \label{fig:log_wifi}
+\end{figure}
+
+Figure \ref{fig:log_ble} and Figure \ref{fig:log_wifi} provide a visualization by plotting Bluetooth RSSI and WiFi RSSI against actual distance with a logarithmic regression fit. The logarithmic regression provide a mathematical model of how the RSSI values decay over distance, smoothing out
+fluctuations in the data to show a clear trend. These graphs allow us to:
+\begin{itemize}
+    \item Predict RSSI at unmeasured distances: The model can estimate RSSI values at distances that were not directly measured.
+    \item Compare Device Performance: It allows us to compare the rate of signal decay across different devices more systematically.
+    \item Identify Anomalies: Deviations from the model can highlight environmental factors that infer with the data capturing.
+\end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/distance_vs_rssi.png}
+  \caption{RSSI measurement with respect to distance}
+  \label{fig:rssi_dist}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/distance_vs_distance.png}
+  \caption{Measured distance with respect to actual distance}
+  \label{fig:dist_dist}
+\end{figure}
+
+While the majority of our measurements conform to the expected trend of decreasing RSSI values with increasing distance, there are occasional anomalies. A few measurements depicted in Figure \ref{fig:rssi_dist} showcase an atypical behavior where the RSSI does not decline as distance grows, leading to inaccurate distance estimations. These irregularities, however, are outliers within our
+dataset and do not significantly impact the overall analysis due to the volume of measurements taken for each distance measurement.
+
+Figure \ref{fig:dist_dist}, demonstrates the calculated distance with respect to the actual distances, for both protocols of each device, depicting the accuracy of the RSSI-to-distance conversion algorithm. Although deviations from the ideal are present, they are mostly within an acceptable range of $1$ meter, validating the applicability of this method for distance estimation.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/wifi_ble_result.png}
+  \caption{Accuracy of localization of devices based on RSSI}
+  \label{fig:dist_acc}
+\end{figure}
+
+Figure \ref{fig:dist_acc} shows that we are able to achieve distance estimations with a precision of $98.13\%$ for distances up to $6$ meters with an error range of $1$ meter.
+
+\textbf{LTE}\\
+
+\subsubsection{Q2. How frequently the observed identifiers are randomized?}
+
+
+
+\subsubsection{Q3. How frequently the adversary can observe the identifiers?}
+
+
+\begin{figure*}[!htb]
+  \includegraphics[width=\textwidth]{images/RRC_Capture.pdf}
+  \caption{}
+  \label{fig:rrc_capture}
+\end{figure*}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/Wifi_Capture.pdf}
+  \caption{}
+  \label{fig:wifi_capture}
+\end{figure}
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/Bluetooth_Capture.pdf}
+  \caption{}
+  \label{fig:bluetooth_capture}
+\end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=\columnwidth]{images/RRC_Capture.pdf}
+%   \caption{}
+%   \label{fig:dist_acc}
+% \end{figure}
+
+% To evaluate our attack practically, we used the following setup as shown in Fig \ref{setup}.\\
+
+% Exp Setup diagram here
+
+% \paragraph{UE:}{Multiple UEs were used during the experimental evaluation. For testing purposes, Sysmocom based programmable sim cards, which are ETSI/3GPP compliant were used.}
+
+% \paragraph{Base Station:}{The LTE eNodeB setup was implemented on srsRAN 4G, an open source cellular platform\cite{srsran}. USRP B210 was used as RF-Frontend. The srsRAN tool-kit was deployed on Ubuntu 22.04 platform featuring an 11\textsuperscript{th} Gen Intel Core i5 CPU and 16GB memory. Alternatively, we utilized entry grade version of Amarisoft Callbox to collect and verify our results.}
+
+% \paragraph{Sniffer:}{The Sniffer is based on \cite{ltesniffer}. Additionally, few more functionalities have been wrapped over it to suit our use-case. The code used is primarily based on srsLTE\cite{srsran}. For our purpose, we used an USRP X310 with 2 UBX-160 daugherboards as the RF-Frontend to the sniffer.}
+
+% \paragraph{Core:}{The core network used is based on Open5GS\cite{open5gs} as it would support 4G as well as 5G NSA use-cases. It is connected to the srsRAN eNodeB setup for facilitating the core services with the RAN network.}
+
+% % \paragraph{Configuration:}{
+% % The srsRAN 4g eNodeB ran on Band 3 (FDD) with PLMN as the test network
+% % }
+
+
+% \subsection{LTE Privacy Leakage attack}
+
+% For the privacy leakage attack, the sniffer was placed between the UE and the eNodeB. The experiment was conducted with two UEs mainly OnePlus Nord and Sony Xperia Z device. For the experimental purpose, we test mainly 3 major scenarios: RRC connection establishment, link failure and handover.
+
+% \subsubsection{Scenario \#1: RRC Connection Establishment}
+
+% During the initial random access channel(RACH) procedure, the UE and eNB exchange the preamble and the response messages to facilitate uplink synchronization. As shown in Fig. \ref{fig:connectionsetupcallflow}, after RACH is completed, the RRC Connection Establishment procedure takes place. However, since it is in plain-text, the attacker can sniff the communication passively and sniff the identifiers exchanged during the communication. 
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/connectionsetup_callflow.pdf}
+%     \caption{RRC Connection Establishment Callflow}
+%     \label{fig:connectionsetupcallflow}
+% \end{figure}
+
+% In \cite{breaking_layer_two}, an Identity Mapping Attack was executed, exploiting the connection based resolution of the RRC Connection Setup. The layer two identifier C-RNTI was mapped with the layer three identifier TMSI.
+% As shown in Fig. \ref{fig:connectionsetup}, the RRC Connection Setup Complete request (highlighted in blue) contains the M-TMSI value and the C-RNTI value as highlighted in green color.
+
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/connectionsetup.pdf}
+%     \caption{RRC Connection Setup Complete Packet}
+%     \label{fig:connectionsetup}
+% \end{figure}
+
+
+% \subsubsection{Scenario \#2: Link Failure}
+
+
+% As shown in the Fig \ref{fig:rrcreestablishmentcallflow}, the sniffer is passively collecting the data between the UE and eNodeB (eNB). It is able to track the user based on the TMSI and C-RNTI values as seen in Scenario \#1. Now, considering the probable scenario where link disruption takes place between the UE and eNB. This is when the UE detects the link failure corresponds a 3 way handshake (highlighted in orange) where RRC Connection Reestablishment Request made by the user (UE) to the eNB, followed by the RRC Connection Reestablishment by the eNB to the UE, and RRC Connection Reestablishment Complete by the UE to the eNB. As stated in the standards \cite{3gpp136331}, the RRC Connection Reestablishment procedure takes place majorly when the radio link failure, handover failure, or the reconfiguration failure is detected. 
+
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/rrcreestablishment_callflow.pdf}
+%     \caption{Link Failure Scenario}
+%     \label{fig:rrcreestablishmentcallflow}
+% \end{figure}
+
+% As shown in Fig \ref{fig:rrcreestablishmentrequestpacket}, the RRC Connection Reestablishement Request contains its own new C-RNTI in layer two (MAC) as well as the old C-RNTI in form of UE-Identity at layer three (RRC). This helps to link the new MAC layer identifier with the old MAC layer identifier leading to a chain of identifier linkability. Even during the link failure, the user's identity is still getting compromised due to the linkability established during the RRC Connection Reestablishment messages.
+
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/linkfailure.pdf}
+%     \caption{RRC Connection Reestablishment Request Packet}
+%     \label{fig:rrcreestablishmentrequestpacket}
+% \end{figure}
+
+
+% \subsubsection{Scenario \#3: Intra-cell Handover}
+
+% During the intra-cell handover, we experience two different use-cases which were 
+% \begin{enumerate}
+%     \item RRC Connection Reconfiguration - C-RNTI linkability
+%     \item RRC Connection Reconfiguration - TMSI linkability
+% \end{enumerate}
+
+% These two scenarios are described as follows:
+
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/rrcreconfiguration_callflow.pdf}
+%     \caption{RRC Connection Reconfiguration Procedure}
+%     \label{fig:reconfiguration}
+% \end{figure}
+
+% \paragraph{C-RNTI Linkability}{
+% During this phase, the handover happened smoothly between the eNBs. After UE capability information was sent by UE to eNB, the eNB sent RRC Connection Reconfiguration message as shown in Fig \ref{fig:reconfiguration}. However, as we see in Fig \ref{fig:handover}, the RRC Connection Reconfiguration message contains the old C-RNTI in its layer two and the newUE identity as C-RNTI is placed in layer three. Since this message leads to linkage between old C-RNTI and new C-RNTI, the user can be identified even after handover takes place.
+% }
+
+
+% \begin{figure}[!htb]
+%     \centering
+% \includegraphics[width=1.1\linewidth]{images/reconfiguration.pdf}
+%     \caption{Handover Scenario}
+%     \label{fig:handover}
+% \end{figure}
+
+
+
+% \paragraph{TMSI Linkability}{
+% During this phase, the handover happened in rough fashion. The RRC Connection Reconfiguration took place during the handover. However, due to the link failure during the transition, RRC Connection Reestablishment messages and its handshake was also observed. During the RRC Connection Reconfiguration, we observed that the new TMSI value was allocated by the eNB to the UE, and the C-RNTI was kept same as the old one. This helps to connect the old C-RNTI with the new TMSI value where old C-RNTI was already linked with the old TMSI value. This handover scenario thus led to indefinite linkage from TMSI to C-RNTI to TMSI again.
+% }
+
+
+
+
+% \section{Discussions}
+
+
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\linewidth]{images/identifier_lte.pdf}
+%     \caption{Caption}
+%     \label{fig:enter-label}
+% \end{figure}
+

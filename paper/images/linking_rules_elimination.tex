@@ -1,0 +1,19 @@
+
+
+\newcommand{\aset}[2]{\ensuremath{\begin{array}{c} #1 \\[2mm] #2 \end{array}}}
+
+
+\begin{tikzpicture}
+
+\matrix (m) [column sep=25mm, row sep=10mm] {
+
+\node (t1) {\aset{ \protidset{A} \cup \{ \protid{A} \} }{ \protidset{B} }};
+\node [right=of t1] {\aset{ \protidset{A} \cup \{ \protidname{A}{\prime} \} }{ \protidset{B} }};
+&
+\node (t4) {Wouter};
+&
+\node (t5) {Sylvain}; \\
+%  & \tset{\ida{1}, \ida{2}}{\idb{1}, \idb{2}}
+};
+
+\end{tikzpicture}

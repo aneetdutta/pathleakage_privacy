@@ -1,0 +1,193 @@
+
+\section{Privacy Leakage}
+
+\subsection{Overview}
+
+The two main components of the user-tracking by the attacker is $(1)$ user localization and $(2)$ correlation among different identifiers. The first building block of user-tracking is the localizing the device with maximum precision by measuring the distance between the sniffer. In the user localization phase, the sniffer sniffs the transmitted packets between the UE and the access points/ base stations and calculates the distance from the sniffer for all the three communication protocols separately. With higher precision of distance measurement from the device, for all the three communication protocols the  distance measured will be same. We can correlate this three protocols on the basis of the distance measurement considering the assumption that every device is at an unique distance from the sniffer when the precision of distance measurement is high.
+
+The identifiers sniffed by the adversary must be attached to a device for performing user-tracking. The identifiers for a device are correlated with the help of localization of the device. At first, the distance are measured by the adversary from the signals received for each protocols along with their identifiers.  For correlation among the protocols of the device, the distance measured for each protocols must be equal. Ideally, for binding the identifiers to a device at time instance $t$ the following equation must hold, where $d_{x}$ is the distance of the device from the adversary for a particular protocol $x$.
+\begin{equation}
+    d_{WiFi}\approx d_{BT} \approx d_{LTE}
+\end{equation}\label{eqn:distance}
+
+However, the in a real-world scenario the correlation is not as straight forward as described in equation \ref{eqn:distance} due to the different accuracy achieved while distance measurement for different protocols. Therefore, the accuracy of binding the identifiers to any particular device depends upon the density of the devices present within the error range of distance measurement as described in definition \ref{def:privacy_loc}.
+
+Once, the identifiers are attached to a particular device, the correlation among the identifiers for that device can be performed because different identifiers are randomized at different times. At each time instance $t$, the devices must be localized and the set of identifiers from different protocols must be attached to the particular device, followed by  mapping the new identifier to the older one with the help of unchanged identifiers.
+
+
+However, performing continuous user-tracking and compromising their privacy is associated with certain challenges. The following are the challenges for evaluating the privacy of any device as a whole.
+\begin{itemize}
+    \item Localization of devices with high precision for every communication protocols is an important aspect of this evaluation. Therefore, the success of the performing the correlation will depend upon the precision of localizing the device with high precision for every communication protocol. Since, higher precision or accuracy of localizing the device is necessary for every protocol, the ability to correlate between different protocols through localization will be limited to the minimum accuracy obtained for localization for any protocol.
+    \item The frequency of observation of the identifiers must be at a interval such that one of the identifiers remains unchanged for mapping the new identifiers with the help of unchanged one.
+\end{itemize}
+
+
+\subsection{User Localization}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/localization.png}
+  \caption{Localization of devices for different communication protocols}
+  \label{fig:localization}
+\end{figure}
+
+\subsubsection{WiFi and Bluetooth}
+
+In order to localize devices, different techniques are used for different communication protocols based on the localization techniques deployed by the communication protocols and exploit as an passive attacker for measuring the distance from them. For WiFi and Bluetooth, the signal strength of the received signal is measured to calculate the distance of the device. It is well known that signal strength at the receiver follows inverse-square law which can be utilized in converting the signal strength values to distance conversion. However, due to environmental conditions and other factors like antenna attenuation and obstacles reduces the accuracy of error measurement using the inverse-square law directly. 
+
+In order to measure the distance more accurately, techniques like fingerprinting and empirical models are proposed. 
+
+In WiFi6, beam-forming techniques are proposed for user localization since better user localization will lead to better QoS. In such a system , the adversary can even measure the direction of arrival(DoA) of the signals and localize the devices with more precision. 
+
+
+\subsubsection{Distance measurement using Timing Advance Command on LTE}
+
+
+\paragraph{Timing Advance:}
+\begin{figure}[!htb]
+    \centering
+\includegraphics[width=1.0\linewidth]{images/ta.pdf}
+    \caption{Timing Advance}
+    \label{fig:timingadvanceflow}
+\end{figure}
+
+Timing Advance is commonly used command by the eNodeB to control the UE's uplink transmission time. The eNodeB further ensures that the uplink transmissions from all the users are in sync when it receives them. The timing advance command is sent during the Random Access Procedure and further sent by eNodeB as and when the corrections are required. As shown in Fig \ref{fig:timingadvanceflow}, based on the RACH Preamble during the RACH Procedure, the delay is calculated by the eNodeB which in return sends the Random Access Response containing the Timing Advance Command value to synchronize the UE.
+
+In \cite{lttrack}, the timing advance command and the uplink frames as sniffed by the eavesdropper are used to locate the situated UE. This is mainly performed on the assumption that the eavesdropper knows the distance between itself and the base station. This provides the privilege to the eavesdropper to find the uplink transmission frame timings from the UE to the eNodeB with some delay. The paper then utilizes the leaked timing advance command to reduce the error caused due to the uplink transmission frames. Thus by intersecting the elliptical curve caused by the uplink transmission frames and delay and the circle caused by the timing advance, the eavesdropper is able to locate the user accurately.
+
+However, considering the accuracy of localization achieved for Bluetooth, WiFi and LTE it is clear that Bluetooth and WiFi identifiers can easily be correlated based on their distance, but for LTE correlation based on LTE iwill not be straightforward because of the larger error margin of localization. Therefore, for a passive adversary a Bluetooth and WiFi can easily be localized but for LTE there will be multiple identifiers that can be potentially attached to a device at a particular time instance. Therefore, the privacy of identifying a device and performing cross-tracking will depend upon the number of devices that are present within the localization error radius of the LTE.
+
+
+
+
+
+
+\subsection{Temporal correlation between the identifiers}
+
+The temporal correlation between the randomized identifiers is the foundational idea behind this work. The different identifiers associated with different communication protocols is binded with the device through user localization technique. Once the identifiers for different communication protocols are identified for a device the temporal correlation between the identifiers can be exploited because identifiers for different communication protocols for a device are changed at different times. Therefore, if an adversary can localize the device with the changed identifier, it can map the newly changed identifier to the old one by using the unchanged identifiers as a reference point.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/temporal_correlation.png}
+  \caption{Temporal correlation between different identifiers for a particular device}
+  \label{fig:temporal_corr}
+\end{figure}
+
+Below, the algorithm \ref{alg:temporal} for user-tracking is given considering each device can be localized with high precision for all the communication protocols.
+
+
+
+
+\RestyleAlgo{ruled}
+
+\begin{algorithm}
+\caption{Meta algorithm for Temporal Correlation between Identifiers}\label{alg:temporal}
+
+1. Measure the distance of the device for two communication protocols $x$ and $y$ denoted as $d_{x}$ and $d_{y}$ respectively at time instance $t$.\\
+ 
+2. Since, the accuracy of localization is high for all the communication protocols, therefore it will hold the relation $d_{x} \approx d_{y}$\\
+    
+3. Identifier list at time instance $t$, $ID_t$=[$ID_{x}$,$ID_{y}$]\\
+    
+4. At time instance $t+1$, a identifier gets randomized for any of the protocol with the new identifier $ID_{x}^{new}$\\
+    
+5. Compute the distance for the new set of identifiers such that  $d_{x} \approx d_{y}$. 
+    
+$intersection= ID^{t}_{list} \cap ID^{t+1}_{list}$\\
+    
+\If{$intersection!=\Phi$}
+{
+ $mapping=(ID^{t}_{list}-ID^{t+1}_{list})\rightarrow(ID^{t+1}_{list}-ID^{t}_{list})$
+}
+\Else{
+Identifiers can not be correlated
+}
+
+\Return mapping
+  
+   
+   
+\end{algorithm}
+
+The proposed temporal correlation technique will work only if the the intersection between the earlier set of identifiers and the new set of identifiers in not null. Therefore, the frequency of observation or rate of randomization of the identifiers($\Delta T$) needs to be such that atleast one of the identifiers in the previous time step remains unchanged. However, this correlation only works if any device can be localized with high precision and identifiers for each of the communication protocols can be binded with a device with $100\%$ accuracy, which may not be the case in real-world scenario where density of devices($\Delta n$) within the localization radius is high.
+
+Also, considering the short range of Bluetooth and mobility of user devices, placing sniffers with capability of sniffing every Bluetooth packets from a device needs to be at a distance of the communication range of the Bluetooth. This will increase the cost of the attacker. Therefore, in the next section we proposed a scalable privacy leakage attack considering the challenges due to high localization error of LTE and short range communication of Bluetooth.
+
+\subsubsection{Cross-layer Linking in LTE}\label{sec:cross_layer}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\columnwidth]{images/rrcreconfiguration_callflow.pdf}
+  \caption{Linkability of identifiers in LTE}
+  \label{fig:temporal_corr}
+\end{figure}
+
+In LTE, multiple identifiers are present in different layers of the protocol. Our work focuses on two identifiers on the LTE communication protocol namely C-RNTI at MAC layer and TMSI at radio link control layer(RLC). The mapping between C-RNTI on RRC connection request is being demonstrated in \cite{breaking_layer_two}. However, following the RRC connection request at multiple conditions this, C-RNTI and TMSI value gets randomized without sending any RRC connection request, different protocols are invoked that time. However, with initial RRC connection request one can bind the TMSI and C-RNTI value for a device as both the values can be observed by the sniffer on RRC complete request packet at different layers. Once, connection is established between the enodeB and the user device, no RRC connection request packets are sent. However, in the entire duration of connection the C-RNTI or TMSI value can get randomized but we can not now map it to each other since RRC connection request is not sent. However, there exists a problem of linkability where the temporal correlation between the C-RNTI and TMSI is still possible considering different scenarios as described below.
+
+\begin{enumerate}
+    \item \textbf{Radio link failure}: Radio link failure is a common phenomenon in LTE communication protocol due to obstacles and mobility of the devices. When there occurs a failure, RRC reestablishment request are sent and new C-RNTI values are assigned. However, according to our observation, when RRC reestablishment request are sent, the old C-RNTI value is sent by the user for content resolution. Therefore, in the same packet the old C-RNTI and the new C-RNTI value is present making the new C-RNTI value linkable to the TMSI value received during RRC Connection request packet.
+    \item \textbf{Handover}: Handover is another common scenario in LTE protocol where the user device gets connected to a new enodeB from which the signal strength is better. For, establishing connection to the new base station, user device sends a RRC reconfiguration message to the enodeB. During, RRC reconfiguration phase the user device sends the connection with its existing C-RNTI value for content resolution for the current base station from the earlier one. Here, we observed that when a new C-RNTI value is assigned to that device, the older C-RNTI value is also present in the same packet at different layer. Therefore, the linking between the old C-RNTI and new C-RNTI value is always possible and hence linking to the TMSI value received in the RRC connection request phase through temporal correlation. Also, there are instances where for RRC reconfiguration phase, instead of sending a new C-RNTI a new TMSI value is assigned. But in that scenario the C-RNTI value remains the older one.
+\end{enumerate}
+
+Therefore, we have discussed how the linkability can be observed in different RRC connection packets. Only when device switches off or put in to flight mode or completely looses its connectivity to the base station, RRC release request is sent. After RRC release request for connection is again established to the base station with RRC connection request with new C-RNTI and new TMSI value without having any linkability with the older one. Therefore, though linkability can be performed in LTE through cross-layer linking and tracking can be done, once the RRC release is sent it can not be mapped back to the older TMSI or C-RNTI value and also since the localization error of LTE is high the granularity of location tracking will be less if we consider only LTE protocol. 
+
+\subsection{Scalable Privacy Leakage Attack}
+
+In this section we describe how a large scale tracking of the user devices can be carried out for mass surveillance considering the challenges associated with error in the localization of the devices and randomizing temporary identifiers. The following are the points necessary for consideration for designing the continuous user-tracking mechanism.
+\begin{enumerate}
+    \item The error of localization($\Delta D$) is high for LTE protocol. Therefore for a device there can be multiple number of identifiers that can possibly be attached resulting in $\Delta n$ to be higher. 
+    \item Though error of localization is high in LTE, $\Delta T$ is also larger because of the cross-linking correlation between the temporary randomized identifiers described in section \ref{sec:cross_layer}. The randomized identifiers can be linked back to the previous identifier by cross-linking between the identifiers at different layers.
+    \item The error of localization($\Delta D$) is lower for Bluetooth and WiFi resulting in $\Delta n\approx 1$, therefore temporal correlation between the identifiers is possible for WiFi and Bluetooth as described in algorithm \ref{alg:temporal}, resulting in $\Delta T$ to be higher. However, sniffing Bluetooth packets at every point might not be possible because of its short range communication.
+    \item Considering both persistent MAC address randomization and non-persistent randomization, the timing interval of WiFi MAC address randomization is high making $\Delta T$ higher for WiFi. 
+    
+\end{enumerate}
+
+Considering the challenges and the shortcomings of the existing protocols we propose a scalable tracking algorithm as follows.
+
+\begin{enumerate}
+    \item Compute the distances for both WiFi identifiers and LTE identifiers at time instance $t$. \label{step1}
+    \item Since, localization error($\Delta D$) is high for LTE, the temporal correlation algorithm \ref{alg:temporal} can not be directly applied here, therefore each WiFi identifier will have a set of candidate list of LTE identifiers to which it can be attached at time instance $t$.
+    \item At time instance $t+1$, new set of LTE identifiers comes in the candidate list for a WiFi identifier either because of mobility of the user devices or if any existing LTE identifier gets randomized.
+    \item Since cross-layer linking can be done for LTE identifiers, it is checked if the new set of identifiers at time instance $t+1$ can be linked to any identifiers in the candidate list of time $t$.
+    \begin{enumerate}
+        \item If the new set of identifiers are from other devices due to mobility of user devices, the unlinked LTE identifiers are not included in the candidate list. Similarly, few of the other identifiers which were not from the same device also gets removed from candidate list due to mobility because it is no longer within the localization error radius.
+        \item The linked identifiers are mapped to the older identifiers and remains in the candidate list.
+    \end{enumerate}
+    \item The algorithm continues from \ref{step1} and ultimately due to mobility of other devices, the actual LTE identifier can be binded with the WiFi identifier.
+    \item If in between, WiFi identifier gets randomized, the process is repeated from \ref{step1} for the new identifier.
+    \item Considering the mobility of the devices, every other LTE identifier will be binded to its WiFi identifier. Then the newly randomized WiFi identifier can check the candidate list of the previous WiFi identifiers and remove the rest of the LTE identifiers from the candidate list and correlate the previous WiFi identifier with the current WiFi identifiers through the existing LTE identifier.
+    \item Similarly, if the LTE identifier gets randomized by terminating the entire connection, then if the WiFi identifier corresponding to that device remains unchanged, it can again be binded with the old identifier.
+\end{enumerate}
+
+The fundamental reason behind the success of such mass surveillance of user-tracking are as follows.
+
+\begin{itemize}
+    \item Cross-layer linking can be done in LTE protocol, therefore $\Delta n$ decreases over time considering the mobility of the devices (from Definition \ref{def:privacy_loc}). Because, $\Delta n$ will be maximum at the beginning of the time instance of sniffing. Then the adversary can simply rule out the new identifiers from the candidate list as it does not correlate back to the old identity in the list and can simply rule out the candidate identifiers which move out of the localization error radius due to mobility. Therefore, over time the value of $\Delta n$ will decrease compromising the privacy of the device.
+    \item WiFi and LTE identifiers are randomized at different time instances, therefore even if LTE protocol resets the complete connection and it can still be traced back with the help of unchanged WiFi MAC address because $\Delta T$ of WiFi is quite high, specially in case of persistent MAC address randomization. 
+    \item The base station communication range is quite large compared to the communication range of WiFi. Due to mobility, if the WiFi tries to connect to a new WiFi access point, MAC address of WiFi will change. But since, now the LTE identifier attached to the earlier device remains unchanged, the randomized WiFi address can be mapped back. Considering the temporal correlation between the identifiers, $\Delta T$ tends to infinity making the root cause for user-tracking.
+    \item Since, the mobility of the devices is not in adversary's control it can lead to the question what if a WiFi address changes its identity at a point when it has multiple LTE identifier candidate. Since, every LTE identifier can be traced back to its initial identity due to cross-layer linking, we can ultimately filter out the WiFi addresses common at all time step. 
+\end{itemize}
+
+
+\subsection{Limitation}
+
+The limitation of the proposed technique is that if the number of devices in a co-located region is high($\Delta n$) and the devices follow the same path in mobility, then the LTE identifiers can not be binded to a single WiFi device but group tracking can be done. However, considering the density of devices in a region the adversary have the privilege of placing Bluetooth sniffers in such a region whose localization error($\Delta D$) is very low and can perform tracking in those region to track devices. But still LTE identifiers can be associated with a multiple pair of Bluetooth and WiFi identifier. Considering the limitation, our paper highlights that considering the mobility the devices will depart from each other at some point. The tracking of users at large scale is still possible.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{figure*}[!htb]
+  \includegraphics[clip, trim=0cm 14cm 0cm 0cm, width=\textwidth]{images/attack_strategy.pdf}
+  \caption{Attack Strategy}
+  \label{fig:attackstrategy}
+\end{figure*}
