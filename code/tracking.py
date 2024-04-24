@@ -645,8 +645,8 @@ for target_time in range(0,499):
         rule_2(item)
         for item1 in l1:
             mapping=rule_3(item,item1)
-            if mapping is not None:
-                rule_4(item,item1)
+            #if mapping is not None:
+            rule_4(item,item1)
             rule_5(item,item1)
             rule_6(item,item1)
     print("=========")
