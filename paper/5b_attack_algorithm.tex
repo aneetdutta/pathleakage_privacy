@@ -67,13 +67,32 @@ After linking some identifiers between protocols, it might be possible to simpli
 
 Elimination applies to all rules that consider multiple protocols (rules 2 -- 6). Instead of considering the base observations of identifier sets $\protidset{A}$ and $\protidset{B}$ at a single time $t$ and position $\pos$, the protocol removes all previously linked identifiers that appear in both sets. As a result, rules that previously didn't apply, might now apply.
 
-
+See \cref{fig:rules-elimination} for generic representations of the rules that
+we apply, together with an example that will benefit from elimination before the
+rule can be applied.
 \begin{itemize}
- \item Rule 2: As we saw in the example above, removing already linked identifiers could enable rule 2 to now single out a device.
- \item Rule 3: 
+ \item Rule 2 aims to link identifiers between protocols when it has isolated a
+   single device. Eliminating identifier-pairs that we already know are linked,
+   can enable new links to appear.
+ \item Rule 3 creates within protocol links if the set of devices remains the same. However, when we observe extra devices in the first observation than in the second we cannot apply the rule anymore: we do not know which protocol $A$ identifiers belonged to the disappearing device. For example, in \cref{fig:rules-elimination} we do not know if $\protidname{A}{1} \linksto \protidname{B}{1}$ or $\protidname{A}{2} \linksto \protidname{B}{1}$ and thus cannot determine which of $\protidname{A}{1}$ and $\protidname{A}{2}$ belongs to $\protidname{A}{\prime}$. However, if we know which $A$-identifier belongs to the disappearing identifier $\protidname{B}{1}$ we can resolve this ambiguity. Similarly, when a device appears, we can use elimination to deside the link.
+   \wl{Not super happy with this yet. But the examples help}
+   % Worked example: rule 3, disappearing device
+   % a1 a2                  a1'
+   % b1 b2                  b1
+   %
+   % Option 1: a1-b1, a2-b2  ---- b2 leaves --->   a1->a1'
+   % Option 2: a1-b2, a2-b1  ---- b2 leaves --->   a2->a1'
+
+   % Worked example: rule 3, appearing device
+   % a1                   a1' a2
+   % b1                   b1  b2
+   %
+   % Option 1: a1-b1  ----- b2 appears, b2-a1' (a1 rotates to a2) --->   a1->a2
+   % Option 2: a1-b2  ----- b2 appears, b2-a2  (a1 rotates to a1')--->   a1->a1'
 \end{itemize}
 
 \begin{figure*}
+    \centering
     \input{images/linking_rules_elimination}
     \vspace{-5mm}
     \caption{\label{fig:rules-elimination} Graphical representation of rules and an example of how elimination helps these rules to apply.}
