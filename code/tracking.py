@@ -1,5 +1,6 @@
 import json
- 
+import numpy as np
+import multiprocessing
 # Opening JSON file
 f = open('sniffed_user.json')
  
@@ -15,8 +16,28 @@ data = json.load(f)
 # Closing file
 f.close()
 
-def rule_1(line1):
-    print("By Rule 1")
+
+def maptoran(item1,item2):
+    l=[]
+    l1=[]
+    #print(item1[0])
+    #print(type(item1))
+    for item in item1:
+        #print(type(item))
+        l.append(list(item))
+    #print(l)
+    l_new=list(np.concatenate(l))
+    for item in item2:
+        l1.append(list(item))
+    #print(type(set(l)))
+    l1_new=list(np.concatenate(l1))
+    d=set(l_new).intersection(set(l1_new))
+    if len(d)!=0:
+        m.append((set(l_new)-set(l1_new),set(l1_new)-set(l_new)))
+        
+
+def rule_1(line1,line2):#invoked after checking the condition of time and location
+    #print("By Rule 1")
     sa_1=[]
     sb_1=[]
     sc_1=[]
@@ -25,213 +46,333 @@ def rule_1(line1):
             sa_1.append(item[0])
         elif item[1]=='WiFi':
             sb_1.append(item[0])
-        else:
+        elif item[1]=='LTE':
             sc_1.append(item[0])
-    if len(sa_1)==1 and len(sb_1)==1:
-        mapping=(sa_1[0],sb_1[0])
+            
+    sa_2=[]
+    sb_2=[]
+    sc_2=[]
+    for item in line2:
+        if item[1]=='Bluetooth':
+            sa_1.append(item[0])
+        elif item[1]=='WiFi':
+            sb_1.append(item[0])
+        elif item[1]=='LTE':
+            sc_1.append(item[0])
+    if len(sa_1)==1 and len(sb_1)==0 and len(sc_1)==0 and len(sa_2)==1 and len(sb_2)==0 and len(sc_2)==0:
+        mapping=(sa_1[0],sb_2[0])
+    elif len(sa_1)==0 and len(sb_1)==1 and len(sc_1)==0 and len(sa_2)==0 and len(sb_2)==1 and len(sc_2)==0:
+        mapping=(sb_1[0],sb_2[0])
+    elif len(sa_1)==0 and len(sb_1)==0 and len(sc_1)==1 and len(sa_2)==0 and len(sb_2)==0 and len(sc_2)==1:
+        mapping=(sc_1[0],sc_2[0])
+        
+        
+        
         
     else:
         mapping=None
-    print(mapping)
+    #print(mapping)
 
 def rule_2(line1):
-     print("By Rule 2")
+     #print("By Rule 2")
      sa_1=[]
      sb_1=[]
      sc_1=[]
      for item in line1:
-         if item[1]=='Bluetooth':
-             sa_1.append(item[0])
-         elif item[1]=='WiFi':
-             sb_1.append(item[0])
-         else:
-             sc_1.append(item[0])
+         #print(item)
+         if item[0]=='Bluetooth':
+             sa_1.append(item[1])
+         elif item[0]=='WiFi':
+             sb_1.append(item[1])
+         elif item[0]=='LTE':
+             sc_1.append(item[1])
              
      d=len(sa_1)
      d1=len(sb_1)
      d2=len(sc_1)
-     
-     if d==0 and d1!=0 and d2!=0:
-         if d1==1 and d2==1:
-             mapping=(set(sb_1),set(sc_1))
-         else:
-             mapping=None
+     #print(d)
+     #print(d1)
+     #print(d2)
+     if d==1 and d1==1 and d2!=1:
+         #print("hi")
+         mapping=(set(sa_1),set(sb_1))
+     elif d!=1 and d1==1 and d2==1:
+         mapping=(set(sb_1),set(sc_1))
      elif d==1 and d1==1 and d2==1:
          mapping=(set(sa_1),set(sb_1),set(sc_1))
+     
      else:
          mapping=None
      
-     print(mapping)
+     if mapping is not None:
+         print("by rule 2")
+         print(mapping)
+         devices.append(mapping)
+     #print(mapping)
      
    
 def rule_3(line1,line2):
-    print("By rule 3")
+    #print("By rule 3")
+    #print(line1)
+    #print(line2)
     sa_1=[]
     sb_1=[]
     sc_1=[]
     for item in line1:
-        if item[1]=='Bluetooth':
-            sa_1.append(item[0])
-        elif item[1]=='WiFi':
-            sb_1.append(item[0])
-        else:
-            sc_1.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_1.append(item[1])
+        elif item[0] is 'WiFi':
+            sb_1.append(item[1])
+        elif item[0]=='LTE':
+            sc_1.append(item[1])
             
     sa_2=[]
     sb_2=[]
     sc_2=[]
     
     for item in line2:
-        if item[1]=='Bluetooth':
-            sa_2.append(item[0])
-        elif item[1]=='WiFi':
-            sb_2.append(item[0])
-        else:
-            sc_2.append(item[0])
+        #print(item[i])
+        if item[0]=='Bluetooth':
+            sa_2.append(item[1])
+        elif item[0] == 'WiFi':
+            sb_2.append(item[1])
+        elif item[0]=='LTE':
+            
+            sc_2.append(item[1])
 
-    l1=set(sa_1)-set(sa_2)
-    r1=set(sa_2)-set(sa_1)
+    l1=set(sa_1).intersection(set(sa_2))
+    #r1=set(sa_2).intersection(set(sa_1)
     
     
-    l2=set(sb_1)-set(sb_2)
-    r2=set(sb_2)-set(sb_1)
+    l2=set(sb_1).intersection(set(sb_2))
+    #r2=set(sb_2)-set(sb_1)
     
-    l3=set(sc_1)-set(sc_2)
-    r3=set(sc_2)-set(sc_1)
+    l3=set(sc_1).intersection(set(sc_2))
+    #print(l1)
+    #print(l2)
+    #print(l3)
+    #r3=set(sc_2)-set(sc_1)
+    #print(sb_1)
+    #print(sb_2)
+    #print(l3)
+    #print(r3)
     
-    
-    
-    if len(l1)==0 and len(r1)==0 and len(l2)==0 and len(r2)==0 and len(l3)==1 and len(r3)==1:
-        mapping=(l3,r3)
-        
-    
-    elif len(l1)==0 and len(r1)==0 and len(l2)==1 and len(r2)==1 and len(l3)==0 and len(r3)==0:
-        mapping=(l2,r2)
-        
-    
-    elif len(l1)==1 and len(r1)==1 and len(l2)==0 and len(r2)==0 and len(l3)==0 and len(r3)==0:
-        mapping=(l1,r1)
-        
+    if len(l1)==len(sa_1) and len(l1)==len(sa_2):
+        if len(l2)==len(sb_1) and len(l2)==len(sb_2):
+            if len(l3)==len(sc_1)-1 and len(l3)==len(sc_2)-1:
+                print("hello")
+                mapping=(set(sc_1)-set(l3),set(sc_2)-set(l3))
+                #print(mapping)
+            else:
+                mapping=None
+        else:
+            mapping=None
+    #else:
+     #   mapping=None
+    elif len(l1)==len(sa_1) and len(l1)==len(sa_2):
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
+            if len(l2)==len(sb_1)-1 and len(l2)==len(sb_2)-1:
+                mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
+            else:
+                mapping=None
+        else:
+            mapping=None
+    #else:
+     #   mapping=None
+    elif len(l2)==len(sb_1) and len(l2)==len(sb_2):
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
+            if len(l1)==len(sa_1)-1 and len(l1)==len(sa_2)-1:
+                mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
+            else:
+                mapping=None
+        else:
+            mapping=None
     else:
         mapping=None
-        
-    print(mapping)
-    
+           
+    #print(mapping)
+    if mapping is not None: 
+        print("by rule 3")   
+        print(mapping)
+        devices.append(mapping)
+    return mapping
     
         
      
 
-
 def rule_4(line1,line2):
-    print("by rule 4")
+    #print("by rule 4")
     sa_1=[]
     sb_1=[]
     sc_1=[]
     for item in line1:
-        if item[1]=='Bluetooth':
-            sa_1.append(item[0])
-        elif item[1]=='WiFi':
-            sb_1.append(item[0])
-        else:
-            sc_1.append(item[0])
-            
+        if item[0]=='Bluetooth':
+            sa_1.append(item[1])
+        elif item[0]=='WiFi':
+            sb_1.append(item[1])
+        elif item[0]=='LTE':
+            sc_1.append(item[1])
+    #print(sa_1)
+    #print(sb_1)
+    #print(sc_1)        
     sa_2=[]
     sb_2=[]
     sc_2=[]
     
     for item in line2:
-        if item[1]=='Bluetooth':
-            sa_2.append(item[0])
-        elif item[1]=='WiFi':
-            sb_2.append(item[0])
-        else:
-            sc_2.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_2.append(item[1])
+        elif item[0]=='WiFi':
+            sb_2.append(item[1])
+        elif item[0]=='LTE':
+            sc_2.append(item[1])
             
-    d=set(sa_1).intersection(sa_2)
-    d1=set(sb_1).intersection(sb_2)
-    d2=set(sc_1).intersection(sc_2)
-    
+    d=list(set(sa_1).intersection(sa_2))
+    d1=list(set(sb_1).intersection(sb_2))
+    d2=list(set(sc_1).intersection(sc_2))
+    #print(d1)
+    #print(d2)
     if len(d)==0:
         if len(d1)==1 and len(d2)==1:
-            mapping=(d1,d2)
+            mapping=((d1,d2))
         else:
             mapping=None
             #print("aneet")
     else:
         if len(d)==1 and len(d1)==1 and len(d2)==1:
-            mapping=(d,d1,d2)
+            mapping=((d,d1,d2))
         else:
             mapping=None
             
-    if len(d)==0 and len(d1)==0:
-        if len(d2)==1:
-            mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
-        else:
-            mapping=None
+    #if len(d)==0 and len(d1)==0:
+     #   if len(d2)==1:
+      #      mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
+      #  else:
+       #     mapping=None
             
-    else:
-        mapping=None
-        
-    print(mapping)
+   # else:
+    #    mapping=None
+    if mapping is not None:    
+        #print(len(mapping))
+        print("by rule 4")
+        print(line1)
+        print(line2)
+        print(mapping)
+        devices.append(mapping)
     
     
 def rule_6(line1,line2):
-    print("by rule 6")
+    
+    
     sa_1=[]
     sb_1=[]
     sc_1=[]
     for item in line1:
-        if item[1]=='Bluetooth':
-            sa_1.append(item[0])
-        elif item[1]=='WiFi':
-            sb_1.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_1.append(item[1])
+        elif item[0]=='WiFi':
+            sb_1.append(item[1])
         else:
-            sc_1.append(item[0])
+            sc_1.append(item[1])
             
     sa_2=[]
     sb_2=[]
     sc_2=[]
     
     for item in line2:
-        if item[1]=='Bluetooth':
-            sa_2.append(item[0])
-        elif item[1]=='WiFi':
-            sb_2.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_2.append(item[1])
+        elif item[0]=='WiFi':
+            sb_2.append(item[1])
         else:
-            sc_2.append(item[0])
+            sc_2.append(item[1])
     #print(sa_1)
     #print("aneet")
-    d=set(sa_1)-set(sa_2)
-    print(d)
-    d1=set(sb_1)-set(sb_2)
-    print(d1)
-    d2=set(sc_1)-set(sc_2)
+    d=list(set(sa_2).intersection(set(sa_1)))
+    l1=list(set(sa_1)-set(d))
+    d1=list(set(sb_2).intersection(set(sb_1)))
+    #print(d1)
+    l2=list(set(sb_1)-set(d1))
+    d2=list(set(sc_2).intersection(set(sc_1)))
+    #print(d2)
+    l3=list(set(sc_1)-set(d2))
+    #print(sb_2)
     #print(sc_1)
     
-    if len(d)==0:
-        if len(d1)==1 and len(d2)==1:
-            mapping=(set(sc_1)-set(sc_2),set(sb_1)-set(sb_2))
+    if len(l1)==0:
+        if len(l2)==1 and len(l3)==1 and len(d1)==len(sb_1) and len(d2)==len(sc_1):
+            #mapping=(set(sc_1)-set(sc_2),set(sb_1)-set(sb_2))
+            #e1=set(sb_1)-set(sb_2)
+            #e2=set(sc_1)-set(sc_2)
+            mapping=[(l2[0],'WiFi'),(l3[0],'LTE')]
+            #e1=set(sb_1)-set(sb_2)
+            #e2=set(sc_1)-set(sc_2)
+            #print("&&&&&&&&&&")
+            #print(mapping)
+            #print(T[i])
+            
+           # for del_item in mapping:
+                
+                #print(del_item)
+            #    T[i][0].pop(T[i][0].index(del_item))
+            #print(T[i])
+            #print(len(T[i]))
+            
+           
+           # if len(T[i][0])==0:
+            #    T[i][0]=mapping
+           # else:
+            mapping=[[(l2[0],'WiFi'),(l3[0],'LTE')]]
+            #    T[i].append(mapping)
+            #print(T[i])
+            #print("&&&&&&&&&&")
             #print("aneet")
         else:
             mapping=None
     else:
-        if len(d)==1 and len(d1)==1 and len(d2)==1:
-            mapping=(set(sa_1)-set(sa_2),set(sb_1)-set(sb_2),set(sc_1)-set(sc_2))
+        if len(l2)==1  and len(l3)==1 and len(l1)==1 and len(d)==len(sc_1) and len(d1)==len(sb_1) and len(d2)==len(sc_1):
+            #mapping=(set(sa_1)-set(sa_2),set(sb_1)-set(sb_2),set(sc_1)-set(sc_2))
+            #e1=set(sa_1)-set(sa_2)
+            #e2=set(sb_1)-set(sb_2)
+            #e3=set(sc_1)-set(sc_2)
+            mapping=[(l1[0],'Bluetooth'),(l2[0],'WiFi'),(l3[0],'LTE')]
+            #print(mapping)
+            #print(T[i][0])
+            #for del_item in mapping:
+                
+               #print(del_item)
+             #  T[i][0].pop(T[i][0].index(del_item))
+            #print(T[i])
+            #print(len(T[i]))
+            
+            #if len(T[i][0])==0:
+             #   T[i]=mapping
+            #else:
+             #   mapping=[mapping]
+              #  T[i].append(mapping)
+            #print(T[i][0])
+            
         else:
             mapping=None
             
-    if len(d)==0 and len(d1)==0:
-        if len(d2)==1:
-            mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
-        else:
-            mapping=None
+   # if len(d)==0 and len(d1)==0:
+    #    if len(d2)==1:
+     #       mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
+      #  else:
+       #     mapping=None
             
-    else:
-        mapping=None
-        
-    print(mapping)
+   # else:
+    #    mapping=None
     
-
+    if mapping is not None: 
+        print("by rule 6")   
+        print(mapping)
+        #print(line1)
+        #print(line2)
+        devices.append(mapping)
+    #print(mapping)
+    #T[i][0]="Aneet"
+    #rint(T[i][0])
     
 
        
@@ -240,60 +381,82 @@ def rule_6(line1,line2):
 
 
 def rule_5(line1,line2):
-    print("by rule 5")
+    #print("by rule 5")
+    #print(line1)
+    #print(line2)
     sa_1=[]
     sb_1=[]
     sc_1=[]
     for item in line1:
-        if item[1]=='Bluetooth':
-            sa_1.append(item[0])
-        elif item[1]=='WiFi':
-            sb_1.append(item[0])
-        else:
-            sc_1.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_1.append(item[1])
+        elif item[0]=='WiFi':
+            sb_1.append(item[1])
+        elif item[0]=='LTE':
+            sc_1.append(item[1])
             
     sa_2=[]
     sb_2=[]
     sc_2=[]
     
     for item in line2:
-        if item[1]=='Bluetooth':
-            sa_2.append(item[0])
-        elif item[1]=='WiFi':
-            sb_2.append(item[0])
-        else:
-            sc_2.append(item[0])
+        if item[0]=='Bluetooth':
+            sa_2.append(item[1])
+        elif item[0]=='WiFi':
+            sb_2.append(item[1])
+        elif item[0]=='LTE':
+            sc_2.append(item[1])
+    #print(sb_1)
+    #print(sb_2)
+    d=list(set(sa_2).intersection(set(sa_1)))
+    l1=list(set(sa_2)-set(d))
     
-    d=set(sa_2)-set(sa_1)
-    d1=set(sb_2)-set(sb_1)
-    print(d1)
-    d2=set(sc_2)-set(sc_1)
-    print(d2)
+    d1=list(set(sb_2).intersection(set(sb_1)))
+    #print(d1)
+    l2=list(set(sb_2)-set(d1))
     
-    if len(d)==0:
-        if len(d1)==1 and len(d2)==1:
-            mapping=(set(sc_2)-set(sc_1),set(sb_2)-set(sb_1))
+    d2=list(set(sc_2).intersection(set(sc_1)))
+    #print(d2)
+    l3=list(set(sc_2)-set(d2))
+    #print(sb_2)
+    #print(sb_1)
+    #print(d1)
+    #print(l2)
+    
+    if len(l1)==0:
+        if len(l2)==1 and len(l3)==1 and len(d1)==len(sb_2) and len(d2)==len(sc_2):
+            mapping=((l2[0],l3[0]))
+            
+            
         else:
             mapping=None
             #print("aneet")
     else:
-        if len(d)==1 and len(d1)==1 and len(d2)==1:
-            mapping=(set(sa_2)-set(sa_1),set(sb_2)-set(sb_1),set(sc_2)-set(sc_1))
+        if  len(l2)==1  and len(l3)==1 and len(l1)==1 and len(d)==len(sc_2) and len(d1)==len(sb_2) and len(d2)==len(sc_2):
+            mapping=((l1[0],l2[0],l3[0]))
         else:
             mapping=None
             
-    if len(d)==0 and len(d1)==0:
-        if len(d2)==1:
-            mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
-        else:
-            mapping=None
-    else:
-        mapping=None
-        
-    print(mapping)
+    #if len(d)==0 and len(d1)==0:
+     #   if len(d2)==1:
+            #mapping=(set(sc_1)-set(sc_2),set(sc_2)-set(sc_1))
+      #  else:
+       #     mapping=None
+   # else:
+    #    mapping=None
+    if mapping is not None:
+        print("by rule 5")  
+        #print(sb_1)
+        #print(sb_2)  
+        print(mapping)
+        devices.append(mapping)
     
-
+    #if mapping is not None:
     
+    #print(T[i])
+    #print("Aneet")
+    #T[i][0]=["Aneet"]
+    #print(T[i][0])
     
     
             
@@ -309,35 +472,100 @@ def find_sublist_containing_value(data, value):
 
 def calculate_distance(line1, line2):
     # Assuming line1 and line2 are dictionaries with 'x' and 'y' keys representing coordinates
+    #print(line1)
+    #print(line2)
     return ((line1['location'][0] - line2['location'][0]) ** 2 + (line1['location'][1] - line2['location'][1]) ** 2) ** 0.5
 
 def group_lines_by_distance(lines, threshold_distance):
+    #print(line)
     groups = []
-    visited = set()
-
-    for i, line1 in enumerate(lines):
-        if i not in visited:
-            group = [line1]
-            visited.add(i)
+    #groups = []
+    flag=0
+    for line in lines:
+        #print("+++")
+        #if line['protocol']=='LTE':
+         #   if line['lte_id']=='LTEDevice7':
+          #      print(line)
+           #     print("=====================")
+        #print(line)
+        #print("+++")
+        #if line['protocol']=='WiFi':
+         #   if line['WiFi_id']=='MDRP782HZS39':
             
-            
-            for j, line2 in enumerate(lines[i + 1:], start=i + 1):
-                if j not in visited:
-                    distance = calculate_distance(line1, line2)
-                    #print(distance)
-                    #print(line2['protocol'])
-                    if line2['protocol'] == 'LTE':
-                        threshold_distance = 20
-                    else:
-                        threshold_distance=0.1
-                    if distance <= threshold_distance:
-                        group.append(line2)
-                        visited.add(j)
-            groups.append(group)
-            #print(group)
-
+          #      print(line)
+           #     flag=1
+            #    print("--------")
+        distance_threshold_lte=20
+        distance_threshold=1
+        added_to_existing_group = False
+        lte=False
+        list2=[]
+        for group in groups:
+ 
+    	    for line_in_group in group:
+    	        
+                distance = calculate_distance(line, line_in_group)
+               # if flag==1:
+                #print(line_in_group)
+                #print("---------------")
+                 #   print(distance)
+                #if line_in_group['protocol']=='LTE' or line['protocol']=='LTE':
+                 #   distance_threshold=20
+                #else:
+                #	distance_threshold=1 
+                #if line['protocol']=='LTE':
+                
+                 #   if line['lte_id']=='LTEDevice7':
+                  #      print(line_in_group)
+                   #     print("********")
+                        #print(line_in_group)
+                   
+                if distance <= distance_threshold_lte and distance<=distance_threshold:
+                    #print(line)
+                    group.append(line)
+                    added_to_existing_group = True
+                    break
+                elif distance<=distance_threshold_lte and distance>distance_threshold:
+                    if line['protocol']=='LTE':
+                        #print(line)
+                        group.append(line)
+                        added_to_existing_group = True
+                        #break
+                    elif line_in_group['protocol']=='LTE':
+                        list2.append(line_in_group)
+                        #print(list2)
+                        lte=True
+                        added_to_existing_group = False
+                        
+                  #  lte=True
+                   # group2.append(line_in_group)
+             #   	if flag==1:
+              #  	    print(added_to_existing_group)
+                	#break
+    	    if added_to_existing_group:
+        	    continue
+	# If the line does not fit into any existing group, create a new group
+        if not added_to_existing_group and not lte:
+            groups.append([line])
+        if not added_to_existing_group and lte:
+            list2.append(line)
+            #for item in list2:
+                #print(item)
+            groups.append(list2)
+            #groups.append([line])
+            #print(line)
+            #group.append(line)
+        #elif not added_to_existing_group and lte:
+         #   for item in group2:
+          #      print(item)
+                #groups.append(item)
+            #groups.append(line)
+        #print(groups)
+    #print("----------")
     return groups
 
+
+    
 
 
 
@@ -350,13 +578,14 @@ def group_lines_by_field(timed_data,sniffer_id,specific_values):
         if sniffer_id in line and line[sniffer_id] in specific_values:
                 index = specific_values.index(line[sniffer_id])
                 groups[index].append(line)
+    
     return groups
 
 
 
 
 def extract_lines_with_same_time(data, target_time):
-    
+    #lines_with_same_time=[]
 
     
     for line in data:
@@ -364,6 +593,7 @@ def extract_lines_with_same_time(data, target_time):
         if line['timestep'] == target_time:
             #print(line['timestep'])
             lines_with_same_time.append(line)
+            
 
    
 
@@ -371,58 +601,79 @@ def extract_lines_with_same_time(data, target_time):
 
 target_time=0
 T=[]
+devices=[]
+D=dict()
 for target_time in range(0,500):
     lines_with_same_time = []
     print("----")
     #print(target_time)
     extract_lines_with_same_time(data,target_time)
     #print(lines_with_same_time)
-    specific_values=[0,1,2,3,4]
-    groups = group_lines_by_field(lines_with_same_time,'sniffer_id',specific_values)
+    #specific_values=[0,1,2,3,4]
+    groups = group_lines_by_distance(lines_with_same_time,0.1)
+    #print(groups)
+    for item in groups:
+        #print(item)
+        l=[]
+        for i in range(len(item)):
+            if item[i]['protocol']=='Bluetooth':
+                #print(item[i]['protocol'])
+                l.append((item[i]['protocol'],item[i]['bluetooth_id']))
+            elif item[i]['protocol']=='WiFi':
+                l.append((item[i]['protocol'],item[i]['WiFi_id']))
+            elif item[i]['protocol']=='LTE':
+                l.append((item[i]['protocol'],item[i]['lte_id']))
+        l=list(set(l))    
+        #print(l)        
+        #print("*********")
+        if target_time in D.keys():
+            L=D[target_time]
+            L.append(l)
+            D[target_time]=L
+        else:
+            L=[]
+            L.append(l)
+            D[target_time]=L
+            
+for target_time in range(0,499):
+    if target_time in D.keys():
+        l=D[target_time]
+    if target_time+1 in D.keys():
+        l1=D[target_time+1]
+    for item in l:
+        #print(item)
+        rule_2(item)
+        for item1 in l1:
+            mapping=rule_3(item,item1)
+            if mapping is not None:
+                rule_4(item,item1)
+            rule_5(item,item1)
+            rule_6(item,item1)
+    print("=========")
 
+
+f = open('user_data.json')
+ 
+# returns JSON object as 
+# a dictionary
+data = json.load(f)
+ 
+# Iterating through the json
+# list
+#for i in data:
+ #   print(i['timestep'])
+ 
+# Closing file
+f.close()
+c=0  
+#devices=list(set(devices))         
+#print(devices)
+                   
+                
+        
 
 
 
 
     
-    for items in groups:
-        
-        groups1=group_lines_by_distance(items,1)
-        
-        l=[]
-        for g in groups1:
-            #print(g)
-            identifiers_group=[]
-       
-            for i in g:
-                #print(len(i))
-                if i['protocol'] == 'Bluetooth':
-                    identifiers_group.append((i['bluetooth_id'],i['protocol']))
-                if i['protocol'] == 'WiFi':
-                    identifiers_group.append((i['WiFi_id'],i['protocol']))
-                if i['protocol'] == 'LTE':
-                   identifiers_group.append((i['lte_id'],i['protocol']))
-            #print(len(identifiers_group))
-            l.append(identifiers_group)
-        print(l)
-        T.append(l)
-    #T[target_time]=l
-    #print(l)
-flag=0
-for item in T:
-    print("******")
-    #print(item[0])
-    if flag==0:
-        prev_item=item
-        flag=1
-    else:
-        for i in range(len(item)):
-            rule_1(item[i])
-            rule_2(item[i])
-            for j in range(len(prev_item)):
-                rule_3(prev_item[j],item[i])
-                rule_4(prev_item[j],item[i])
-                rule_5(prev_item[j],item[i])
-                rule_6(prev_item[j],item[i])
-                
-        prev_item=item
+   
