@@ -1,0 +1,13 @@
+auto/
+
+# Temp LaTeX Files
+*.aux
+*.bbl
+*.blg
+*.bls
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.synctex.gz
