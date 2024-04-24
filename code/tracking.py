@@ -1,3 +1,6 @@
+
+	
+
 import json
 import numpy as np
 import multiprocessing
@@ -195,7 +198,7 @@ def rule_3(line1,line2):
         print("by rule 3")   
         print(mapping)
         devices.append(mapping)
-    return mapping
+    
     
         
      
@@ -233,13 +236,13 @@ def rule_4(line1,line2):
     #print(d1)
     #print(d2)
     if len(d)==0:
-        if len(d1)==1 and len(d2)==1:
+        if len(d1)==1 and len(d2)==1 and len(sc_1)==len(sb_1) and len(sb_2)==len(sc_2):
             mapping=((d1,d2))
         else:
             mapping=None
             #print("aneet")
     else:
-        if len(d)==1 and len(d1)==1 and len(d2)==1:
+        if len(d)==1 and len(d1)==1 and len(d2)==1 and len(sc_1)==len(sb_1) and len(sb_2)==len(sc_2) and len(sa_1)==len(sb_1) and len(sa_1)==len(sc_1) and len(sa_2)==len(sb_2) and len(sa_2)==len(sc_2):
             mapping=((d,d1,d2))
         else:
             mapping=None
@@ -644,8 +647,7 @@ for target_time in range(0,499):
         #print(item)
         rule_2(item)
         for item1 in l1:
-            mapping=rule_3(item,item1)
-            #if mapping is not None:
+            rule_3(item,item1)
             rule_4(item,item1)
             rule_5(item,item1)
             rule_6(item,item1)
@@ -667,7 +669,7 @@ data = json.load(f)
 f.close()
 c=0  
 #devices=list(set(devices))         
-#print(devices)
+print(devices)
                    
                 
         
