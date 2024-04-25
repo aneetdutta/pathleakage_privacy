@@ -138,86 +138,13 @@ class Sniffer:
         self.detected_devices = []
         # self.sniffed_devices={}
 
-    def detect_devices(self, devices, timestep):
-
-        for device in devices:
-            for i in range(0, 3):
-
-                distance = (
-                    (self.location[0] - device[i].location[0]) ** 2
-                    + (self.location[1] - device[i].location[1]) ** 2
-                ) ** 0.5
-                # print(distance)
-                # print(isinstance(device[i], Bluetooth))
-                if (
-                    isinstance(device[i], Bluetooth)
-                    and distance <= self.bluetooth_range
-                ):
-                    print("Bluetooth Device Detected:", device[i].device_id)
-                    # self.detected_devices[device[i].device_id] = (device[i].location, timestep)
-                    protocol = "Bluetooth"
-                    s = str(timestep) + str(device[i].device_id)
-                    sniffed_devices[s] = [
-                        timestep,
-                        protocol,
-                        device[i].device_id,
-                        device[i].location,
-                    ]
-                    detected_devices.append(
-                        {
-                            "timestep": timestep,
-                            "protocol": protocol,
-                            "bluetooth_id": device[i].device_id,
-                            "location": device[i].location,
-                        }
-                    )
-                    # print(detected_devices)
-                elif isinstance(device[i], WiFi) and distance <= self.wifi_range:
-                    print("WiFi Device Detected:", device[i].device_id)
-                    # self.detected_devices[device[i].device_id] = (device[i].location, timestep)
-                    protocol = "WiFi"
-                    s = str(timestep) + str(device[i].device_id)
-                    sniffed_devices[s] = [
-                        timestep,
-                        protocol,
-                        device[i].device_id,
-                        device[i].location,
-                    ]
-                    detected_devices.append(
-                        {
-                            "timestep": timestep,
-                            "protocol": protocol,
-                            "wifi_id": device[i].device_id,
-                            "location": device[i].location,
-                        }
-                    )
-                elif isinstance(device[i], LTE) and distance <= self.lte_range:
-                    print("LTE Device Detected:", device[i].device_id)
-                    # self.detected_devices[device[i].device_id] = (device[i].location, timestep)
-                    protocol = "LTE"
-                    s = str(timestep) + str(device[i].device_id)
-                    sniffed_devices[s] = [
-                        timestep,
-                        protocol,
-                        device[i].device_id,
-                        device[i].location,
-                    ]
-                    detected_devices.append(
-                        {
-                            "timestep": timestep,
-                            "protocol": protocol,
-                            "lte_id": device[i].device_id,
-                            "location": device[i].location,
-                        }
-                    )
-                    # print(sniffed_devices)
 
     def detect_users(self, user, timestep):
-
         distance = (
             (self.location[0] - user.location[0]) ** 2
             + (self.location[1] - user.location[1]) ** 2
         ) ** 0.5
+
         if distance <= self.bluetooth_range:
             protocol = "Bluetooth"
             detected_users.append(
@@ -256,27 +183,21 @@ class Sniffer:
             )
 
 
-# Create some devices and users
-bluetooth_device = Bluetooth((0, 0))
-wifi_device = WiFi((0, 0))
-lte_device = LTE("LTEDevice1", (0, 0))
-
+# Create some users
 users = []
-devices = []
 
 
 for i in range(num_users):
     user_id = "User{}".format(i + 1)
+
     bluetooth_id = random_identifier()
     wifi_id = random_identifier()
     lte_id = "LTEDevice{}".format(i + 1)
+
     location = (random.uniform(-AREA_SIZE, AREA_SIZE), random.uniform(-AREA_SIZE, AREA_SIZE))
-    bluetooth_device = Bluetooth(location)
-    wifi_device = WiFi(location)
-    lte_device = LTE(lte_id, location)
-    user = User(user_id, bluetooth_id, wifi_id, lte_id, location, max_step_size=0.5)
+
+    user = User(user_id, bluetooth_id, wifi_id, lte_id, location, max_step_size=MAX_STEP_SIZE)
     users.append(user)
-    devices.append((bluetooth_device, wifi_device, lte_device))
 
 
 sniffers = []
@@ -292,11 +213,7 @@ for timestep in range(DURATION_SIMULATION):
         user.move()
         user.randomize_identifiers()
 
-        bluetooth_device.update_location(user.location)
-        wifi_device.update_location(user.location)
-        lte_device.update_location(user.location)
         for sniffer in sniffers:
-            sniffer.detect_devices(devices, timestep)
             sniffer.detect_users(user, timestep)
 
         user_data.append(
@@ -320,13 +237,6 @@ for timestep in range(DURATION_SIMULATION):
 # Print detected devices with locations and timesteps
 print("Detected Devices:")
 
-detect = []
-# for item in detected_devices:
-#     print(item)
-#    print("aneet")
-#   if item not in detect:
-#      detect.append(item)
-
 
 detect_user = []
 for item in detected_users:
@@ -334,14 +244,10 @@ for item in detected_users:
     if item not in detect_user:
         detect_user.append(item)
 
-
 print(len(detect_user))
 with open("user_data.json", "w") as f:
     json.dump(user_data, f)
 # sniffed_data=list(set(sniffer.detected_devices))
-
-with open("sniffed_data.json", "w") as f:
-    json.dump(detect, f)
 
 with open("sniffed_user.json", "w") as f:
     json.dump(detect_user, f)
