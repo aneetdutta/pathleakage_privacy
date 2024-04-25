@@ -11,6 +11,9 @@ import sys
 # Area of capture dimension (in meters)
 AREA_SIZE = 10
 
+# Duration of the simulation (in seconds)
+DURATION_SIMULATION = 5
+
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
@@ -284,10 +287,11 @@ for i in range(num_sniffer):
 
 # Simulate user movement and randomize identifiers
 user_data = []
-for timestep in range(500):
+for timestep in range(DURATION_SIMULATION):
     for user in users:
         user.move()
         user.randomize_identifiers()
+
         bluetooth_device.update_location(user.location)
         wifi_device.update_location(user.location)
         lte_device.update_location(user.location)
