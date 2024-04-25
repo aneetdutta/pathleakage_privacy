@@ -4,9 +4,9 @@ import json
 
 import sys
 
-#
-# CONSTANTS AND CONFIGURATION
-#
+###############################
+# CONSTANTS AND CONFIGURATION #
+###############################
 
 # Area of capture dimension (in meters)
 AREA_SIZE = 10
@@ -16,6 +16,9 @@ DURATION_SIMULATION = 5
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
+
+# Step size
+MAX_STEP_SIZE=0.5
 
 
 # Utility functions
@@ -46,6 +49,9 @@ class Device:
 
     def update_location(self, new_location):
         self.location = new_location
+
+    def __repr__(self):
+        return f"[{self.__class__.__name__}: id={self.device_id}, loc={self.location}]"
 
 
 class Bluetooth(Device):
