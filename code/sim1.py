@@ -2,8 +2,26 @@ import random
 import string
 import json
 
-
 import sys
+
+#
+# CONSTANTS AND CONFIGURATION
+#
+
+# Area of capture dimension (in meters)
+AREA_SIZE = 10
+
+# Number of characters in identifier
+IDENTIFIER_LENGTH = 12
+
+
+# Utility functions
+def random_identifier():
+    device_id = "".join(
+        random.choices(string.ascii_uppercase + string.digits, k=IDENTIFIER_LENGTH)
+    )
+    return device_id
+
 
 # Get the number of users from command line argument
 if len(sys.argv) < 3:
@@ -29,17 +47,13 @@ class Device:
 
 class Bluetooth(Device):
     def __init__(self, location):
-        device_id = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=12)
-        )
+        device_id = random_identifier()
         super().__init__(device_id, location)
 
 
 class WiFi(Device):
     def __init__(self, location):
-        device_id = "".join(
-            random.choices(string.ascii_uppercase + string.digits, k=12)
-        )
+        device_id = random_identifier()
         super().__init__(device_id, location)
 
 
@@ -78,8 +92,8 @@ class User:
         y = self.location[1] + random.uniform(-self.max_step_size, self.max_step_size)
 
         # Ensure user stays within predefined area (e.g., a city)
-        x = max(min(x, 10), -10)
-        y = max(min(y, 10), -10)
+        x = max(min(x, AREA_SIZE), -AREA_SIZE)
+        y = max(min(y, AREA_SIZE), -AREA_SIZE)
 
         self.location = (x, y)
 
@@ -91,22 +105,16 @@ class User:
         self.identifier_counter += 1
         if self.identifier_counter % self.interval_ble == 0:
             print("Randomized ble")
-            self.bluetooth_id = "".join(
-                random.choices(string.ascii_uppercase + string.digits, k=12)
-            )
+            self.bluetooth_id = random_identifier()
         if self.identifier_counter % self.interval_wifi == 0:
             print("randomized wifi")
-            self.wifi_id = "".join(
-                random.choices(string.ascii_uppercase + string.digits, k=12)
-            )
+            self.wifi_id = random_identifier()
             # self.identifier_counter = 0
             # self.bluetooth_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
             # self.wifi_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
         if self.identifier_counter % self.interval_lte == 0:
             print("randomized lte")
-            self.lte_id = "".join(
-                random.choices(string.ascii_uppercase + string.digits, k=12)
-            )
+            self.lte_id = random_identifier()
             print(self.lte_id)
 
 
@@ -256,10 +264,10 @@ devices = []
 
 for i in range(num_users):
     user_id = "User{}".format(i + 1)
-    bluetooth_id = "".join(random.choices(string.ascii_uppercase + string.digits, k=12))
-    wifi_id = "".join(random.choices(string.ascii_uppercase + string.digits, k=12))
+    bluetooth_id = random_identifier()
+    wifi_id = random_identifier()
     lte_id = "LTEDevice{}".format(i + 1)
-    location = (random.uniform(-10, 10), random.uniform(-10, 10))
+    location = (random.uniform(-AREA_SIZE, AREA_SIZE), random.uniform(-AREA_SIZE, AREA_SIZE))
     bluetooth_device = Bluetooth(location)
     wifi_device = WiFi(location)
     lte_device = LTE(lte_id, location)
@@ -270,7 +278,7 @@ for i in range(num_users):
 
 sniffers = []
 for i in range(num_sniffer):
-    sniffer_location = (random.uniform(-10, 10), random.uniform(-10, 10))
+    sniffer_location = (random.uniform(-AREA_SIZE, AREA_SIZE), random.uniform(-AREA_SIZE, AREA_SIZE))
     sniffer = Sniffer(i, sniffer_location, bluetooth_range=2, wifi_range=3, lte_range=5)
     sniffers.append(sniffer)
 
