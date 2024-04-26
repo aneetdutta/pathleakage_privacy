@@ -814,4 +814,39 @@ for target_time in range(0,499):
 for device in manager.device_list:
     print(device.bluetooth_id, device.wifi_id, device.lte_id)
 
-print(linked_ids)     
+print(linked_ids)    
+
+def generate_traces(bluetooth_id,wifi_id,lte_id):
+    flag=0
+    flag1=0
+    flag2=0
+    for line in data:
+        if line['protocol']=='Bluetooth' and line['bluetooth_id']==bluetooth_id:
+            print(line)
+        if line['protocol']=='WiFi' and line['WiFi_id']==wifi_id:
+            print(line)
+        if line['protocol']=='LTE' and line['lte_id']==lte_id:
+            print(line)
+    for key,value in linked_ids.items():
+        if value==lte_id:
+            lte_id=str(key)
+            print(lte_id)
+            flag=1
+        
+        if value ==bluetooth_id:
+            bluetooth_id=str(key)
+            flag=1
+        
+        if value==wifi_id:
+            wifi_id=str(key)
+            flag=1
+        
+    if flag==1:
+        generate_traces(bluetooth_id,wifi_id,lte_id)
+    else:
+        return
+
+bluetooth_id='ZJ47CPIH9DTE'
+wifi_id='YGJAG42VIO9P'
+lte_id='RYYTJ1U3B53D'
+generate_traces(bluetooth_id,wifi_id,lte_id)
