@@ -19,6 +19,80 @@ data = json.load(f)
 # Closing file
 f.close()
 
+mapped_devices=dict()
+linked_ids=dict()
+
+
+
+
+class Device:
+    def __init__(self, bluetooth_id, wifi_id, lte_id):
+        self.bluetooth_id = bluetooth_id
+        self.lte_id = lte_id
+        self.wifi_id = wifi_id
+
+class DeviceManager:
+    def __init__(self):
+        self.devices = {}
+        self.device_list = []
+
+    def create_device(self, 'bluetooth_id', 'wifi_id','lte_id',bluetooth_id,wifi_id,lte_id):
+        flag=0
+        flag1=0
+        flag2=0
+        for device in self.device_list:
+            if getattr(device,'bluetooth_id') is not None:
+                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+                flag=1
+            if getattr(device,'wifi_id') is not None:
+                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+                flag1=1
+            if getattr(device,'lte_id') is not None:
+                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+                flag2=1
+                
+            if flag==1 and flag1==0 and flag2==1:
+                return
+            elif flag1==1 and flag2==1:
+                self.update_device(bluetooth_id,wifi_id,lte_id)
+            elif flag==1 and flag1==1 and flag2==1:
+                return
+                
+        new_device = Devices(field1, field2, field3)
+        self.devices[new_device.field1] = new_device
+        self.device_list.append(new_device)
+        print(f"Device with {field_to_check} '{value_to_check}' created.")
+
+    def update_device(self, field_to_check, value_to_check, field1, field2, field3):
+        for device in self.device_list:
+            if getattr(device, field_to_check) == value_to_check:
+                device.field1 = field1
+                device.field2 = field2
+                device.field3 = field3
+                print(f"Device with {field_to_check} '{value_to_check}' updated.")
+                return
+        print(f"Device with {field_to_check} '{value_to_check}' does not exist.")
+
+# Example usage:
+manager = DeviceManager()
+
+# Creating a device
+manager.create_device("field1", "value1", "value2", "value3")
+
+# Trying to create the same device again
+manager.create_device("field1", "value1", "value2", "value3")
+
+# Updating an existing device
+manager.update_device("field1", "value1", "new_value2", "new_value3", "new_value4")
+
+# Trying to update a non-existing device
+manager.update_device("field1", "non_existent_value", "value1", "value2", "value3")
+
+
+
+
+
+
 
 def maptoran(item1,item2):
     l=[]
@@ -75,6 +149,10 @@ def rule_1(line1,line2):#invoked after checking the condition of time and locati
     else:
         mapping=None
     #print(mapping)
+    if mapping is not None:
+        print("by rule 1")
+        print(mapping)
+        devices.append(mapping)
 
 def rule_2(line1):
      #print("By Rule 2")
@@ -198,6 +276,7 @@ def rule_3(line1,line2):
         print("by rule 3")   
         print(mapping)
         devices.append(mapping)
+    return mapping
     
     
         
@@ -435,7 +514,7 @@ def rule_5(line1,line2):
             mapping=None
             #print("aneet")
     else:
-        if  len(l2)==1  and len(l3)==1 and len(l1)==1 and len(d)==len(sc_2) and len(d1)==len(sb_2) and len(d2)==len(sc_2):
+        if len(l2)==1  and len(l3)==1 and len(l1)==1 and len(d)==len(sc_2) and len(d1)==len(sb_2) and len(d2)==len(sc_2):
             mapping=((l1[0],l2[0],l3[0]))
         else:
             mapping=None
@@ -450,6 +529,8 @@ def rule_5(line1,line2):
     if mapping is not None:
         print("by rule 5")  
         #print(sb_1)
+        #print(line1)
+        #print(line2)
         #print(sb_2)  
         print(mapping)
         devices.append(mapping)
@@ -498,7 +579,7 @@ def group_lines_by_distance(lines, threshold_distance):
           #      print(line)
            #     flag=1
             #    print("--------")
-        distance_threshold_lte=20
+        distance_threshold_lte=10
         distance_threshold=1
         added_to_existing_group = False
         lte=False
@@ -637,45 +718,51 @@ for target_time in range(0,500):
             L=[]
             L.append(l)
             D[target_time]=L
-            
+ 
+r={}  
+binding={}         
 for target_time in range(0,499):
     if target_time in D.keys():
         l=D[target_time]
-    if target_time+1 in D.keys():
-        l1=D[target_time+1]
-    for item in l:
+    
+    new_target=target_time+1
+    for j in range(new_target,new_target+25):
+         
+        if j in D.keys():
+            l1=D[j]
+        else:
+           j = new_target+1
+           continue
+    
+        for item in l:
         #print(item)
-        rule_2(item)
-        for item1 in l1:
-            rule_3(item,item1)
-            rule_4(item,item1)
-            rule_5(item,item1)
-            rule_6(item,item1)
+            rule_2(item)
+            for item1 in l1:
+                mapping=rule_3(item,item1)
+                if mapping is not None:
+                    #print("---")
+                    #print(mapping)
+                    linked_ids[mapping[0].pop()]=mapping[1].pop()
+                mapping=rule_1(item,item1)
+                if mapping is not None:
+                    #print("---")
+                    #print(mapping)
+                    linked_ids[mapping[0].pop()]=mapping[1].pop()
+                
+                rule_4(item,item1)
+                rule_5(item,item1)
+                rule_6(item,item1)
     print("=========")
 
+#print(D)
+print(linked_ids)
 
-f = open('user_data.json')
- 
-# returns JSON object as 
-# a dictionary
-data = json.load(f)
- 
-# Iterating through the json
-# list
-#for i in data:
- #   print(i['timestep'])
- 
-# Closing file
-f.close()
-c=0  
-#devices=list(set(devices))         
-print(devices)
-                   
-                
+#for item in r.keys():
+ #   print(item)
+  #  print(r[item])
+   # print("----------------")
+#({'IDI8ZODMQ4U8'}, {'ONF66ZSF9Q93'})
+
+
+
         
-
-
-
-
-    
-   
