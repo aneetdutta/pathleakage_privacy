@@ -36,7 +36,7 @@ class DeviceManager:
         self.devices = {}
         self.device_list = []
 
-    def create_device(self,bluetooth_id,wifi_id,lte_id):
+     def create_device(self,bluetooth_id,wifi_id,lte_id):
         flag=0
         flag1=0
         flag2=0
@@ -59,10 +59,12 @@ class DeviceManager:
               #  return
             #elif flag==1 and flag1==1 and flag2==1:
              #   return
-            else:   
-                new_device = Device(bluetooth_id,wifi_id,lte_id)
+            #else:  
+             #   print("new device") 
+              #  new_device = Device(bluetooth_id,wifi_id,lte_id)
         #self.devices[new_device.field1] = new_device
-                self.device_list.append(new_device)
+               # self.device_list.append(new_device)
+                #return
                 
         new_device = Device(bluetooth_id,wifi_id,lte_id)
         #self.devices[new_device.field1] = new_device
