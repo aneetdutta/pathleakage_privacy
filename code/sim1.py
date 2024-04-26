@@ -12,13 +12,21 @@ import sys
 AREA_SIZE = 10
 
 # Duration of the simulation (in seconds)
-DURATION_SIMULATION = 5
+DURATION_SIMULATION = 500
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
+#-------------------------#
+#   Movement Parameters   #
+#-------------------------#
+
 # Step size
 MAX_STEP_SIZE = 0.5
+
+PROBABILITY_PAUSE = 0.3
+PAUSE_DURATION_MIN = 1
+PAUSE_DURATION_MAX = 5
 
 
 # Utility functions
@@ -81,8 +89,11 @@ class User:
         self.lte_id = lte_id
         self.location = location
         self.max_step_size = max_step_size
-        self.pause_time = random.uniform(1, 5)  # Random initial pause time
+
+        self.pause_time = random.uniform(PAUSE_DURATION_MIN, PAUSE_DURATION_MAX)  # Random initial pause time
+        # TODO: why do users start off paused?
         self.is_paused = True
+
         self.identifier_counter = 0
         self.interval_ble = random.randint(1, 10)
         self.interval_wifi = random.randint(5, 50)
@@ -93,7 +104,7 @@ class User:
             self.pause_time -= 1
             if self.pause_time <= 0:
                 self.is_paused = False
-                self.pause_time = random.uniform(1, 5)
+                self.pause_time = random.uniform(PAUSE_DURATION_MAX, PAUSE_DURATION_MAX)
             return
 
         # Simulate random walk movement within a predefined area
@@ -107,20 +118,20 @@ class User:
         self.location = (x, y)
 
         # Randomly pause after movement
-        if random.random() < 0.3:
+        if random.random() < PROBABILITY_PAUSE:
             self.is_paused = True
 
     def randomize_identifiers(self):
         self.identifier_counter += 1
+
         if self.identifier_counter % self.interval_ble == 0:
             print("Randomized ble")
             self.bluetooth_id = random_identifier()
+
         if self.identifier_counter % self.interval_wifi == 0:
             print("randomized wifi")
             self.wifi_id = random_identifier()
-            # self.identifier_counter = 0
-            # self.bluetooth_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
-            # self.wifi_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+
         if self.identifier_counter % self.interval_lte == 0:
             print("randomized lte")
             self.lte_id = random_identifier()
