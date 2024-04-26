@@ -23,8 +23,6 @@ mapped_devices=dict()
 linked_ids=dict()
 
 
-
-
 class Device:
     def __init__(self, bluetooth_id, wifi_id, lte_id):
         self.bluetooth_id = bluetooth_id
@@ -36,7 +34,7 @@ class DeviceManager:
         self.devices = {}
         self.device_list = []
 
-     def create_device(self,bluetooth_id,wifi_id,lte_id):
+    def create_device(self,bluetooth_id,wifi_id,lte_id):
         flag=0
         flag1=0
         flag2=0
@@ -72,7 +70,7 @@ class DeviceManager:
         #print(f"Device with {field_to_check} '{value_to_check}' created.")
 
     def update_device(self,device,bluetooth_id,wifi_id,lte_id):
-        
+        print("update device")
         device.bluetooth_id = bluetooth_id
         device.wifi_id = wifi_id
         device.lte_id = lte_id
@@ -81,6 +79,7 @@ class DeviceManager:
         
         
     def linking_id(self,protocol,old_id,new_id):
+        print("link device")
         for device in self.device_list:
             
             if protocol=='Bluetooth':
@@ -95,6 +94,8 @@ class DeviceManager:
                     
                 
         return
+
+
 
 
 
@@ -160,8 +161,9 @@ def rule_1(line1,line2):#invoked after checking the condition of time and locati
         print(mapping)
         devices.append(mapping)
 
-def rule_2(line1):
+def rule_2(manager,line1):
      #print("By Rule 2")
+     #manager = DeviceManager()
      sa_1=[]
      sb_1=[]
      sc_1=[]
@@ -183,10 +185,15 @@ def rule_2(line1):
      if d==1 and d1==1 and d2!=1:
          #print("hi")
          mapping=(set(sa_1),set(sb_1))
+         manager.create_device(set(sa_1).pop(),set(sb_1).pop(),None)
+         
+         
      elif d!=1 and d1==1 and d2==1:
          mapping=(set(sb_1),set(sc_1))
+         manager.create_device(None,set(sb_1).pop(),set(sc_1).pop())
      elif d==1 and d1==1 and d2==1:
          mapping=(set(sa_1),set(sb_1),set(sc_1))
+         manager.create_device(set(sa_1).pop(),set(sb_1).pop(),set(sc_1).pop())
      
      else:
          mapping=None
@@ -198,7 +205,7 @@ def rule_2(line1):
      #print(mapping)
      
    
-def rule_3(line1,line2):
+def rule_3(manager,line1,line2):
     #print("By rule 3")
     #print(line1)
     #print(line2)
@@ -208,7 +215,8 @@ def rule_3(line1,line2):
     for item in line1:
         if item[0]=='Bluetooth':
             sa_1.append(item[1])
-        elif item[0] is 'WiFi':
+        elif item[0]== 'WiFi':
+            #print(item[0])
             sb_1.append(item[1])
         elif item[0]=='LTE':
             sc_1.append(item[1])
@@ -248,7 +256,11 @@ def rule_3(line1,line2):
         if len(l2)==len(sb_1) and len(l2)==len(sb_2):
             if len(l3)==len(sc_1)-1 and len(l3)==len(sc_2)-1:
                 print("hello")
+                
                 mapping=(set(sc_1)-set(l3),set(sc_2)-set(l3))
+                old_id=(set(sc_1)-set(l3)).pop()
+                new_id=(set(sc_2)-set(l3)).pop()
+                manager.linking_id('LTE',old_id,new_id)
                 #print(mapping)
             else:
                 mapping=None
@@ -260,6 +272,9 @@ def rule_3(line1,line2):
         if len(l3)==len(sc_1) and len(l3)==len(sc_2):
             if len(l2)==len(sb_1)-1 and len(l2)==len(sb_2)-1:
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
+                old_id=(set(sb_1)-set(l2)).pop()
+                new_id=(set(sb_2)-set(l2)).pop()
+                manager.linking_id('WiFi',old_id,new_id)
             else:
                 mapping=None
         else:
@@ -270,6 +285,9 @@ def rule_3(line1,line2):
         if len(l3)==len(sc_1) and len(l3)==len(sc_2):
             if len(l1)==len(sa_1)-1 and len(l1)==len(sa_2)-1:
                 mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
+                old_id=(set(sa_1)-set(l1)).pop()
+                new_id=(set(sa_2)-set(l1)).pop()
+                manager.linking_id('Bluetooth',old_id,new_id)
             else:
                 mapping=None
         else:
@@ -279,7 +297,12 @@ def rule_3(line1,line2):
            
     #print(mapping)
     if mapping is not None: 
-        print("by rule 3")   
+        print("by rule 3")
+        print(line1)
+        #print(line2)   
+        #print(len(l2))
+        #print(sb_1)
+        #print(len(sb_2))
         print(mapping)
         devices.append(mapping)
     return mapping
@@ -288,7 +311,7 @@ def rule_3(line1,line2):
         
      
 
-def rule_4(line1,line2):
+def rule_4(manager,line1,line2):
     #print("by rule 4")
     sa_1=[]
     sb_1=[]
@@ -322,13 +345,15 @@ def rule_4(line1,line2):
     #print(d2)
     if len(d)==0:
         if len(d1)==1 and len(d2)==1 and len(sc_1)==len(sb_1) and len(sb_2)==len(sc_2):
-            mapping=((d1,d2))
+            mapping=((d1[0],d2[0]))
+            manager.create_device(None,d1[0],d2[0])
         else:
             mapping=None
             #print("aneet")
     else:
         if len(d)==1 and len(d1)==1 and len(d2)==1 and len(sc_1)==len(sb_1) and len(sb_2)==len(sc_2) and len(sa_1)==len(sb_1) and len(sa_1)==len(sc_1) and len(sa_2)==len(sb_2) and len(sa_2)==len(sc_2):
-            mapping=((d,d1,d2))
+            mapping=((d[0],d1[0],d2[0]))
+            manager.create_device(d[0],d1[0],d2[0])
         else:
             mapping=None
             
@@ -726,13 +751,14 @@ for target_time in range(0,500):
             D[target_time]=L
  
 r={}  
-binding={}         
-for target_time in range(0,499):
+binding={}    
+manager = DeviceManager()     
+for target_time in range(0,100):
     if target_time in D.keys():
         l=D[target_time]
     
     new_target=target_time+1
-    for j in range(new_target,new_target+25):
+    for j in range(new_target,new_target+1):
          
         if j in D.keys():
             l1=D[j]
@@ -742,9 +768,9 @@ for target_time in range(0,499):
     
         for item in l:
         #print(item)
-            rule_2(item)
+            rule_2(manager,item)
             for item1 in l1:
-                mapping=rule_3(item,item1)
+                mapping=rule_3(manager,item,item1)
                 if mapping is not None:
                     #print("---")
                     #print(mapping)
@@ -755,13 +781,13 @@ for target_time in range(0,499):
                     #print(mapping)
                     linked_ids[mapping[0].pop()]=mapping[1].pop()
                 
-                rule_4(item,item1)
+                rule_4(manager,item,item1)
                 rule_5(item,item1)
                 rule_6(item,item1)
     print("=========")
 
 #print(D)
-print(linked_ids)
+#print(linked_ids)
 
 #for item in r.keys():
  #   print(item)
@@ -771,4 +797,7 @@ print(linked_ids)
 
 
 
-        
+for device in manager.device_list:
+    print(device.bluetooth_id, device.wifi_id, device.lte_id)
+
+print(linked_ids)     
