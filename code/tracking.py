@@ -72,11 +72,17 @@ class DeviceManager:
     def update_device(self,device,bluetooth_id,wifi_id,lte_id):
         
         if bluetooth_id is not None and device.bluetooth_id!=bluetooth_id:
+            linked_ids[device.bluetooth_id]=bluetooth_id
             device.bluetooth_id = bluetooth_id
+            
         if wifi_id is not None and device.wifi_id!=wifi_id:
+            linked_ids[device.wifi_id]=wifi_id
             device.wifi_id = wifi_id
+            
         if lte_id is not None and device.lte_id!=lte_id:
+            linked_ids[device.lte_id]=lte_id
             device.lte_id = lte_id
+            
                 
         return
         
@@ -808,4 +814,4 @@ for target_time in range(0,499):
 for device in manager.device_list:
     print(device.bluetooth_id, device.wifi_id, device.lte_id)
 
-#print(linked_ids)     
+print(linked_ids)     
