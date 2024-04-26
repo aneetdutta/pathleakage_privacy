@@ -36,59 +36,63 @@ class DeviceManager:
         self.devices = {}
         self.device_list = []
 
-    def create_device(self, 'bluetooth_id', 'wifi_id','lte_id',bluetooth_id,wifi_id,lte_id):
+    def create_device(self,bluetooth_id,wifi_id,lte_id):
         flag=0
         flag1=0
         flag2=0
         for device in self.device_list:
-            if getattr(device,'bluetooth_id') is not None:
-                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+            if getattr(device,'bluetooth_id') is not None and getattr(device,'bluetooth_id')==bluetooth_id:
+                
                 flag=1
-            if getattr(device,'wifi_id') is not None:
-                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+            if getattr(device,'wifi_id') is not None and getattr(device,'wifi_id')==wifi_id:
+                
                 flag1=1
-            if getattr(device,'lte_id') is not None:
-                print(f"Device with {field_to_check} '{value_to_check}' already exists.")
+            if getattr(device,'lte_id') is not None and getattr(device,'lte_id')==lte_id:
+                
                 flag2=1
                 
-            if flag==1 and flag1==0 and flag2==1:
-                return
-            elif flag1==1 and flag2==1:
-                self.update_device(bluetooth_id,wifi_id,lte_id)
-            elif flag==1 and flag1==1 and flag2==1:
-                return
+            if flag==1 or flag1==1 or flag2==1:
+                self.update_device(device,bluetooth_id,wifi_id,lte_id)  
+                return  
+            #elif flag==0 and flag1==1 and flag2==1:
+             #   self.update_device(device,bluetooth_id,wifi_id,lte_id)
+              #  return
+            #elif flag==1 and flag1==1 and flag2==1:
+             #   return
+            else:   
+                new_device = Device(bluetooth_id,wifi_id,lte_id)
+        #self.devices[new_device.field1] = new_device
+                self.device_list.append(new_device)
                 
-        new_device = Devices(field1, field2, field3)
-        self.devices[new_device.field1] = new_device
+        new_device = Device(bluetooth_id,wifi_id,lte_id)
+        #self.devices[new_device.field1] = new_device
         self.device_list.append(new_device)
-        print(f"Device with {field_to_check} '{value_to_check}' created.")
+        #print(f"Device with {field_to_check} '{value_to_check}' created.")
 
-    def update_device(self, field_to_check, value_to_check, field1, field2, field3):
+    def update_device(self,device,bluetooth_id,wifi_id,lte_id):
+        
+        device.bluetooth_id = bluetooth_id
+        device.wifi_id = wifi_id
+        device.lte_id = lte_id
+                
+        return
+        
+        
+    def linking_id(self,protocol,old_id,new_id):
         for device in self.device_list:
-            if getattr(device, field_to_check) == value_to_check:
-                device.field1 = field1
-                device.field2 = field2
-                device.field3 = field3
-                print(f"Device with {field_to_check} '{value_to_check}' updated.")
-                return
-        print(f"Device with {field_to_check} '{value_to_check}' does not exist.")
-
-# Example usage:
-manager = DeviceManager()
-
-# Creating a device
-manager.create_device("field1", "value1", "value2", "value3")
-
-# Trying to create the same device again
-manager.create_device("field1", "value1", "value2", "value3")
-
-# Updating an existing device
-manager.update_device("field1", "value1", "new_value2", "new_value3", "new_value4")
-
-# Trying to update a non-existing device
-manager.update_device("field1", "non_existent_value", "value1", "value2", "value3")
-
-
+            
+            if protocol=='Bluetooth':
+                if getattr(device,'bluetooth_id') == old_id:
+                    device.bluetooth_id = new_id
+            if protocol=='WiFi':
+                if getattr(device,'wifi_id') == old_id:
+                    device.wifi_id=new_id
+            if protocol=='LTE':
+                if getattr(device,'lte_id') == old_id:
+                    device.lte_id=new_id
+                    
+                
+        return
 
 
 
