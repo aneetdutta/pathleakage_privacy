@@ -185,10 +185,8 @@ class Sniffer:
             detected_users.append(record)
 
 
-# Create some users
+# Create users users
 users = []
-
-
 for i in range(num_users):
     user_id = "User{}".format(i + 1)
 
@@ -196,17 +194,29 @@ for i in range(num_users):
     wifi_id = random_identifier()
     lte_id = "LTEDevice{}".format(i + 1)
 
-    location = (random.uniform(-AREA_SIZE, AREA_SIZE), random.uniform(-AREA_SIZE, AREA_SIZE))
+    # Pick a random initial location for the user
+    location = (
+        random.uniform(-AREA_SIZE, AREA_SIZE),
+        random.uniform(-AREA_SIZE, AREA_SIZE),
+    )
 
-    user = User(user_id, bluetooth_id, wifi_id, lte_id, location, max_step_size=MAX_STEP_SIZE)
+    user = User(
+        user_id, bluetooth_id, wifi_id, lte_id, location, max_step_size=MAX_STEP_SIZE
+    )
     users.append(user)
 
 
+# Create sniffers
 sniffers = []
 for i in range(num_sniffer):
-    sniffer_location = (random.uniform(-AREA_SIZE, AREA_SIZE), random.uniform(-AREA_SIZE, AREA_SIZE))
+    # Pick a random location for the sniffer within the space
+    sniffer_location = (
+        random.uniform(-AREA_SIZE, AREA_SIZE),
+        random.uniform(-AREA_SIZE, AREA_SIZE),
+    )
     sniffer = Sniffer(i, sniffer_location, bluetooth_range=2, wifi_range=3, lte_range=5)
     sniffers.append(sniffer)
+
 
 # Simulate user movement and randomize identifiers
 user_data = []
