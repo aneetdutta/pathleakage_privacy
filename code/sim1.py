@@ -28,6 +28,24 @@ PROBABILITY_PAUSE = 0.3
 PAUSE_DURATION_MIN = 1
 PAUSE_DURATION_MAX = 5
 
+#-------------------------#
+#    Refresh Intervals    #
+#-------------------------#
+
+# Next refresh is always drawn from the intervals specified below
+
+# Bluetooth IDs refresh range uniform (in s)
+BLUETOOTH_MIN_REFRESH = 10 * 60
+BLUETOOTH_MAX_REFRESH = 45 * 60
+
+# WifI ID refresh range uniform (in s)
+WIFI_MIN_REFRESH = 10 * 60
+WIFI_MAX_REFRESH = 45 * 60
+
+# LTE refresh range uniform (in s)
+LTE_MIN_REFRESH =  1 * 60
+LTE_MAX_REFRESH =  5 * 60
+
 
 # Utility functions
 def random_identifier():
@@ -95,9 +113,21 @@ class User:
         self.is_paused = True
 
         self.identifier_counter = 0
-        self.interval_ble = random.randint(1, 10)
-        self.interval_wifi = random.randint(5, 50)
-        self.interval_lte = random.randint(5, 15)
+        self.set_next_bluetooth_refresh()
+        self.set_next_wifi_refresh()
+        self.set_next_lte_refresh()
+
+    def set_next_bluetooth_refresh(self):
+        duration = random.randint(BLUETOOTH_MIN_REFRESH, BLUETOOTH_MAX_REFRESH)
+        self.next_bluetooth_refresh = self.identifier_counter + duration
+
+    def set_next_wifi_refresh(self):
+        duration = random.randint(WIFI_MIN_REFRESH, WIFI_MAX_REFRESH)
+        self.next_wifi_refresh = self.identifier_counter + duration
+
+    def set_next_lte_refresh(self):
+        duration = random.randint(LTE_MIN_REFRESH, LTE_MAX_REFRESH)
+        self.next_lte_refresh = self.identifier_counter + duration
 
     def move(self):
         if self.is_paused:
@@ -124,18 +154,20 @@ class User:
     def randomize_identifiers(self):
         self.identifier_counter += 1
 
-        if self.identifier_counter % self.interval_ble == 0:
+        if self.identifier_counter >= self.next_bluetooth_refresh:
             print("Randomized ble")
+            self.set_next_bluetooth_refresh()
             self.bluetooth_id = random_identifier()
 
-        if self.identifier_counter % self.interval_wifi == 0:
+        if self.identifier_counter >= self.next_wifi_refresh:
             print("randomized wifi")
+            self.set_next_wifi_refresh()
             self.wifi_id = random_identifier()
 
-        if self.identifier_counter % self.interval_lte == 0:
+        if self.identifier_counter >= self.next_lte_refresh:
             print("randomized lte")
+            self.set_next_lte_refresh()
             self.lte_id = random_identifier()
-            print(self.lte_id)
 
 
 sniffed_devices = {}
