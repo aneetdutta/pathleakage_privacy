@@ -9,10 +9,10 @@ import sys
 ###############################
 
 # Area of capture dimension (in meters)
-AREA_SIZE = 10
+AREA_SIZE = 20
 
 # Duration of the simulation (in seconds)
-DURATION_SIMULATION = 500
+DURATION_SIMULATION = 2500
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
@@ -35,17 +35,21 @@ PAUSE_DURATION_MAX = 5
 # Next refresh is always drawn from the intervals specified below
 
 # Bluetooth IDs refresh range uniform (in s)
-BLUETOOTH_MIN_REFRESH = 10 * 60
-BLUETOOTH_MAX_REFRESH = 45 * 60
+BLUETOOTH_MIN_REFRESH = 10 #adjust *60 
+BLUETOOTH_MAX_REFRESH = 45 
 
 # WifI ID refresh range uniform (in s)
-WIFI_MIN_REFRESH = 10 * 60
-WIFI_MAX_REFRESH = 45 * 60
+WIFI_MIN_REFRESH = 20 
+WIFI_MAX_REFRESH = 55 
 
 # LTE refresh range uniform (in s)
 LTE_MIN_REFRESH =  1 * 60
 LTE_MAX_REFRESH =  5 * 60
 
+#Range for communication protocols
+bluetooth_range=100
+wifi_range=100
+lte_range=100
 
 # Utility functions
 def random_identifier():
@@ -193,38 +197,52 @@ class Sniffer:
             + (self.location[1] - user.location[1]) ** 2
         ) ** 0.5
 
-        record = {
-            "timestep": timestep,
-            "sniffer_id": self.id,
-            "sniffer_location": self.location,
-            "location": user.location,
-        }
+        #record = {
+         #   "timestep": timestep,
+          #  "sniffer_id": self.id,
+          #  "sniffer_location": self.location,
+          #  "location": user.location,
+       # }
 
         if distance <= self.bluetooth_range:
-            record.update(
-                {
+            record={
+                    "timestep": timestep,
+                    "sniffer_id": self.id,
+                    "sniffer_location": self.location,
+                    "location": user.location,
+ 
                     "protocol": "Bluetooth",
                     "bluetooth_id": user.bluetooth_id,
-                }
-            )
+                
+            }
             detected_users.append(record)
 
         if distance <= self.wifi_range:
-            record.update(
-                {
+            record={
+                    "timestep": timestep,
+                    "sniffer_id": self.id,
+                    "sniffer_location": self.location,
+                    "location": user.location,
+
                     "protocol": "WiFi",
                     "WiFi_id": user.wifi_id,
-                }
-            )
+                 
+            }
+
             detected_users.append(record)
 
         if distance <= self.lte_range:
-            record.update(
-                {
+            record={
+                    "timestep": timestep,
+                    "sniffer_id": self.id,
+                    "sniffer_location": self.location,
+                    "location": user.location,
+
                     "protocol": "LTE",
                     "lte_id": user.lte_id,
-                }
-            )
+                 
+            }
+
             detected_users.append(record)
 
 
@@ -257,7 +275,7 @@ for i in range(num_sniffer):
         random.uniform(-AREA_SIZE, AREA_SIZE),
         random.uniform(-AREA_SIZE, AREA_SIZE),
     )
-    sniffer = Sniffer(i, sniffer_location, bluetooth_range=2, wifi_range=3, lte_range=5)
+    sniffer = Sniffer(i, sniffer_location, bluetooth_range, wifi_range, lte_range)
     sniffers.append(sniffer)
 
 
