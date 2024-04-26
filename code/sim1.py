@@ -144,49 +144,45 @@ class Sniffer:
         self.detected_devices = []
         # self.sniffed_devices={}
 
-
     def detect_users(self, user, timestep):
         distance = (
             (self.location[0] - user.location[0]) ** 2
             + (self.location[1] - user.location[1]) ** 2
         ) ** 0.5
 
+        record = {
+            "timestep": timestep,
+            "sniffer_id": self.id,
+            "sniffer_location": self.location,
+            "location": user.location,
+        }
+
         if distance <= self.bluetooth_range:
-            protocol = "Bluetooth"
-            detected_users.append(
+            record.update(
                 {
-                    "timestep": timestep,
-                    "sniffer_id": self.id,
-                    "sniffer_location": self.location,
-                    "protocol": protocol,
+                    "protocol": "Bluetooth",
                     "bluetooth_id": user.bluetooth_id,
-                    "location": user.location,
                 }
             )
+            detected_users.append(record)
+
         if distance <= self.wifi_range:
-            protocol = "WiFi"
-            detected_users.append(
+            record.update(
                 {
-                    "timestep": timestep,
-                    "sniffer_id": self.id,
-                    "sniffer_location": self.location,
-                    "protocol": protocol,
+                    "protocol": "WiFi",
                     "WiFi_id": user.wifi_id,
-                    "location": user.location,
                 }
             )
+            detected_users.append(record)
+
         if distance <= self.lte_range:
-            protocol = "LTE"
-            detected_users.append(
+            record.update(
                 {
-                    "timestep": timestep,
-                    "sniffer_id": self.id,
-                    "sniffer_location": self.location,
-                    "protocol": protocol,
+                    "protocol": "LTE",
                     "lte_id": user.lte_id,
-                    "location": user.location,
                 }
             )
+            detected_users.append(record)
 
 
 # Create some users
