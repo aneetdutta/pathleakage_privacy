@@ -70,10 +70,13 @@ class DeviceManager:
         #print(f"Device with {field_to_check} '{value_to_check}' created.")
 
     def update_device(self,device,bluetooth_id,wifi_id,lte_id):
-        print("update device")
-        device.bluetooth_id = bluetooth_id
-        device.wifi_id = wifi_id
-        device.lte_id = lte_id
+        
+        if bluetooth_id is not None and device.bluetooth_id!=bluetooth_id:
+            device.bluetooth_id = bluetooth_id
+        if wifi_id is not None and device.wifi_id!=wifi_id:
+            device.wifi_id = wifi_id
+        if lte_id is not None and device.lte_id!=lte_id:
+            device.lte_id = lte_id
                 
         return
         
@@ -418,6 +421,7 @@ def rule_6(line1,line2):
             #e1=set(sb_1)-set(sb_2)
             #e2=set(sc_1)-set(sc_2)
             mapping=[(l2[0],'WiFi'),(l3[0],'LTE')]
+            manager.create_device(None,l2[0],l3[0])
             #e1=set(sb_1)-set(sb_2)
             #e2=set(sc_1)-set(sc_2)
             #print("&&&&&&&&&&")
@@ -435,7 +439,8 @@ def rule_6(line1,line2):
            # if len(T[i][0])==0:
             #    T[i][0]=mapping
            # else:
-            mapping=[[(l2[0],'WiFi'),(l3[0],'LTE')]]
+            #mapping=[[(l2[0],'WiFi'),(l3[0],'LTE')]]
+            #manager.create_device(l1[0],l2[0],l3[0])
             #    T[i].append(mapping)
             #print(T[i])
             #print("&&&&&&&&&&")
@@ -449,6 +454,7 @@ def rule_6(line1,line2):
             #e2=set(sb_1)-set(sb_2)
             #e3=set(sc_1)-set(sc_2)
             mapping=[(l1[0],'Bluetooth'),(l2[0],'WiFi'),(l3[0],'LTE')]
+            manager.create_device(l1[0],l2[0],l3[0])
             #print(mapping)
             #print(T[i][0])
             #for del_item in mapping:
@@ -539,6 +545,7 @@ def rule_5(line1,line2):
     if len(l1)==0:
         if len(l2)==1 and len(l3)==1 and len(d1)==len(sb_2) and len(d2)==len(sc_2):
             mapping=((l2[0],l3[0]))
+            manager.create_device(None,l2[0],l3[0])
             
             
         else:
@@ -547,6 +554,7 @@ def rule_5(line1,line2):
     else:
         if len(l2)==1  and len(l3)==1 and len(l1)==1 and len(d)==len(sc_2) and len(d1)==len(sb_2) and len(d2)==len(sc_2):
             mapping=((l1[0],l2[0],l3[0]))
+            manager.create_device(l1[0],l2[0],l3[0])
         else:
             mapping=None
             
@@ -753,7 +761,7 @@ for target_time in range(0,500):
 r={}  
 binding={}    
 manager = DeviceManager()     
-for target_time in range(0,100):
+for target_time in range(0,499):
     if target_time in D.keys():
         l=D[target_time]
     
@@ -800,4 +808,4 @@ for target_time in range(0,100):
 for device in manager.device_list:
     print(device.bluetooth_id, device.wifi_id, device.lte_id)
 
-print(linked_ids)     
+#print(linked_ids)     
