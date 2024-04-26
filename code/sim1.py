@@ -18,7 +18,7 @@ DURATION_SIMULATION = 5
 IDENTIFIER_LENGTH = 12
 
 # Step size
-MAX_STEP_SIZE=0.5
+MAX_STEP_SIZE = 0.5
 
 
 # Utility functions
