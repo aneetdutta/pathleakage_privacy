@@ -9,10 +9,10 @@ import sys
 ###############################
 
 # Area of capture dimension (in meters)
-AREA_SIZE = 20
+AREA_SIZE = 500
 
 # Duration of the simulation (in seconds)
-DURATION_SIMULATION = 2500
+DURATION_SIMULATION = 5000
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
@@ -22,7 +22,7 @@ IDENTIFIER_LENGTH = 12
 #-------------------------#
 
 # Step size
-MAX_STEP_SIZE = 0.5
+MAX_STEP_SIZE = 2
 
 PROBABILITY_PAUSE = 0.3
 PAUSE_DURATION_MIN = 1
@@ -35,20 +35,20 @@ PAUSE_DURATION_MAX = 5
 # Next refresh is always drawn from the intervals specified below
 
 # Bluetooth IDs refresh range uniform (in s)
-BLUETOOTH_MIN_REFRESH = 10 #adjust *60 
-BLUETOOTH_MAX_REFRESH = 45 
+BLUETOOTH_MIN_REFRESH = 10*60 
+BLUETOOTH_MAX_REFRESH = 45*60
 
 # WifI ID refresh range uniform (in s)
-WIFI_MIN_REFRESH = 20 
-WIFI_MAX_REFRESH = 55 
+WIFI_MIN_REFRESH = 20*60 
+WIFI_MAX_REFRESH = 55*60
 
 # LTE refresh range uniform (in s)
-LTE_MIN_REFRESH =  1 * 60
-LTE_MAX_REFRESH =  5 * 60
+LTE_MIN_REFRESH =  10
+LTE_MAX_REFRESH =  60
 
 #Range for communication protocols
-bluetooth_range=100
-wifi_range=100
+bluetooth_range=10
+wifi_range=30
 lte_range=100
 
 # Utility functions
