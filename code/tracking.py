@@ -261,8 +261,8 @@ def rule_3(manager,line1,line2):
     #print(l3)
     #print(r3)
     
-    if len(l1)==len(sa_1) and len(l1)==len(sa_2):
-        if len(l2)==len(sb_1) and len(l2)==len(sb_2):
+    if len(l1)==len(sa_1) and len(l1)==len(sa_2) and len(l1)!=0:
+        if len(l2)==len(sb_1) and len(l2)==len(sb_2) and len(l2)!=0:
             if len(l3)==len(sc_1)-1 and len(l3)==len(sc_2)-1:
                 print("hello")
                 
@@ -277,8 +277,8 @@ def rule_3(manager,line1,line2):
             mapping=None
     #else:
      #   mapping=None
-    elif len(l1)==len(sa_1) and len(l1)==len(sa_2):
-        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
+    elif len(l1)==len(sa_1) and len(l1)==len(sa_2) and len(l1)!=0:
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2) and len(l3)!=0:
             if len(l2)==len(sb_1)-1 and len(l2)==len(sb_2)-1:
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
                 old_id=(set(sb_1)-set(l2)).pop()
@@ -290,8 +290,8 @@ def rule_3(manager,line1,line2):
             mapping=None
     #else:
      #   mapping=None
-    elif len(l2)==len(sb_1) and len(l2)==len(sb_2):
-        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
+    elif len(l2)==len(sb_1) and len(l2)==len(sb_2) and len(l2)!=0:
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2)and len(l3)!=0:
             if len(l1)==len(sa_1)-1 and len(l1)==len(sa_2)-1:
                 mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
                 old_id=(set(sa_1)-set(l1)).pop()
@@ -816,24 +816,28 @@ for device in manager.device_list:
 
 print(linked_ids)    
 
+tracking=[]
 def generate_traces(bluetooth_id,wifi_id,lte_id):
     flag=0
     flag1=0
     flag2=0
     for line in data:
         if line['protocol']=='Bluetooth' and line['bluetooth_id']==bluetooth_id:
-            print(line)
+            #print(line)
+            tracking.append(line['timestep'])
         if line['protocol']=='WiFi' and line['WiFi_id']==wifi_id:
-            print(line)
+            #print(line)
+            tracking.append(line['timestep'])
         if line['protocol']=='LTE' and line['lte_id']==lte_id:
-            print(line)
+            #print(line)
+            tracking.append(line['timestep'])
     for key,value in linked_ids.items():
         if value==lte_id:
             lte_id=str(key)
-            print(lte_id)
+            #print(lte_id)
             flag=1
         
-        if value ==bluetooth_id:
+        if value==bluetooth_id:
             bluetooth_id=str(key)
             flag=1
         
@@ -846,7 +850,14 @@ def generate_traces(bluetooth_id,wifi_id,lte_id):
     else:
         return
 
-bluetooth_id='ZJ47CPIH9DTE'
-wifi_id='YGJAG42VIO9P'
-lte_id='RYYTJ1U3B53D'
-generate_traces(bluetooth_id,wifi_id,lte_id)
+
+for device in manager.device_list:
+    #generate_traces(str(device.bluetooth_id),str(device.wifi_id),str(device.lte_id))
+    a=device.bluetooth_id
+    b=device.wifi_id
+    c=device.lte_id
+    generate_traces(a,b,c)
+    print(set(tracking))
+    tracking=[]
+    print("===========")
+    #print("------------------")
