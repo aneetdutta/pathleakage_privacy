@@ -894,7 +894,8 @@ for device in manager.device_list:
     b=device.wifi_id
     c=device.lte_id
     generate_traces(a,b,c)
-print(set(tracking))
+    print(set(tracking))
+    tracking=[]
     #print("------------------")
 with open('mapping.json', 'w') as f:
     json.dump(devices, f)
