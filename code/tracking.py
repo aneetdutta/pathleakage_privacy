@@ -261,7 +261,7 @@ def rule_3(manager,line1,line2):
     #print(l3)
     #print(r3)
     
-    if len(l1)==len(sa_1) and len(l1)==len(sa_2) and len(l1)!=0:
+    if len(l1)==len(sa_1) and len(l1)==len(sa_2):
         if len(l2)==len(sb_1) and len(l2)==len(sb_2) and len(l2)!=0:
             if len(l3)==len(sc_1)-1 and len(l3)==len(sc_2)-1:
                 print("hello")
@@ -277,7 +277,7 @@ def rule_3(manager,line1,line2):
             mapping=None
     #else:
      #   mapping=None
-    elif len(l1)==len(sa_1) and len(l1)==len(sa_2) and len(l1)!=0:
+    elif len(l1)==len(sa_1) and len(l1)==len(sa_2):
         if len(l3)==len(sc_1) and len(l3)==len(sc_2) and len(l3)!=0:
             if len(l2)==len(sb_1)-1 and len(l2)==len(sb_2)-1:
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
@@ -586,8 +586,45 @@ def rule_5(line1,line2):
     #print("Aneet")
     #T[i][0]=["Aneet"]
     #print(T[i][0])
+def elimination(mapping,line1,line2):
+    sa_1=[]
+    sb_1=[]
+    sc_1=[]
+    for item in line1:
+        if item[0]=='Bluetooth':
+            sa_1.append(item[1])
+        elif item[0]=='WiFi':
+            sb_1.append(item[1])
+        elif item[0]=='LTE':
+            sc_1.append(item[1])
+            
+    sa_2=[]
+    sb_2=[]
+    sc_2=[]
     
+    for item in line2:
+        if item[0]=='Bluetooth':
+            sa_2.append(item[1])
+        elif item[0]=='WiFi':
+            sb_2.append(item[1])
+        elif item[0]=='LTE':
+            sc_2.append(item[1])
+            
+    l=list(set(sa_1)-set(mapping))
+    l1=list(set(sa_2).intersection(set(l)))
     
+    l2=list(set(sb_1)-set(mapping))
+    l3=list(set(sb_2).intersection(set(l2)))
+            
+    l4=list(set(sc_1)-set(mapping))
+    l5=list(set(sc_2).intersection(set(l4)))
+    
+    if len(l1)==0:
+        if len(l3)==1 and len(l5)==1:
+            print(l3[0],l5[0])
+    else:
+        if len(l3)==1 and len(l5)==1 and len(l1)==1:
+            print(l1[0],l3[0],l5[0])   
             
         
 
@@ -857,7 +894,10 @@ for device in manager.device_list:
     b=device.wifi_id
     c=device.lte_id
     generate_traces(a,b,c)
-    print(set(tracking))
-    tracking=[]
-    print("===========")
+print(set(tracking))
     #print("------------------")
+with open('mapping.json', 'w') as f:
+    json.dump(devices, f)
+    
+with open("linked_ids.json", "w") as f:
+    json.dump(linked_ids, f)
