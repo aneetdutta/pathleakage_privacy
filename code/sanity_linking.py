@@ -143,7 +143,11 @@ print(count/len(linked_ids))
 count=0
 
 
-linked_ids_reconstruct = {value: key for key, value in linked_ids.items()}
+linked_ids_reconstruct = dict()
+
+for key,value in linked_ids.items():
+    if value not in linked_ids_reconstruct.keys():
+        linked_ids_reconstruct[value]=key
 
 file_path = "linked_ids.json"
 

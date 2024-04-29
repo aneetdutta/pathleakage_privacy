@@ -159,7 +159,7 @@ reconstructed=[]
 
 def generate_traces(bluetooth_id,wifi_id,lte_id):
     flag=0
-    
+    print("hi")
     for line in data:
         if line['protocol']=='Bluetooth' and line['bluetooth_id']==bluetooth_id:
             #print(line)
@@ -179,16 +179,21 @@ def generate_traces(bluetooth_id,wifi_id,lte_id):
             
        
     if lte_id in linked_ids.keys():
+        print(lte_id)
         lte_id=linked_ids[lte_id]
-            #print(lte_id)
+        print(lte_id)
         flag=1
         
     if bluetooth_id in linked_ids.keys():
+        print(bluetooth_id)
         bluetooth_id=linked_ids[bluetooth_id]  
+        print(bluetooth_id)
         flag=1
         
     if wifi_id in linked_ids:
+        print(wifi_id)
         wifi_id=linked_ids[wifi_id]
+        print(wifi_id)
         flag=1
         
     if flag==1:
@@ -231,7 +236,7 @@ for device in manager.device_list:
     tracking=[]
     #if len(user_traces[user_id])==1:
     print(user_id)
-    print((user_traces[user_id])
+    print(user_traces[user_id])
    # else:
     #    print(user_id)
      #   for item in user_traces[user_id]:
