@@ -143,8 +143,14 @@ print(count/len(linked_ids))
 count=0
 
 
+linked_ids_reconstruct = {value: key for key, value in linked_ids.items()}
 
+file_path = "linked_ids.json"
 
+# Open the file in write mode
+with open(file_path, 'w') as json_file:
+    # Serialize the dictionary to JSON and write it to the file
+    json.dump(linked_ids_reconstruct, json_file)
 
 
 
