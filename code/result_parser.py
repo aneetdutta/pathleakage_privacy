@@ -207,18 +207,32 @@ for device in manager.device_list:
             user_id2=line['user_id']
         if c is not None and line['lte_id']==c:
             user_id3=line['user_id']
-        if user_id1==user_id2 and user_id1==user_id3 and user_id1==user_id:
+        if a is None and user_id2==user_id3 and user_id2==user_id:
             print(line['user_id'])
             count=count+1
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
-        elif a is None and user_id2==user_id3 and user_id2==user_id:
+        elif user_id1==user_id2 and user_id1==user_id3 and user_id1==user_id:
             count=count+1
             print(line['user_id'])
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
+        elif b is None and user_id1==user_id3 and user_id1==user_id:
+            count=count+1
+            print(line['user_id'])
+            if line['user_id'] not in user_devices:
+                user_devices.append(line['user_id'])
+            break
+        elif c is None and user_id1==user_id2 and user_id1==user_id:
+            count=count+1
+            print(line['user_id'])
+            if line['user_id'] not in user_devices:
+                user_devices.append(line['user_id'])
+            break
+        
+        
             
             
     #print("------------------")
@@ -257,8 +271,9 @@ for device in manager.device_list:
         l.append(set(tracking))
         user_traces[user_id]=l
     tracking=[]
-
-print(user_traces)
+    print(user_traces['user_id'])
+    print("----")
+#print(user_traces)
 
 
 file_path = "user_traces.json"
@@ -267,6 +282,5 @@ file_path = "user_traces.json"
 with open(file_path, 'w') as json_file:
     # Serialize the dictionary to JSON and write it to the file
     json.dump(user_traces, json_file)
-
 
 
