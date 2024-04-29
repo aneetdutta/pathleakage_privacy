@@ -207,7 +207,7 @@ for device in manager.device_list:
             user_id2=line['user_id']
         if c is not None and line['lte_id']==c:
             user_id3=line['user_id']
-        if a is None and user_id2==user_id3 and user_id2==user_id:
+        if a is None and user_id2==user_id3:
             print(line['user_id'])
             count=count+1
             if line['user_id'] not in user_devices:
