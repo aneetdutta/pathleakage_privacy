@@ -888,17 +888,20 @@ def generate_traces(bluetooth_id,wifi_id,lte_id):
         return
 
 
-for device in manager.device_list:
-    #generate_traces(str(device.bluetooth_id),str(device.wifi_id),str(device.lte_id))
-    a=device.bluetooth_id
-    b=device.wifi_id
-    c=device.lte_id
-    generate_traces(a,b,c)
-    print(set(tracking))
-    tracking=[]
-    #print("------------------")
-with open('mapping.json', 'w') as f:
-    json.dump(devices, f)
+
+# Define file path
+pickle_file = 'manager.pkl'
+
     
-with open("linked_ids.json", "w") as f:
-    json.dump(linked_ids, f)
+
+with open(pickle_file, 'wb') as file:
+    pickle.dump(manager, file)
+    
+file_path = "linked_ids.json"
+
+# Open the file in write mode
+with open(file_path, 'w') as json_file:
+    # Serialize the dictionary to JSON and write it to the file
+    json.dump(linked_ids, json_file)
+
+
