@@ -276,11 +276,14 @@ for device in manager.device_list:
 #print(user_traces)
 
 
-file_path = "user_traces.json"
 
-# Open the file in write mode
-with open(file_path, 'w') as json_file:
-    # Serialize the dictionary to JSON and write it to the file
-    json.dump(user_traces, json_file)
+file_path = "user_traces.pkl"
+
+
+
+    
+
+with open(file_path, 'wb') as file:
+    pickle.dump(user_traces, file)
 
 
