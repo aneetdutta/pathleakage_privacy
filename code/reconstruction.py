@@ -229,14 +229,14 @@ for device in manager.device_list:
         l.append(list(set(tracking)))
         user_traces[user_id]=l
     tracking=[]
-    if len(user_traces[user_id])==1:
-        print(user_id)
-        print(user_traces[user_id])
-    else:
-        print(user_id)
-        for item in user_traces[user_id]:
-            print(item)
-            print("****")
+    #if len(user_traces[user_id])==1:
+    print(user_id)
+    print((user_traces[user_id])
+   # else:
+    #    print(user_id)
+     #   for item in user_traces[user_id]:
+      #      print(item)
+       #     print("****")
     print("----------------------------------------")
     
     #print("----")
