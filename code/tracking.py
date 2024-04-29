@@ -769,7 +769,7 @@ target_time=0
 T=[]
 devices=[]
 D=dict()
-for target_time in range(0,500):
+for target_time in range(0,5000):
     lines_with_same_time = []
     print("----")
     #print(target_time)
@@ -804,12 +804,12 @@ for target_time in range(0,500):
 r={}  
 binding={}    
 manager = DeviceManager()     
-for target_time in range(0,499):
+for target_time in range(0,4999):
     if target_time in D.keys():
         l=D[target_time]
     
     new_target=target_time+1
-    for j in range(new_target,new_target+1):
+    for j in range(new_target,new_target+25):
          
         if j in D.keys():
             l1=D[j]

@@ -6,15 +6,6 @@ import pickle
 # Opening JSON file
 
 
-
-
-
-
-
-
-
-
-
 class Device:
     def __init__(self, bluetooth_id, wifi_id, lte_id):
         self.bluetooth_id = bluetooth_id
