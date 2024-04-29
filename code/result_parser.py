@@ -213,19 +213,19 @@ for device in manager.device_list:
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
-        elif user_id1==user_id2 and user_id1==user_id3 and user_id1==user_id:
+        elif user_id1==user_id2 and user_id1==user_id3:
             count=count+1
             print(line['user_id'])
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
-        elif b is None and user_id1==user_id3 and user_id1==user_id:
+        elif b is None and user_id1==user_id3:
             count=count+1
             print(line['user_id'])
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
-        elif c is None and user_id1==user_id2 and user_id1==user_id:
+        elif c is None and user_id1==user_id2:
             count=count+1
             print(line['user_id'])
             if line['user_id'] not in user_devices:
