@@ -6,6 +6,7 @@ import pickle
 # Opening JSON file
 
 
+
 class Device:
     def __init__(self, bluetooth_id, wifi_id, lte_id):
         self.bluetooth_id = bluetooth_id
@@ -91,24 +92,15 @@ class DeviceManager:
 
 
 
+
 pickle_file='manager.pkl'
 with open(pickle_file, 'rb') as file:
     manager = pickle.load(file)
 
 
-
-
-
-
-
-
-
 f2=open('linked_ids.json')
 linked_ids=json.load(f2)
 f2.close()
-
-
-print(len(linked_ids))
 
 
 f1 = open('user_data.json')
@@ -120,103 +112,134 @@ data_user = json.load(f1)
 
 f1.close()
 
-count=0
-userid1=1
-userid2=100
-for key,value in linked_ids.items():
-    print(key,value)
-    for line in data_user:
-        if key in line.values():
-            userid1=line['user_id']
-            print(userid1)
-        if value in line.values():
-            #print(line['user_id'])
-            userid2=line['user_id']
-            print(userid2)
-        if userid1==userid2:
-            count=count+1
-            break
+
+f = open('sniffed_user.json')
+ 
+# returns JSON object as 
+# a dictionary
+data = json.load(f)
+ 
+# Iterating through the json
+# list
+#for i in data:
+ #   print(i['timestep'])
+ 
+# Closing file
+f.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ground_truth=[]
+reconstructed=[]
+
+
+
+
+def generate_traces(bluetooth_id,wifi_id,lte_id):
+    flag=0
+    
+    for line in data:
+        if line['protocol']=='Bluetooth' and line['bluetooth_id']==bluetooth_id:
+            #print(line)
+            tracking.append(line['timestep'])
+            #r.append(bluetooth_id)
+        if line['protocol']=='WiFi' and line['WiFi_id']==wifi_id:
+            #print(line)
+            #r.append(wifi_id)
+            tracking.append(line['timestep'])
+        if line['protocol']=='LTE' and line['lte_id']==lte_id:
+            #print(line)
+            tracking.append(line['timestep'])
+            #r.append(lte_id)
+        
+        
+                
             
-            
-print(count/len(linked_ids))
+       
+    if lte_id in linked_ids.keys():
+        lte_id=linked_ids[lte_id]
+            #print(lte_id)
+        flag=1
+        
+    if bluetooth_id in linked_ids.keys():
+        bluetooth_id=linked_ids[bluetooth_id]  
+        flag=1
+        
+    if wifi_id in linked_ids:
+        wifi_id=linked_ids[wifi_id]
+        flag=1
+        
+    if flag==1:
+        generate_traces(bluetooth_id,wifi_id,lte_id)
+    else:
+        
+        
+        return
+        
 
-count=0
-
-
-linked_ids_reconstruct = {value: key for key, value in linked_ids.items()}
-
-file_path = "linked_ids.json"
-
-# Open the file in write mode
-with open(file_path, 'w') as json_file:
-    # Serialize the dictionary to JSON and write it to the file
-    json.dump(linked_ids_reconstruct, json_file)
-
-
-
-
-user_devices=[]
-devices_mapped=[]
-
+tracking=[]
+user_traces=dict()
 for device in manager.device_list:
-    #generate_traces(str(device.bluetooth_id),str(device.wifi_id),str(device.lte_id))
     a=device.bluetooth_id
     b=device.wifi_id
     c=device.lte_id
     print(a)
     print(b)
     print(c)
-    user_id1=1001
-    user_id2=1908
-    user_id3=4678
-    user_id=9829
-
-    
+    user_id=0
     for line in data_user:
+        if a is not None and line['bluetooth_id']==a:
+            user_id=line['user_id']
+            break
+        if b is not None and line['wifi_id']==b:
+            user_id=line['user_id']
+            break
+        if c is not None and line['lte_id']==c:
+            user_id=line['user_id']
+            break
         
-        
-        if a in line.values():
-            user_id1=line['user_id']
-        if b in line.values():
-            user_id2=line['user_id']
-        if c in line.values():
-            user_id3=line['user_id']
-        if a is None and user_id2==user_id3:
-            #print(line['user_id'])
-            count=count+1
-            if line['user_id'] not in user_devices:
-                user_devices.append(line['user_id'])
-            break
-        elif user_id1==user_id2 and user_id1==user_id3:
-            count=count+1
-            #print(line['user_id'])
-            if line['user_id'] not in user_devices:
-                user_devices.append(line['user_id'])
-            break
-        elif b is None and user_id1==user_id3:
-            count=count+1
-            #print(line['user_id'])
-            if line['user_id'] not in user_devices:
-                user_devices.append(line['user_id'])
-            break
-        elif c is None and user_id1==user_id2:
-            count=count+1
-            #print(line['user_id'])
-            if line['user_id'] not in user_devices:
-                user_devices.append(line['user_id'])
-            break
-    print("-----------")    
-    print(user_id1)
-    print(user_id2)
-    print(user_id3)
-    print("-----------")
-
-
-print(count/len(manager.device_list))     
-
-
-
+    generate_traces(a,b,c)
+    if user_id in user_traces.keys():
+        l=user_traces[user_id]
+        l.append(list(set(tracking)))
+    else:
+        l=[]
+        l.append(list(set(tracking)))
+        user_traces[user_id]=l
+    tracking=[]
+    if len(user_traces[user_id])==1:
+        print(user_id)
+        print(user_traces[user_id])
+    else:
+        print(user_id)
+        for item in user_traces[user_id]:
+            print(item)
+            print("****")
+    print("----------------------------------------")
+    
+    #print("----")
     
 
- 
-        
+
