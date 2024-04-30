@@ -1,8 +1,11 @@
 import random
 import string
 import json
-
+from datetime import datetime
 import sys
+
+#TODO:
+# Add all the constants in configuration file
 
 ###############################
 # CONSTANTS AND CONFIGURATION #
@@ -16,6 +19,8 @@ DURATION_SIMULATION = 5000
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
+
+config_elements={'area_size':AREA_SIZE,'duration_simulation':DURATION_SIMULATION,'identifier_length':IDENTIFIER_LENGTH}
 
 #-------------------------#
 #   Movement Parameters   #
@@ -311,16 +316,30 @@ for timestep in range(DURATION_SIMULATION):
 print("Detected Devices:")
 
 
-detect_user = []
-for item in detected_users:
-    print(item)
-    if item not in detect_user:
-        detect_user.append(item)
+#detect_user = []
+#for item in detected_users:
+ #   print(item)
+  #  if item not in detect_user:
+   #     detect_user.append(item)
 
-print(len(detect_user))
-with open("user_data.json", "w") as f:
+#print(len(detect_user))
+timestamp=datetime.now().strftime("%Y%m%d%H%M%S")
+user_file = f"{timestamp}_user_data.json"
+
+
+with open(user_file, "w") as f:
     json.dump(user_data, f)
 # sniffed_data=list(set(sniffer.detected_devices))
 
-with open("sniffed_user.json", "w") as f:
-    json.dump(detect_user, f)
+
+sniffed_file=f"{timestamp}_sniffed_data.json"
+
+with open(sniffed_file, "w") as f:
+    json.dump(detected_users, f)
+  
+
+config_file=f"{timestamp}_configuration.json"
+with open(config_file, "w") as f:
+    json.dump(config_elements, f)
+  
+
