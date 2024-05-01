@@ -1,11 +1,11 @@
 
-	
+import tqdm	
 import pickle
 import json
 import numpy as np
 import multiprocessing
 # Opening JSON file
-f = open('sniffed_user.json')
+f = open('20240501063354_sniffed_data.json')
  
 # returns JSON object as 
 # a dictionary
@@ -94,12 +94,16 @@ class DeviceManager:
             if protocol=='Bluetooth':
                 if getattr(device,'bluetooth_id') == old_id:
                     device.bluetooth_id = new_id
+                    linked_ids[old_id]=new_id
             if protocol=='WiFi':
                 if getattr(device,'wifi_id') == old_id:
+                    
                     device.wifi_id=new_id
+                    linked_ids[old_id]=new_id
             if protocol=='LTE':
                 if getattr(device,'lte_id') == old_id:
                     device.lte_id=new_id
+                    linked_ids[old_id]=new_id
                     
                 
         return
@@ -269,6 +273,7 @@ def rule_3(manager,line1,line2):
                 mapping=(set(sc_1)-set(l3),set(sc_2)-set(l3))
                 old_id=(set(sc_1)-set(l3)).pop()
                 new_id=(set(sc_2)-set(l3)).pop()
+                
                 manager.linking_id('LTE',old_id,new_id)
                 #print(mapping)
             else:
@@ -809,7 +814,7 @@ for target_time in range(0,4999):
         l=D[target_time]
     
     new_target=target_time+1
-    for j in range(new_target,new_target+25):
+    for j in range(new_target,new_target+1):
          
         if j in D.keys():
             l1=D[j]
