@@ -5,7 +5,7 @@ import json
 import numpy as np
 import multiprocessing
 # Opening JSON file
-f = open('20240501063354_sniffed_data.json')
+f = open('20240505153551_sniffed_data.json')
  
 # returns JSON object as 
 # a dictionary
@@ -774,7 +774,7 @@ target_time=0
 T=[]
 devices=[]
 D=dict()
-for target_time in range(0,5000):
+for target_time in range(0,7200):
     lines_with_same_time = []
     print("----")
     #print(target_time)
@@ -809,7 +809,7 @@ for target_time in range(0,5000):
 r={}  
 binding={}    
 manager = DeviceManager()     
-for target_time in range(0,4999):
+for target_time in range(0,7199):
     if target_time in D.keys():
         l=D[target_time]
     
@@ -838,8 +838,8 @@ for target_time in range(0,4999):
                     linked_ids[mapping[0].pop()]=mapping[1].pop()
                 
                 rule_4(manager,item,item1)
-                rule_5(item,item1)
-                rule_6(item,item1)
+                rule_5(manager,item,item1)
+                rule_6(manager,item,item1)
     print("=========")
 
 #print(D)
