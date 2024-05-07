@@ -267,6 +267,16 @@ try:
                  user_exists.randomize_identifiers()
                  for sniffer in sniffers:
                       sniffer.detect_users(user_exists, timestep)
+                 user_data.append(
+                 {
+                     "timestep": timestep,
+                     "user_id": user_exists.user_id,
+                     "location": user_exists.location,
+                     "bluetooth_id": user_exists.bluetooth_id,
+                     "wifi_id": user_exists.wifi_id,
+                     "lte_id": user_exists.lte_id,
+                 }
+                 )
             else:
                  user_id=person_id
                  location=traci.person.getPosition(person_id)
@@ -278,16 +288,16 @@ try:
                  for sniffer in sniffers:
                      sniffer.detect_users(user,timestep)
            
-            user_data.append(
-            {
-                "timestep": timestep,
-                "user_id": user.user_id,
-                "location": user.location,
-                "bluetooth_id": user.bluetooth_id,
-                "wifi_id": user.wifi_id,
-                "lte_id": user.lte_id,
-            }
-        )
+                 user_data.append(
+                 {
+                     "timestep": timestep,
+                     "user_id": user.user_id,
+                     "location": user.location,
+                     "bluetooth_id": user.bluetooth_id,
+                     "wifi_id": user.wifi_id,
+                     "lte_id": user.lte_id,
+                 }
+                 )
             # Write data to CSV
             #csv_writer.writerow([timestep, person_id, x, y])
         
