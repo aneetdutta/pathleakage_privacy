@@ -245,12 +245,12 @@ try:
     users=[]
     sniffers=[]
     timestep=14400
-    sniffer_locs=[(1592,1933)]
+    sniffer_locs=[(9832.86,5109.03),(3075.86,686.18),(4749.59,1973.95),(5053.60,2440.58),(4106.14,1580.96),(5022.89,2397.47),(2447.68,335.84),(1541.62,594.71),(2333.54,663.48),(4823.42,2244.27),(8251.47,4557.67),(5085.25,2361.61)]
     for i in range(len(sniffer_locs)):
         sniffer_location=sniffer_locs[i]
         sniffer = Sniffer(i, sniffer_location, bluetooth_range, wifi_range, lte_range)
         sniffers.append(sniffer)
-    while(timestep<18400):
+    while(timestep<19400):
         #print(i)
         # Get current simulation time
         timestep = traci.simulation.getTime()
