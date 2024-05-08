@@ -1,47 +1,38 @@
 import pickle
-import json
+import ijson
+import time
+import pyximport; pyximport.install()
 import numpy as np
+from modules.device import Device
 from modules.devicemanager import DeviceManager
-from functions.fn import group_lines_by_distance, extract_lines_with_same_time
-from collections import defaultdict
-from functions.rules import rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
+from funct.fn import group_lines_by_distance, extract_lines_with_same_time, D_getter, extract_json
+
+from funct.rules import rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
 
 # Opening JSON file
-with open("20240506150753_sniffed_data.json") as f:
-    data = json.load(f)
 
-print("data loaded")
+# with open("20240506150753_sniffed_data.json") as f:
+#     data = json.load(f)
+
+# with open("20240506150753_sniffed_data.json", "rb") as f:
+#     data = ijson.items(f, "item")
+#     data_array = pd.DataFrame(data) 
+    
+now = time.time()
+data = extract_json("20240506150753_sniffed_data.json")
+    
+# print(data)
+print("data loaded", time.time() - now)
 
 mapped_devices = dict()
 linked_ids = dict()
 
-protocol_to_id = {
-    "Bluetooth": "bluetooth_id",
-    "WiFi": "WiFi_id",
-    "LTE": "lte_id",
-}
+now = time.time()
 
-target_time = 0
-T = []
+D = D_getter(data)
 
-D = defaultdict(list)
+print("Processing data completed")
 
-for target_time in range(0, 7200):
-    print(target_time)
-    # print("----")
-    lines_with_same_time = extract_lines_with_same_time(data, target_time)
-    groups = group_lines_by_distance(lines_with_same_time, 0.1)
-
-    for item in groups:
-        # List comprehension with conditional tuples
-        l = list({
-            (element["protocol"], element[protocol_to_id[element["protocol"]]])
-            for element in item
-            if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}
-        })
-        D[target_time].append(l)
-
-print("done1")
 manager = DeviceManager()
 devices = []
 for target_time in range(0, 7199):
@@ -57,17 +48,19 @@ for target_time in range(0, 7199):
         for item in l:
             device = rule_2(manager, item, devices)
             for item1 in l1:
-                mapping = rule_3(manager, item, item1)
+                mapping, devices = rule_3(manager, item, item1, devices)
                 if mapping is not None:
                     linked_ids[mapping[0].pop()] = mapping[1].pop()
                 mapping, devices = rule_1(item, item1, devices)
                 
                 if mapping is not None:
                     linked_ids[mapping[0].pop()] = mapping[1].pop()
-                rule_4(manager, item, item1)
-                rule_5(manager, item, item1)
-                rule_6(manager, item, item1)
+                devices = rule_4(manager, item, item1, devices)
+                devices = rule_5(manager, item, item1, devices)
+                devices = rule_6(manager, item, item1, devices)
 
+print("done", time.time() - now)
+device: Device
 for device in manager.device_list:
     print(device.bluetooth_id, device.wifi_id, device.lte_id)
 

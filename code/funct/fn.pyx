@@ -3,28 +3,35 @@ from string import ascii_uppercase, digits
 from env import IDENTIFIER_LENGTH
 import numpy as np
 from math import sqrt
+# import cython
+import orjson
+import pandas as pd
+from collections import defaultdict
+
+
+# data_array = pd.DataFrame(data)
+
+def extract_json(filename):
+    with open(filename, 'rb') as f:
+        return pd.DataFrame(orjson.loads(f.read()))
+
 
 """
 Generates Random Device Identifier
 """
-
-
 def random_identifier():
     return "".join(choices(ascii_uppercase + digits, k=IDENTIFIER_LENGTH))
-
 
 """
 Euclidean Distance
 """
-
-
 def calculate_distance(line1: dict, line2: dict):
     dx = line1["location"][0] - line2["location"][0]
     dy = line1["location"][1] - line2["location"][1]
     return sqrt(dx * dx + dy * dy)
 
 
-def group_lines_by_distance(lines: list, threshold_distance):
+def group_lines_by_distance(lines: pd.DataFrame, threshold_distance):
     groups = []
     line: dict
     for line in lines:
@@ -67,8 +74,39 @@ def group_lines_by_distance(lines: list, threshold_distance):
 
 
 def extract_lines_with_same_time(data, target_time):
+    # return np.where(data["timestep"] == target_time)
     # Use a list comprehension to extract lines with the matching timestep
-    return [line for line in data if line["timestep"] == target_time]
+    # return [line for line in data if line["timestep"] == target_time]
+    return data[data['timestep'] == target_time].T.to_dict().values()
+
+
+def D_getter(data_array):
+    # data_array = np.array(data)
+    protocol_to_id = {
+        "Bluetooth": "bluetooth_id",
+        "WiFi": "WiFi_id",
+        "LTE": "lte_id",
+    }
+    target_time = 0
+    T = []
+
+    data_dict = defaultdict(list)
+
+    for target_time in range(0, 7200):
+        if target_time % 100 == 0:
+            print(target_time)
+            
+        lines_with_same_time = extract_lines_with_same_time(data_array, target_time)
+        groups = group_lines_by_distance(lines_with_same_time, 0.1)
+        for item in groups:
+            # List comprehension with conditional tuples
+            l = list({
+                (element["protocol"], element[protocol_to_id[element["protocol"]]])
+                for element in item
+                if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}
+            })
+            data_dict[target_time].append(l)      
+    return data_dict
 
 # def group_lines_by_field(timed_data, sniffer_id, specific_values):
 #     # groups = {}

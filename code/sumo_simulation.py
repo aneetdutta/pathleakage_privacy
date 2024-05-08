@@ -4,7 +4,7 @@ from modules.sniffer import Sniffer
 from modules.user import User
 import traceback
 from env import *
-from functions.fn import random_identifier
+from funct.fn import random_identifier
 from collections import deque
 # from numba import jit
 # from numba.typed import List
@@ -45,7 +45,17 @@ def person_iterator(p_ids:deque, users:deque, sniffers:deque, timestep:deque, us
             user_exists.randomize_identifiers()
             sniffer:Sniffer
             for sniffer in sniffers:
-                sniffer.detect_users(user_exists, timestep)
+                detected_usrs = sniffer.detect_users(user_exists, timestep, detected_usrs)
+            user_data.extend([
+                {
+                    "timestep": timestep,
+                    "user_id": user_exists.user_id,
+                    "location": user_exists.location,
+                    "bluetooth_id": user_exists.bluetooth_id,
+                    "wifi_id": user_exists.wifi_id,
+                    "lte_id": user_exists.lte_id,
+                }]
+            )
         else:
             user_id = person_id
             location = traci.person.getPosition(person_id)
@@ -55,26 +65,26 @@ def person_iterator(p_ids:deque, users:deque, sniffers:deque, timestep:deque, us
                 max_step_size=MAX_STEP_SIZE,
             )                
             users.extend([user]) #data structure can be changed to dict
+            sniffer:Sniffer
             for sniffer in sniffers:
                 detected_usrs = sniffer.detect_users(user, timestep, detected_usrs)
-
-        user_data.extend([
-            {
-                "timestep": timestep,
-                "user_id": user.user_id,
-                "location": user.location,
-                "bluetooth_id": user.bluetooth_id,
-                "wifi_id": user.wifi_id,
-                "lte_id": user.lte_id,
-            }]
-        )
+            user_data.extend([
+                {
+                    "timestep": timestep,
+                    "user_id": user.user_id,
+                    "location": user.location,
+                    "bluetooth_id": user.bluetooth_id,
+                    "wifi_id": user.wifi_id,
+                    "lte_id": user.lte_id,
+                }]
+            )
     return user_data, detected_usrs
 
 try:
     # Simulation loop
     detected_users, user_data, users, sniffers = deque(), deque(),deque(), deque()
     timestep = 14400
-    sniffer_locs = [(1592, 1933)]
+    sniffer_locs=[(9832.86,5109.03),(3075.86,686.18),(4749.59,1973.95),(5053.60,2440.58),(4106.14,1580.96),(5022.89,2397.47),(2447.68,335.84),(1541.62,594.71),(2333.54,663.48),(4823.42,2244.27),(8251.47,4557.67),(5085.25,2361.61)]
     for i in range(len(sniffer_locs)):
         sniffers.extend([Sniffer(i, sniffer_locs[i], BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE)])
 
@@ -82,11 +92,11 @@ try:
     timestep - Get current simulation time
     person_ids - Get list of person IDs
     '''
-    while timestep < 18400: #18400:
+    while timestep < TIMESTEPS: #18400:
         timestep = traci.simulation.getTime()
         # print(timestep)
         person_ids = traci.person.getIDList()
-        if timestep > 18000:
+        if timestep > 18300:
             print(len(person_ids), timestep)
         
         user_data, detected_users = person_iterator(person_ids, users, sniffers, timestep, user_data, detected_users)
@@ -105,11 +115,9 @@ except Exception as e:
     # csv_file.close()
     sys.exit(1)
 
-
 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-user_file = f"{timestamp}_user_data.json"
-sniffed_file = f"{timestamp}_sniffed_data.json"
-
+user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
+sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"
 
 print("Saved file to the directory")
 with open(user_file, "w") as f:
