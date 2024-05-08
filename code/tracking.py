@@ -5,7 +5,7 @@ import json
 import numpy as np
 import multiprocessing
 # Opening JSON file
-f = open('20240505153551_sniffed_data.json')
+f = open('20240508110321_sniffed_data_21400.json')
  
 # returns JSON object as 
 # a dictionary
@@ -283,7 +283,7 @@ def rule_3(manager,line1,line2):
     #else:
      #   mapping=None
     elif len(l1)==len(sa_1) and len(l1)==len(sa_2):
-        if len(l3)==len(sc_1) and len(l3)==len(sc_2) and len(l3)!=0:
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
             if len(l2)==len(sb_1)-1 and len(l2)==len(sb_2)-1:
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
                 old_id=(set(sb_1)-set(l2)).pop()
@@ -295,8 +295,8 @@ def rule_3(manager,line1,line2):
             mapping=None
     #else:
      #   mapping=None
-    elif len(l2)==len(sb_1) and len(l2)==len(sb_2) and len(l2)!=0:
-        if len(l3)==len(sc_1) and len(l3)==len(sc_2)and len(l3)!=0:
+    elif len(l2)==len(sb_1) and len(l2)==len(sb_2):
+        if len(l3)==len(sc_1) and len(l3)==len(sc_2):
             if len(l1)==len(sa_1)-1 and len(l1)==len(sa_2)-1:
                 mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
                 old_id=(set(sa_1)-set(l1)).pop()
@@ -363,6 +363,16 @@ def rule_4(manager,line1,line2):
             manager.create_device(None,d1[0],d2[0])
         else:
             mapping=None
+    elif len(d1)==0:
+        if len(d)==1 and len(d2)==1 and len(sc_1)==len(sa_1) and len(sa_2)==len(sc_2):
+            mapping=((d[0],d2[0]))
+            manager.create_device(d[0],None,d2[0])
+    elif len(d2)==0:
+        if len(d)==1 and len(d1)==1 and len(sa_1)==len(sb_1) and len(sb_2)==len(sa_2):
+            mapping=((d[0],d2[0]))
+            manager.create_device(d[0],d1[0],None)
+       
+   
             #print("aneet")
     else:
         if len(d)==1 and len(d1)==1 and len(d2)==1 and len(sc_1)==len(sb_1) and len(sb_2)==len(sc_2) and len(sa_1)==len(sb_1) and len(sa_1)==len(sc_1) and len(sa_2)==len(sb_2) and len(sa_2)==len(sc_2):
@@ -388,7 +398,7 @@ def rule_4(manager,line1,line2):
         devices.append(mapping)
     
     
-def rule_6(line1,line2):
+def rule_6(manager,line1,line2):
     
     
     sa_1=[]
@@ -510,7 +520,7 @@ def rule_6(line1,line2):
 
 
 
-def rule_5(line1,line2):
+def rule_5(manager,line1,line2):
     #print("by rule 5")
     #print(line1)
     #print(line2)
@@ -774,9 +784,9 @@ target_time=0
 T=[]
 devices=[]
 D=dict()
-for target_time in range(0,7200):
+for target_time in range(14400,21400):
     lines_with_same_time = []
-    print("----")
+    print(target_time)
     #print(target_time)
     extract_lines_with_same_time(data,target_time)
     #print(lines_with_same_time)
@@ -809,7 +819,8 @@ for target_time in range(0,7200):
 r={}  
 binding={}    
 manager = DeviceManager()     
-for target_time in range(0,7199):
+for target_time in range(14400,21399):
+    
     if target_time in D.keys():
         l=D[target_time]
     
@@ -908,5 +919,6 @@ file_path = "linked_ids.json"
 with open(file_path, 'w') as json_file:
     # Serialize the dictionary to JSON and write it to the file
     json.dump(linked_ids, json_file)
+
 
 
