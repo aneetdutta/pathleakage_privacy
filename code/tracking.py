@@ -367,10 +367,14 @@ def rule_4(manager,line1,line2):
         if len(d)==1 and len(d2)==1 and len(sc_1)==len(sa_1) and len(sa_2)==len(sc_2):
             mapping=((d[0],d2[0]))
             manager.create_device(d[0],None,d2[0])
+        else:
+            mapping=None
     elif len(d2)==0:
         if len(d)==1 and len(d1)==1 and len(sa_1)==len(sb_1) and len(sb_2)==len(sa_2):
             mapping=((d[0],d1[0]))
             manager.create_device(d[0],d1[0],None)
+        else:
+            mapping=None
        
    
             #print("aneet")
