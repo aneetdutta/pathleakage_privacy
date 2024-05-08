@@ -176,58 +176,7 @@ def rule_4(manager: DeviceManager,line1,line2, devices):
         devices.append(mapping)
     
     return devices
-    
-    
-def rule_6(manager: DeviceManager, line1,line2, devices):
-    sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
-    sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
-    sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
-    
-    sa_2 = [item[1] for item in line2 if item[0] == 'Bluetooth']
-    sb_2 = [item[1] for item in line2 if item[0] == 'WiFi']
-    sc_2 = [item[1] for item in line2 if item[0] == 'LTE']    
 
-    # Prepare set operations and store in variables
-    set_sa_1, set_sa_2 = set(sa_1), set(sa_2)
-    set_sb_1, set_sb_2 = set(sb_1), set(sb_2)
-    set_sc_1, set_sc_2 = set(sc_1), set(sc_2)
-    
-    d=list(set_sa_2.intersection(set_sa_1))
-    d1=list(set_sb_2.intersection(set_sb_1))
-    d2=list(set_sc_2.intersection(set_sc_1))
-    
-    len_d = len(d)
-    len_d1 = len(d1)
-    len_d2 = len(d2)
-
-    l1=list(set(sa_1)-set(d))
-    l2=list(set(sb_1)-set(d1))
-    l3=list(set(sc_1)-set(d2))
-    
-    len_sa_1, len_sb_1, len_sc_1 = len(sa_1), len(sb_1), len(sc_1)
-    len_sa_2, len_sb_2, len_sc_2 = len(sa_2), len(sb_2), len(sc_2)
-    
-    len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)
-
-    if len_l1==0:
-        if len_l2==1 and len_l3==1 and len_d1==len_sb_1 and len_d2==len_sc_1:
-            mapping=[(l2[0],'WiFi'),(l3[0],'LTE')]
-            manager.create_device(None,l2[0],l3[0])
-        else:
-            mapping=None
-    else:
-        if len_l2==1  and len_l3==1 and len_l1==1 and len_d==len_sc_1 and len_d1==len_sb_1 and len_d2==len_sc_1:
-            mapping=[(l1[0],'Bluetooth'),(l2[0],'WiFi'),(l3[0],'LTE')]
-            manager.create_device(l1[0],l2[0],l3[0])
-        else:
-            mapping=None
-    
-    if mapping is not None: 
-        print("by rule 6")   
-        print(mapping)
-        devices.append(mapping)
-
-    return devices
 
 def rule_5(manager: DeviceManager, line1,line2, devices):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
@@ -278,4 +227,55 @@ def rule_5(manager: DeviceManager, line1,line2, devices):
         print(mapping)
         devices.append(mapping)
     
+    return devices    
+  
+def rule_6(manager: DeviceManager, line1,line2, devices):
+    sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
+    sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
+    sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
+    
+    sa_2 = [item[1] for item in line2 if item[0] == 'Bluetooth']
+    sb_2 = [item[1] for item in line2 if item[0] == 'WiFi']
+    sc_2 = [item[1] for item in line2 if item[0] == 'LTE']    
+
+    # Prepare set operations and store in variables
+    set_sa_1, set_sa_2 = set(sa_1), set(sa_2)
+    set_sb_1, set_sb_2 = set(sb_1), set(sb_2)
+    set_sc_1, set_sc_2 = set(sc_1), set(sc_2)
+    
+    d=list(set_sa_2.intersection(set_sa_1))
+    d1=list(set_sb_2.intersection(set_sb_1))
+    d2=list(set_sc_2.intersection(set_sc_1))
+    
+    len_d = len(d)
+    len_d1 = len(d1)
+    len_d2 = len(d2)
+
+    l1=list(set(sa_1)-set(d))
+    l2=list(set(sb_1)-set(d1))
+    l3=list(set(sc_1)-set(d2))
+    
+    len_sa_1, len_sb_1, len_sc_1 = len(sa_1), len(sb_1), len(sc_1)
+    len_sa_2, len_sb_2, len_sc_2 = len(sa_2), len(sb_2), len(sc_2)
+    
+    len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)
+
+    if len_l1==0:
+        if len_l2==1 and len_l3==1 and len_d1==len_sb_1 and len_d2==len_sc_1:
+            mapping=[(l2[0],'WiFi'),(l3[0],'LTE')]
+            manager.create_device(None,l2[0],l3[0])
+        else:
+            mapping=None
+    else:
+        if len_l2==1  and len_l3==1 and len_l1==1 and len_d==len_sc_1 and len_d1==len_sb_1 and len_d2==len_sc_1:
+            mapping=[(l1[0],'Bluetooth'),(l2[0],'WiFi'),(l3[0],'LTE')]
+            manager.create_device(l1[0],l2[0],l3[0])
+        else:
+            mapping=None
+    
+    if mapping is not None: 
+        print("by rule 6")   
+        print(mapping)
+        devices.append(mapping)
+
     return devices
