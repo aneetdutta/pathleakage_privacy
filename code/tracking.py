@@ -369,7 +369,7 @@ def rule_4(manager,line1,line2):
             manager.create_device(d[0],None,d2[0])
     elif len(d2)==0:
         if len(d)==1 and len(d1)==1 and len(sa_1)==len(sb_1) and len(sb_2)==len(sa_2):
-            mapping=((d[0],d2[0]))
+            mapping=((d[0],d1[0]))
             manager.create_device(d[0],d1[0],None)
        
    
