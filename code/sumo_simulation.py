@@ -261,7 +261,7 @@ try:
         # Iterate over each person ID
         for person_id in person_ids:
             # Get person's position
-            user_exists = next((user for user in users if user.user_id == 1), None)
+            user_exists = next((user for user in users if user.user_id == person_id), None)
             if user_exists:
                  user_exists.location=traci.person.getPosition(person_id)
                  user_exists.randomize_identifiers()
