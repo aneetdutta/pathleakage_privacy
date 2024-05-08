@@ -1,6 +1,6 @@
 from env import *
 from random import uniform, randint, random
-from functions.fn import random_identifier
+from funct.fn import random_identifier
 
 class User:
     def __init__(
@@ -73,6 +73,5 @@ class User:
             # print("randomized lte")
             self.set_next_lte_refresh()
             self.lte_id = random_identifier()
-
 
 

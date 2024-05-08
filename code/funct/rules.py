@@ -1,6 +1,7 @@
 from modules.devicemanager import DeviceManager
+from modules.device import Device
 
-def rule_1(line1: list,line2: list, devices):#invoked after checking the condition of time and location            
+def rule_1(line1: list,line2: list, devices: list[Device]):#invoked after checking the condition of time and location            
     sa_1 = [item[0] for item in line1 if item[1] == 'Bluetooth']
     sb_1 = [item[0] for item in line1 if item[1] == 'WiFi']
     sc_1 = [item[0] for item in line1 if item[1] == 'LTE']
@@ -27,7 +28,7 @@ def rule_1(line1: list,line2: list, devices):#invoked after checking the conditi
         devices.append(mapping)
     return mapping, devices
 
-def rule_2(manager: DeviceManager, line1, devices):
+def rule_2(manager: DeviceManager, line1, devices: list[Device]):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
     sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
     sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
@@ -52,7 +53,7 @@ def rule_2(manager: DeviceManager, line1, devices):
         devices.append(mapping)
     return devices
    
-def rule_3(manager: DeviceManager, line1, line2, devices):
+def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
     sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
     sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
@@ -127,7 +128,7 @@ def rule_3(manager: DeviceManager, line1, line2, devices):
         devices.append(mapping)
     return mapping, devices
 
-def rule_4(manager: DeviceManager,line1,line2, devices):
+def rule_4(manager: DeviceManager,line1,line2, devices: list[Device]):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
     sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
     sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
@@ -178,7 +179,7 @@ def rule_4(manager: DeviceManager,line1,line2, devices):
     return devices
 
 
-def rule_5(manager: DeviceManager, line1,line2, devices):
+def rule_5(manager: DeviceManager, line1,line2, devices: list[Device]):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
     sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
     sc_1 = [item[1] for item in line1 if item[0] == 'LTE']
@@ -229,7 +230,7 @@ def rule_5(manager: DeviceManager, line1,line2, devices):
     
     return devices    
   
-def rule_6(manager: DeviceManager, line1,line2, devices):
+def rule_6(manager: DeviceManager, line1,line2, devices: list[Device]):
     sa_1 = [item[1] for item in line1 if item[0] == 'Bluetooth']
     sb_1 = [item[1] for item in line1 if item[0] == 'WiFi']
     sc_1 = [item[1] for item in line1 if item[0] == 'LTE']

@@ -1,7 +1,7 @@
 import pickle
-import ijson
+import ijson, json
 import time
-import pyximport; pyximport.install()
+# import pyximport; pyximport.install()
 import numpy as np
 from modules.device import Device
 from modules.devicemanager import DeviceManager
@@ -21,7 +21,7 @@ from funct.rules import rule_1, rule_2, rule_3, rule_4, rule_5, rule_6
 now = time.time()
 data = extract_json("20240506150753_sniffed_data.json")
     
-# print(data)
+print(data)
 print("data loaded", time.time() - now)
 
 mapped_devices = dict()
@@ -34,6 +34,7 @@ D = D_getter(data)
 print("Processing data completed")
 
 manager = DeviceManager()
+manager.linked_ids = linked_ids
 devices = []
 for target_time in range(0, 7199):
     l = D.get(target_time, [])
@@ -51,10 +52,12 @@ for target_time in range(0, 7199):
                 mapping, devices = rule_3(manager, item, item1, devices)
                 if mapping is not None:
                     linked_ids[mapping[0].pop()] = mapping[1].pop()
+                    manager.linked_ids = linked_ids
                 mapping, devices = rule_1(item, item1, devices)
                 
                 if mapping is not None:
                     linked_ids[mapping[0].pop()] = mapping[1].pop()
+                    manager.linked_ids = linked_ids
                 devices = rule_4(manager, item, item1, devices)
                 devices = rule_5(manager, item, item1, devices)
                 devices = rule_6(manager, item, item1, devices)

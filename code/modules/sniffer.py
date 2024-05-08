@@ -14,54 +14,69 @@ class Sniffer:
     detected_devices: list = field(default_factory=list)
     sniffed_devices: dict = field(default_factory=dict)
 
-    def detect_users(self, user: User, timestep, detected_users: deque):
+    def detect_users(self, user: User, timestep):
         distance = sqrt(
             (self.location[0] - user.location[0]) ** 2
             + (self.location[1] - user.location[1]) ** 2
         )
+        
+        common_info = {
+            "timestep": timestep,
+            "user_id": user.user_id,
+            "sniffer_id": self.id,
+            "sniffer_location": self.location,
+            "location": user.location,
+        }
+
+        # List of detected users
+        detected_users = [None] * 3
+        index = 0
 
         if distance <= self.bluetooth_range:
-            detected_users.extend(
-                [
-                    {
-                        "timestep": timestep,
-                        "user_id": user.user_id,
-                        "sniffer_id": self.id,
-                        "sniffer_location": self.location,
-                        "location": user.location,
-                        "protocol": "Bluetooth",
-                        "bluetooth_id": user.bluetooth_id,
-                    }
-                ]
-            )
+            detected_users[index] = {
+                **common_info,
+                "protocol": "Bluetooth",
+                "bluetooth_id": user.bluetooth_id,
+            }
+            index += 1
 
         if distance <= self.wifi_range:
-            detected_users.extend(
-                [
-                    {
-                        "timestep": timestep,
-                        "user_id": user.user_id,
-                        "sniffer_id": self.id,
-                        "sniffer_location": self.location,
-                        "location": user.location,
-                        "protocol": "WiFi",
-                        "WiFi_id": user.wifi_id,
-                    }
-                ]
-            )
+            detected_users[index] = {
+                **common_info,
+                "protocol": "WiFi",
+                "WiFi_id": user.wifi_id,
+            }
+            index += 1
 
         if distance <= self.lte_range:
-            detected_users.extend(
-                [
-                    {
-                        "timestep": timestep,
-                        "user_id": user.user_id,
-                        "sniffer_id": self.id,
-                        "sniffer_location": self.location,
-                        "location": user.location,
-                        "protocol": "LTE",
-                        "lte_id": user.lte_id,
-                    }
-                ]
-            )
-        return detected_users
+            detected_users[index] = {
+                **common_info,
+                "protocol": "LTE",
+                "lte_id": user.lte_id,
+            }
+            index += 1
+
+        # Remove excess None values in the preallocated list
+        return detected_users[:index]
+
+        # detected_user = {
+        #     "timestep": timestep,
+        #     "user_id": user.user_id,
+        #     "sniffer_id": self.id,
+        #     "sniffer_location": list(self.location),
+        #     "location": list(user.location),
+        #     "bluetooth_id": None,
+        #     "wifi_id": None,
+        #     "lte_id": None,
+        # }
+
+        # if distance <= self.bluetooth_range:
+        #     detected_user["bluetooth_id"] = user.bluetooth_id
+
+        # if distance <= self.wifi_range:
+        #     detected_user["wifi_id"] = user.wifi_id
+
+        # if distance <= self.lte_range:
+        #     detected_user["lte_id"] = user.lte_id
+
+        # return detected_user

@@ -6,14 +6,17 @@ from math import sqrt
 # import cython
 import orjson
 import pandas as pd
+import polars as pl
 from collections import defaultdict
 
 
 # data_array = pd.DataFrame(data)
 
 def extract_json(filename):
-    with open(filename, 'rb') as f:
-        return pd.DataFrame(orjson.loads(f.read()))
+    # with open(filename, 'rb') as f:
+    #     # return pd.DataFrame(orjson.loads(f.read()))
+    #     return 
+    return pl.read_json(filename)
 
 
 """
@@ -73,14 +76,10 @@ def group_lines_by_distance(lines: pd.DataFrame, threshold_distance):
     return groups
 
 
-def extract_lines_with_same_time(data, target_time):
-    # return np.where(data["timestep"] == target_time)
-    # Use a list comprehension to extract lines with the matching timestep
-    # return [line for line in data if line["timestep"] == target_time]
-    return data[data['timestep'] == target_time].T.to_dict().values()
+def extract_lines_with_same_time(data: pl.DataFrame, target_time):
+    return data.filter(pl.col('timestep') == target_time).to_dicts()
 
-
-def D_getter(data_array):
+def D_getter(data_array: pl.DataFrame):
     # data_array = np.array(data)
     protocol_to_id = {
         "Bluetooth": "bluetooth_id",
@@ -88,8 +87,6 @@ def D_getter(data_array):
         "LTE": "lte_id",
     }
     target_time = 0
-    T = []
-
     data_dict = defaultdict(list)
 
     for target_time in range(0, 7200):
