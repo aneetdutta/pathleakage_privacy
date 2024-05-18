@@ -7,10 +7,23 @@ from math import sqrt
 import orjson
 import pandas as pd
 import polars as pl
-from collections import defaultdict
+from collections import defaultdict, deque
 
+
+
+class MyCollection:
+    def __init__(self, maxlen):
+        self.d = deque(maxlen=maxlen)
+
+    def add(self, new_first_object):
+        result = None if len(self.d)==0 else self.d[0]
+        self.d.append(new_first_object)
+        return result
 
 # data_array = pd.DataFrame(data)
+def extract_orjson(filename):
+    with open(filename, 'rb') as f:
+        return orjson.loads(f.read())
 
 def extract_json(filename):
     # with open(filename, 'rb') as f:
@@ -18,6 +31,16 @@ def extract_json(filename):
     #     return 
     return pl.read_json(filename)
 
+
+def json_read_process(filename):
+    with open(filename, 'rb') as f:
+        j = orjson.loads(f.read())
+    return [pl.DataFrame(k) for i, k in j.items()]
+
+
+def id_to_location_link(filename):
+    with open(filename, 'rb') as f:
+        j = orjson.loads(f.read())
 
 """
 Generates Random Device Identifier
@@ -33,6 +56,10 @@ def calculate_distance(line1: dict, line2: dict):
     dy = line1["location"][1] - line2["location"][1]
     return sqrt(dx * dx + dy * dy)
 
+def calculate_distance_l(location1: list, location2: list):
+    dx = location1[0] - location2[0]
+    dy = location1[1] - location2[1]
+    return sqrt(dx * dx + dy * dy)
 
 def group_lines_by_distance(lines: pd.DataFrame, threshold_distance):
     groups = []
@@ -48,6 +75,8 @@ def group_lines_by_distance(lines: pd.DataFrame, threshold_distance):
             line_in_group: dict
             for line_in_group in group:
                 distance = calculate_distance(line, line_in_group)
+                # print(line, line_in_group)
+                # break
                 if (
                     distance <= distance_threshold_lte
                     and distance <= distance_threshold
@@ -88,22 +117,78 @@ def D_getter(data_array: pl.DataFrame):
     }
     target_time = 0
     data_dict = defaultdict(list)
-
+    location_dict = defaultdict(list)
     for target_time in range(0, 7200):
         if target_time % 100 == 0:
             print(target_time)
-            
         lines_with_same_time = extract_lines_with_same_time(data_array, target_time)
         groups = group_lines_by_distance(lines_with_same_time, 0.1)
+        location_dict[target_time] = {}
         for item in groups:
+            # print(item)
             # List comprehension with conditional tuples
-            l = list({
-                (element["protocol"], element[protocol_to_id[element["protocol"]]])
-                for element in item
-                if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}
-            })
-            data_dict[target_time].append(l)      
-    return data_dict
+            # print(item)
+            temp_dict = defaultdict(set)
+            temp_dict1 = defaultdict()
+            for element in item:
+                if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}:
+                    temp_dict[element["protocol"]].add(element[protocol_to_id[element["protocol"]]])
+                    temp_dict1[f'{element["protocol"]}_{element[protocol_to_id[element["protocol"]]]}'] = element["location"]
+                    
+            # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
+            data_dict[target_time].append(defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))) 
+            location_dict[target_time].update(temp_dict1)
+        # print(data_dict)
+        # print(location_dict)
+        # break
+        # print([target_time])
+        # break
+    # print(data_dict)
+    return data_dict, location_dict
+
+
+def generate_traces(bluetooth_id,wifi_id,lte_id, data: list, linked_ids, tracking: list):
+    flag=0
+    print("hi")
+    for line in data:
+        if line['protocol']=='Bluetooth' and line['bluetooth_id']==bluetooth_id:
+            #print(line)
+            tracking.append(line['timestep'])
+            #r.append(bluetooth_id)
+        if line['protocol']=='WiFi' and line['WiFi_id']==wifi_id:
+            #print(line)
+            #r.append(wifi_id)
+            tracking.append(line['timestep'])
+        if line['protocol']=='LTE' and line['lte_id']==lte_id:
+            #print(line)
+            tracking.append(line['timestep'])
+            #r.append(lte_id)
+        
+    if lte_id in linked_ids:
+        # print(lte_id)s
+        lte_id=linked_ids[lte_id]
+        # print(lte_id)
+        flag=1
+        
+    if bluetooth_id in linked_ids:
+        # print(bluetooth_id)
+        bluetooth_id=linked_ids[bluetooth_id]  
+        # print(bluetooth_id)
+        flag=1
+        
+    if wifi_id in linked_ids:
+        # print(wifi_id)
+        wifi_id=linked_ids[wifi_id]
+        # print(wifi_id)
+        flag=1
+        
+    if flag==1:
+        generate_traces(bluetooth_id,wifi_id,lte_id)
+    else:
+        return
+        
+        
+
 
 # def group_lines_by_field(timed_data, sniffer_id, specific_values):
 #     # groups = {}
@@ -118,45 +203,7 @@ def D_getter(data_array: pl.DataFrame):
 
 
 
-# def elimination(mapping, line1, line2):
-#     sa_1 = []
-#     sb_1 = []
-#     sc_1 = []
-#     for item in line1:
-#         if item[0] == "Bluetooth":
-#             sa_1.append(item[1])
-#         elif item[0] == "WiFi":
-#             sb_1.append(item[1])
-#         elif item[0] == "LTE":
-#             sc_1.append(item[1])
 
-#     sa_2 = []
-#     sb_2 = []
-#     sc_2 = []
-
-#     for item in line2:
-#         if item[0] == "Bluetooth":
-#             sa_2.append(item[1])
-#         elif item[0] == "WiFi":
-#             sb_2.append(item[1])
-#         elif item[0] == "LTE":
-#             sc_2.append(item[1])
-
-#     l = list(set(sa_1) - set(mapping))
-#     l1 = list(set(sa_2).intersection(set(l)))
-
-#     l2 = list(set(sb_1) - set(mapping))
-#     l3 = list(set(sb_2).intersection(set(l2)))
-
-#     l4 = list(set(sc_1) - set(mapping))
-#     l5 = list(set(sc_2).intersection(set(l4)))
-
-#     if len(l1) == 0:
-#         if len(l3) == 1 and len(l5) == 1:
-#             print(l3[0], l5[0])
-#     else:
-#         if len(l3) == 1 and len(l5) == 1 and len(l1) == 1:
-#             print(l1[0], l3[0], l5[0])
 
 
 # def generate_traces(bluetooth_id, wifi_id, lte_id):

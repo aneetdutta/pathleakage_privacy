@@ -21,14 +21,24 @@ from funct.rules import *
 mapped_devices = dict()
 linked_ids = dict()
 
+
+
+
 # now = time.time()
-# D = D_getter(data)
-# # Open the file in write mode
+# D, L = D_getter(data)
+# # # Open the file in write mode
 # with open("processed_dict.json", "w") as json_file:
 #     # Serialize the dictionary to JSON and write it to the file
 #     json.dump(D, json_file)
+    
+# with open("location_dict.json", "w") as json_file:
+#     # Serialize the dictionary to JSON and write it to the file
+#     json.dump(L, json_file)
 
+
+# sys.exit()
 data = extract_orjson("processed_dict.json")
+location_data = extract_orjson("location_dict.json")
 
 # D = json_read_process("processed_dict.json")
 
@@ -36,6 +46,7 @@ data = extract_orjson("processed_dict.json")
 # sys.exit()
 print("Processing data completed")
 
+# sys.exit()
 manager = DeviceManager()
 manager.linked_ids = linked_ids
 devices = []
@@ -45,19 +56,18 @@ devices = []
 consecutive_tq = deque(maxlen=2)
 '''Contains list of tn-1 to 0  (past values for elimination)'''
 past_timestep_arr = []
-
+'''Contains deque from tn to tn+k'''
+# future_tq = deque(len(data))
 
 '''Fetches timestep and data for that timestep in this loop'''
-for timestep, data in data.items():
-    # print(data)
-    consecutive_tq.append(data)
+for timestep, data_ in data.items():
+    consecutive_tq.append(data_)
     # break
-    for item_tn_num, item_tn in enumerate(consecutive_tq[0]):
-        '''Create intermapping based on rule 2'''
-        device = rule_2(manager, item_tn, devices)
-        '''Add elimination step'''
-
-        if len(consecutive_tq) == 2:
+    if len(consecutive_tq) == 2:
+        for item_tn_num, item_tn in enumerate(consecutive_tq[0]):
+            '''Create intermapping based on rule 2'''
+            device = rule_2(manager, item_tn, devices)
+            '''Add elimination step'''
             for item_tn1_num, item_tn1 in enumerate(consecutive_tq[1]):
                 # mapping, devices = rule_3(manager, item_tn, item_tn1, devices)
                 
@@ -66,13 +76,12 @@ for timestep, data in data.items():
                 #     manager.linked_ids = linked_ids
                     
                 '''Create intra mapping based on rule 1'''
-                mapping, devices = rule_1(item_tn, item_tn1, consecutive_tq[1], devices)
-
+                mapping, devices = rule_1(item_tn, item_tn1, consecutive_tq[1], devices, timestep, location_data)
                 # if mapping is not None:
                 #     linked_ids[mapping[0].pop()] = mapping[1].pop()
                 #     manager.linked_ids = linked_ids
-                
-            
+        # break
+    # break
     #     print(timestep)
     # # TO DO
     # break
@@ -150,23 +159,18 @@ while loop (
 '''
 
 
+device: Device
+for device in manager.device_list:
+    print(device.bluetooth_id, device.wifi_id, device.lte_id)
 
+tracking = []
+# Define file path
+pickle_file = "manager.pkl"
+with open(pickle_file, "wb") as file:
+    pickle.dump(manager, file)
 
-
-
-# print("done", time.time() - now)
-# device: Device
-# for device in manager.device_list:
-#     print(device.bluetooth_id, device.wifi_id, device.lte_id)
-
-# tracking = []
-# # Define file path
-# pickle_file = "manager.pkl"
-# with open(pickle_file, "wb") as file:
-#     pickle.dump(manager, file)
-
-# file_path = "linked_ids.json"
-# # Open the file in write mode
-# with open(file_path, "w") as json_file:
-#     # Serialize the dictionary to JSON and write it to the file
-#     json.dump(linked_ids, json_file)
+file_path = "linked_ids.json"
+# Open the file in write mode
+with open(file_path, "w") as json_file:
+    # Serialize the dictionary to JSON and write it to the file
+    json.dump(linked_ids, json_file)

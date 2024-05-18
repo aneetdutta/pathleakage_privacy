@@ -1,6 +1,6 @@
 from modules.devicemanager import DeviceManager
 from modules.device import Device
-
+from funct.fn import calculate_distance_l
 
 {
     "Bluetooth": [
@@ -18,10 +18,10 @@ def old_id_checker(old_id_t0, new_line_tn1, type_):
     '''To check if old identifier exists anywhere in the tn+1 mapping, if yes, then no linkage, else link them'''
     for item_tn1 in new_line_tn1:
         if old_id_t0 in item_tn1[type_]:
-            return True
-    return False
+            return False
+    return True
 
-def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device]):#invoked after checking the condition of time and location  
+def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], timestep, location_data):#invoked after checking the condition of time and location  
     mapping = None 
     sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
     sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
@@ -34,27 +34,35 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device]):#invo
     l1=set_sa_1.symmetric_difference(set_sa_2)
     l2=set_sb_1.symmetric_difference(set_sb_2)    
     l3=set_sc_1.symmetric_difference(set_sc_2)
+    
+    intersec_l1=set_sa_1.intersection(set_sa_2)
+    intersec_l2=set_sb_1.intersection(set_sb_2)    
+    intersec_l3=set_sc_1.intersection(set_sc_2)
 
     len_sa_1, len_sb_1, len_sc_1 = len(sa_1), len(sb_1), len(sc_1)
     len_sa_2, len_sb_2, len_sc_2 = len(sa_2), len(sb_2), len(sc_2)
     
     len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)    
-
-    if (len_sb_1, len_sc_1, len_sb_2, len_sc_2) == (0, 0, 0, 0): #if rest other protocols are null,
-        if len_sa_1 == len_sa_2:
-            if len_l1 == 1 and set_sa_1 != set_sa_2: #check if intersection of bluetooth is 1
-                print(set_sa_1, set_sa_2, "Bluetooth")
-                mapping=l1 if old_id_checker(line1["Bluetooth"][0], tn1_list, 'Bluetooth') else None
-    elif (len_sa_1, len_sc_1, len_sa_2, len_sc_2) == (0, 0, 0, 0):
-        if len_sb_1 == len_sb_2:
-            if len_l2 == 1 and set_sb_1 != set_sb_2:
-                print(set_sb_1, set_sb_2, "wifi")
-                mapping=l2 if old_id_checker(line1["WiFi"][0], tn1_list, 'WiFi') else None
-    elif (len_sa_1, len_sb_1, len_sa_2, len_sb_2) == (0, 0, 0, 0):
-        if len_sc_1 == len_sc_2:
-            if len_l3 == 1 and set_sc_1!=set_sc_2:
-                print(set_sc_1, set_sc_2, "lte")
-                mapping=l3 if old_id_checker(line1["LTE"][0], tn1_list, 'LTE') else None
+    
+    '''LTE Range'''
+    if (len_sa_1, len_sb_1, len_sa_2, len_sb_2) == (0, 0, 0, 0) and len_sc_1 == len_sc_2:
+        if len_sc_1 - len(intersec_l3) == 1 and set_sc_1!=set_sc_2:
+            '''check if IDA from t0 exists in t1: entire set'''
+            if old_id_checker(next(iter(set_sc_1.intersection(l3))), tn1_list, 'LTE'):
+                ''' t0: IDA ; t1: IDB (distance calculation) 
+                    |p0 - p1| < delta_p'''
+                d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'LTE'}_{next(iter(set_sc_1.intersection(l3)))}"], location_data[timestep][f"{'LTE'}_{next(iter(set_sc_2.intersection(l3)))}"])
+                mapping = l3 if d < 2 else None
+        '''Wifi Range for rule 3 internal'''
+        
+    elif (len_sa_1, len_sc_1, len_sa_2, len_sc_2) == (0, 0, 0, 0) and len_sb_1 == len_sb_2:
+        if len_sb_1 - len(intersec_l2) == 1 and set_sb_1 != set_sb_2:
+            '''check if IDA from t0 exists in t1: entire set'''
+            if old_id_checker(next(iter(set_sb_1.intersection(l2))), tn1_list, 'WiFi'):
+                ''' t0: IDA ; t1: IDB (distance calculation) 
+                    |p0 - p1| < delta_p'''
+                d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'WiFi'}_{next(iter(set_sb_1.intersection(l2)))}"], location_data[timestep][f"{'WiFi'}_{next(iter(set_sb_2.intersection(l2)))}"])
+                mapping = l2 if d < 2 else None
     else:
         mapping=None
 
@@ -91,6 +99,7 @@ def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
     sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
     sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
 
+    priority = ['Bluetooth', 'WiFi', 'LTE']
 
     # Prepare set operations and store in variables
     set_sa_1, set_sa_2 = set(sa_1), set(sa_2)
@@ -100,13 +109,14 @@ def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
     l1=set_sa_1.intersection(set_sa_2)
     l2=set_sb_1.intersection(set_sb_2)    
     l3=set_sc_1.intersection(set_sc_2)
-    set_l1, set_l2, set_l3 = set(l1), set(l2), set(l3)
+    # l1=set_sa_1.symmetric_difference(set_sa_2)
+    # l2=set_sb_1.symmetric_difference(set_sb_2)    
+    # l3=set_sc_1.symmetric_difference(set_sc_2)
     
     len_sa_1, len_sb_1, len_sc_1 = len(sa_1), len(sb_1), len(sc_1)
     len_sa_2, len_sb_2, len_sc_2 = len(sa_2), len(sb_2), len(sc_2)
     
-    len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)
-
+    len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)                              
     
     if len_l1==len_sa_1 and len_l1==len_sa_2:
         if len_l2==len_sb_1 and len_l2==len_sb_2 and len_l2!=0:
