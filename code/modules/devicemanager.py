@@ -45,7 +45,7 @@ class DeviceManager:
         
         
     def linking_id(self,protocol,old_id,new_id):
-        print("link device")
+        # print("link device")
         device: Device
         for device in self.device_list:
             if protocol=='Bluetooth':

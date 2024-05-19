@@ -22,7 +22,7 @@ def old_id_not_exists(old_id_t0, new_line_tn1, type_):
             return False
     return True
 
-def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], timestep, location_data):#invoked after checking the condition of time and location  
+def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], timestep, location_data, rule3_check):#invoked after checking the condition of time and location  
     mapping = None 
     sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
     sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
@@ -68,10 +68,10 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], times
     else:
         mapping=None
 
-    if mapping is not None:
-        print("by rule 1")
+    if mapping is not None and rule3_check:
+        # print("by rule 1")
         # print(mapping)
-        # devices.append(mapping)
+        devices.append(mapping)
     return mapping, devices
 
 def rule_2(manager: DeviceManager, line1, devices: list[Device]):
@@ -98,10 +98,9 @@ def rule_2(manager: DeviceManager, line1, devices: list[Device]):
     return devices
    
 def rule_3(manager: DeviceManager, line1, line2,  tn1_list:list, devices: list[Device], timestep, location_data):
+    mapping = None
     sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
     sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
-
-    priority = ['Bluetooth', 'WiFi', 'LTE']
 
     # Prepare set operations and store in variables
     set_sa_1, set_sa_2 = set(sa_1), set(sa_2)
@@ -120,67 +119,109 @@ def rule_3(manager: DeviceManager, line1, line2,  tn1_list:list, devices: list[D
     
     len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)                              
     
+    last_rule = False
+    ''' Conditions:
+    1)  if wifi & bluetooth same, lte diff (rule 1 applicable with rule 3)
+    2)  if bluetooth same, but lte & wifi diff (rule 1 applicable with rule 3)
+    3)  if lte & bluetooth same, wifi diff
+    4)  if lte & wifi same, bluetooth diff
+    5)  if wifi same, but lte & bluetooth diff (rule 1 applicable with rule 3),
+    6)  if lte same, but wifi & bluetooth diff
+    '''
+    
+    
     ''' Check if Bluetooth set is same'''
     if len_l1==len_sa_1 and len_l1==len_sa_2:
         ''' Check if Wifi set is same'''
         if len_l2==len_sb_1 and len_l2==len_sb_2 and len_l2!=0:
-            ''' Check if LTE set is different'''
-            if len_l3==len_sc_1-1 and len_l3==len_sc_2-1:
+            ''' 1) Check if LTE set is different'''
+            if len_l3==len_sc_1-1 and len_l3==len_sc_2-1 and len_l3!=0:
+                print("Cond 1")
                 ''' Here, Bluetooth and Wifi sets are same, but LTE Identifier set is different.
                 Since range of LTE is greater than Bluetooth and Wifi, Rule 1 must be implemented for mapping'''
-                mapping=(set_sc_1-set(l3),set_sc_1-set(l3))
-                old_id=(set_sc_1-set(l3)).pop()
-                new_id=(set_sc_2-set(l3)).pop()
-                
+                mapping, _ = rule_1(line1, line2, tn1_list, devices, timestep, location_data, rule3_check=False)
+                # mapping=(set_sc_1-set(l3),set_sc_1-set(l3))
+                old_id, new_id = (set_sc_1-set(l3)).pop(), (set_sc_2-set(l3)).pop()                
                 manager.linking_id('LTE',old_id,new_id)
-                #print(mapping)
-            else:
-                mapping=None
-        else:
-            mapping=None
-    #else:
-     #   mapping=None
-        '''Check if Bluetooth Set is same'''
-    elif len_l1==len_sa_1 and len_l1==len_sa_2:
-        '''Check if LTE Set is same'''
-        if len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
-            '''Check if Wifi Set is different'''
+            ''' Check if Wifi set is different'''
+        elif len_l2==len_sb_1-1 and len_l2==len_sb_2-1 and len_l2!=0:
+            ''' 2) Check if LTE set is different'''
+            if len_l3==len_sc_1-1 and len_l3==len_sc_2-1 and len_l3!=0:
+                print("Cond 2")
+                ''' Here, Bluetooth set is same, but LTE & Wifi Identifier set is different.
+                Since range of LTE and Wifi is greater than Bluetooth , Rule 1 must be implemented for mapping'''
+                mapping, _ = rule_1(line1, line2, tn1_list, devices, timestep, location_data, rule3_check=False)
+                # mapping=(set_sc_1-set(l3),set_sc_1-set(l3))
+                old_id, new_id = (set_sc_1-set(l3)).pop(), (set_sc_2-set(l3)).pop()                
+                manager.linking_id('LTE',old_id,new_id)
+                old_id, new_id = (set_sb_1-set(l2)).pop(), (set_sb_2-set(l2)).pop()   
+                manager.linking_id('WiFi',old_id,new_id)
+            
+            '''Check if LTE Set is same'''
+        elif len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
+            ''' 3) Check if Wifi Set is different'''
             if len_l2==len_sb_1-1 and len_l2==len_sb_2-1:
+                print("Cond 3")
+                print(line1, line2)
                 ''' Here, Bluetooth and LTE sets are same, but Wifi Identifier set is different.
                 Since range of Wifi is less than LTE, Rule 3 is correct'''
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
                 old_id=(set(sb_1)-set(l2)).pop()
                 new_id=(set(sb_2)-set(l2)).pop()
                 manager.linking_id('WiFi',old_id,new_id)
-            else:
-                mapping=None
-        else:
-            mapping=None
+
         ''' Check if Wifi set is same '''
     elif len_l2==len_sb_1 and len_l2==len_sb_2 and len_l2!=0:
         ''' Check if LTE set is same '''
         if len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
-            ''' Check if Bluetooth set is different '''
+            ''' 4) Check if Bluetooth set is different '''
             if len_l1==len_sa_1-1 and len_l1==len_sa_2-1:
+                print("Cond 4")
                 ''' Here, Wifi and LTE sets are same, but Bluetooth Identifier set is different.
                 Since range of Bluetooth is less than all, Rule 3 is correct'''
                 mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
                 old_id=(set(sa_1)-set(l1)).pop()
                 new_id=(set(sa_2)-set(l1)).pop()
                 manager.linking_id('Bluetooth',old_id,new_id)
-            else:
-                mapping=None
-        else:
-            mapping=None
+
+            ''' Check if LTE set is different '''
+        elif len_l3==len_sc_1-1 and len_l3==len_sc_2-1 and len_l3!=0:
+            ''' 5) Check if Bluetooth set is different '''
+            if len_l1==len_sa_1-1 and len_l1==len_sa_2-1:
+                print("Cond 5")
+                ''' Here, Wifi set is same, but LTE & Bluetooth Identifier set is different.
+                Since range of LTE is greater than Wifi , Rule 1 must be implemented for mapping'''
+                mapping, _ = rule_1(line1, line2, tn1_list, devices, timestep, location_data, rule3_check=False)
+                # mapping=(set_sc_1-set(l3),set_sc_1-set(l3))
+                old_id, new_id = (set_sc_1-set(l3)).pop(), (set_sc_2-set(l3)).pop()                
+                manager.linking_id('LTE',old_id,new_id)
+                old_id, new_id = (set_sa_1-set(l1)).pop(), (set_sa_2-set(l1)).pop()   
+                manager.linking_id('Bluetooth',old_id,new_id)
+    
+        '''Check if LTE Set is same'''
+    elif len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
+        ''' Check if Wifi Set is different '''
+        if len_l2==len_sb_1-1 and len_l2==len_sb_2-1 and len_l2!=0:
+            ''' 6) Check if Bluetooth set is different '''
+            if len_l1==len_sa_1-1 and len_l1==len_sa_2-1:
+                print("Cond 6")
+                mapping = [(set(sa_1)-set(l1),set(sa_2)-set(l1)), (set(sb_1)-set(l2),set(sb_2)-set(l2))]
+                old_id, new_id = (set_sb_1-set(l2)).pop(), (set_sb_2-set(l2)).pop()   
+                manager.linking_id('WiFi',old_id,new_id)
+                old_id, new_id = (set_sa_1-set(l1)).pop(), (set_sa_2-set(l1)).pop()   
+                manager.linking_id('Bluetooth',old_id,new_id)        
     else:
         mapping=None
            
     #print(mapping)
-    if mapping is not None: 
+    if mapping is not None:
         print("by rule 3")
-        print(line1)
         print(mapping)
-        devices.append(mapping)
+        if not last_rule:
+            devices.append(mapping)
+        elif last_rule:
+            devices.extend(mapping)
+            
     return mapping, devices
 
 def rule_4(manager: DeviceManager,line1,line2, devices: list[Device]):
