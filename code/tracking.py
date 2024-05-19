@@ -69,7 +69,7 @@ for timestep, data_ in data.items():
             device = rule_2(manager, item_tn, devices)
             '''Add elimination step'''
             for item_tn1_num, item_tn1 in enumerate(consecutive_tq[1]):
-                # mapping, devices = rule_3(manager, item_tn, item_tn1, devices)
+                mapping, devices = rule_3(manager, item_tn, item_tn1, consecutive_tq[1], devices, timestep, location_data)
                 
                 # if mapping is not None:
                 #     linked_ids[mapping[0].pop()] = mapping[1].pop()
@@ -77,9 +77,10 @@ for timestep, data_ in data.items():
                     
                 '''Create intra mapping based on rule 1'''
                 mapping, devices = rule_1(item_tn, item_tn1, consecutive_tq[1], devices, timestep, location_data)
-                # if mapping is not None:
-                #     linked_ids[mapping[0].pop()] = mapping[1].pop()
-                #     manager.linked_ids = linked_ids
+                if mapping is not None and len(mapping) == 2:
+                    mapping_key, mapping_value = tuple(mapping)
+                    linked_ids[mapping_key] = mapping_value
+                    manager.linked_ids = linked_ids
         # break
     # break
     #     print(timestep)

@@ -14,8 +14,9 @@ from funct.fn import calculate_distance_l
     ]
 }
 
-def old_id_checker(old_id_t0, new_line_tn1, type_):
-    '''To check if old identifier exists anywhere in the tn+1 mapping, if yes, then no linkage, else link them'''
+def old_id_not_exists(old_id_t0, new_line_tn1, type_):
+    '''To check if old identifier exists anywhere in the tn+1 mapping, if yes, then no linkage, else link them
+    function written reversely : if old identifier exists, then return false, else return True'''
     for item_tn1 in new_line_tn1:
         if old_id_t0 in item_tn1[type_]:
             return False
@@ -47,8 +48,9 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], times
     '''LTE Range'''
     if (len_sa_1, len_sb_1, len_sa_2, len_sb_2) == (0, 0, 0, 0) and len_sc_1 == len_sc_2:
         if len_sc_1 - len(intersec_l3) == 1 and set_sc_1!=set_sc_2:
-            '''check if IDA from t0 exists in t1: entire set'''
-            if old_id_checker(next(iter(set_sc_1.intersection(l3))), tn1_list, 'LTE'):
+            '''check if IDA from t0 exists in t1: entire set
+            if old_id_checker, then IDA could be mapped to IDB, but now check distance based on threshold of 1 meter'''
+            if old_id_not_exists(next(iter(set_sc_1.intersection(l3))), tn1_list, 'LTE'):
                 ''' t0: IDA ; t1: IDB (distance calculation) 
                     |p0 - p1| < delta_p'''
                 d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'LTE'}_{next(iter(set_sc_1.intersection(l3)))}"], location_data[timestep][f"{'LTE'}_{next(iter(set_sc_2.intersection(l3)))}"])
@@ -58,7 +60,7 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], times
     elif (len_sa_1, len_sc_1, len_sa_2, len_sc_2) == (0, 0, 0, 0) and len_sb_1 == len_sb_2:
         if len_sb_1 - len(intersec_l2) == 1 and set_sb_1 != set_sb_2:
             '''check if IDA from t0 exists in t1: entire set'''
-            if old_id_checker(next(iter(set_sb_1.intersection(l2))), tn1_list, 'WiFi'):
+            if old_id_not_exists(next(iter(set_sb_1.intersection(l2))), tn1_list, 'WiFi'):
                 ''' t0: IDA ; t1: IDB (distance calculation) 
                     |p0 - p1| < delta_p'''
                 d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'WiFi'}_{next(iter(set_sb_1.intersection(l2)))}"], location_data[timestep][f"{'WiFi'}_{next(iter(set_sb_2.intersection(l2)))}"])
@@ -68,8 +70,8 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], times
 
     if mapping is not None:
         print("by rule 1")
-        print(mapping)
-        devices.append(mapping)
+        # print(mapping)
+        # devices.append(mapping)
     return mapping, devices
 
 def rule_2(manager: DeviceManager, line1, devices: list[Device]):
@@ -95,7 +97,7 @@ def rule_2(manager: DeviceManager, line1, devices: list[Device]):
         devices.append(mapping)
     return devices
    
-def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
+def rule_3(manager: DeviceManager, line1, line2,  tn1_list:list, devices: list[Device], timestep, location_data):
     sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
     sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
 
@@ -118,9 +120,14 @@ def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
     
     len_l1, len_l2, len_l3 = len(l1), len(l2), len(l3)                              
     
+    ''' Check if Bluetooth set is same'''
     if len_l1==len_sa_1 and len_l1==len_sa_2:
+        ''' Check if Wifi set is same'''
         if len_l2==len_sb_1 and len_l2==len_sb_2 and len_l2!=0:
-            if len_l3==len_sc_1-1 and len_l3==len(sc_2)-1:
+            ''' Check if LTE set is different'''
+            if len_l3==len_sc_1-1 and len_l3==len_sc_2-1:
+                ''' Here, Bluetooth and Wifi sets are same, but LTE Identifier set is different.
+                Since range of LTE is greater than Bluetooth and Wifi, Rule 1 must be implemented for mapping'''
                 mapping=(set_sc_1-set(l3),set_sc_1-set(l3))
                 old_id=(set_sc_1-set(l3)).pop()
                 new_id=(set_sc_2-set(l3)).pop()
@@ -133,9 +140,14 @@ def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
             mapping=None
     #else:
      #   mapping=None
+        '''Check if Bluetooth Set is same'''
     elif len_l1==len_sa_1 and len_l1==len_sa_2:
+        '''Check if LTE Set is same'''
         if len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
+            '''Check if Wifi Set is different'''
             if len_l2==len_sb_1-1 and len_l2==len_sb_2-1:
+                ''' Here, Bluetooth and LTE sets are same, but Wifi Identifier set is different.
+                Since range of Wifi is less than LTE, Rule 3 is correct'''
                 mapping=(set(sb_1)-set(l2),set(sb_2)-set(l2))
                 old_id=(set(sb_1)-set(l2)).pop()
                 new_id=(set(sb_2)-set(l2)).pop()
@@ -144,11 +156,14 @@ def rule_3(manager: DeviceManager, line1, line2, devices: list[Device]):
                 mapping=None
         else:
             mapping=None
-    #else:
-     #   mapping=None
+        ''' Check if Wifi set is same '''
     elif len_l2==len_sb_1 and len_l2==len_sb_2 and len_l2!=0:
+        ''' Check if LTE set is same '''
         if len_l3==len_sc_1 and len_l3==len_sc_2 and len_l3!=0:
+            ''' Check if Bluetooth set is different '''
             if len_l1==len_sa_1-1 and len_l1==len_sa_2-1:
+                ''' Here, Wifi and LTE sets are same, but Bluetooth Identifier set is different.
+                Since range of Bluetooth is less than all, Rule 3 is correct'''
                 mapping=(set(sa_1)-set(l1),set(sa_2)-set(l1))
                 old_id=(set(sa_1)-set(l1)).pop()
                 new_id=(set(sa_2)-set(l1)).pop()
