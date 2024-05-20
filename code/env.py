@@ -50,3 +50,6 @@ SUMO_BIN_PATH = "/usr/bin/"
 
 sumo_binary = "sumo"
 SUMO_CFG_FILE = "/home/anonymous/MoSTScenario/scenario/most.sumocfg"
+
+
+DELTA_P = 2

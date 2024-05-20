@@ -51,36 +51,49 @@ manager = DeviceManager()
 manager.linked_ids = linked_ids
 devices = []
 
-
-'''Contains array of tn, tn+1 of timestep queue'''
-consecutive_tq = deque(maxlen=2)
 '''Contains list of tn-1 to 0  (past values for elimination)'''
 past_timestep_arr = []
-'''Contains deque from tn to tn+k'''
-# future_tq = deque(len(data))
+'''Contains list of data from tn to tn+k'''
+future_tq = [d for c,d in data.items()]
+print(len(future_tq))
+
 
 '''Fetches timestep and data for that timestep in this loop'''
-for timestep, data_ in data.items():
-    consecutive_tq.append(data_)
+for timestep in range(0, len(future_tq)):    
     # break
-    if len(consecutive_tq) == 2:
-        for item_tn_num, item_tn in enumerate(consecutive_tq[0]):
-            '''Create intermapping based on rule 2'''
-            device = rule_2(manager, item_tn, devices)
-            '''Add elimination step'''
-            for item_tn1_num, item_tn1 in enumerate(consecutive_tq[1]):
-                mapping, devices = rule_3(manager, item_tn, item_tn1, consecutive_tq[1], devices, timestep, location_data)
-                
-                # if mapping is not None:
-                #     linked_ids[mapping[0].pop()] = mapping[1].pop()
-                #     manager.linked_ids = linked_ids
-                    
-                '''Create intra mapping based on rule 1'''
-                # mapping, devices = rule_1(item_tn, item_tn1, consecutive_tq[1], devices, timestep, location_data, rule3_check=True)
-                # if mapping is not None and len(mapping) == 2:
-                #     mapping_key, mapping_value = tuple(mapping)
-                #     linked_ids[mapping_key] = mapping_value
-                #     manager.linked_ids = linked_ids
+    print(timestep)
+    for item_tn_num, item_tn in enumerate(future_tq[timestep]):
+        '''Create intermapping based on rule 2'''
+        devices = rule_2(manager, item_tn, devices)
+        '''Add elimination step'''
+        if (timestep+1) > len(future_tq)-1:
+            continue
+        for item_tn1_num, item_tn1 in enumerate(future_tq[timestep+1]):
+            '''Create intra mapping based on rule 3'''
+            mapping, devices = rule_3(manager, item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data)
+            if mapping is not None:
+                if type(mapping) == set:
+                    mapping_key, mapping_value = tuple(mapping)
+                    linked_ids[mapping_key] = mapping_value
+                    manager.linked_ids = linked_ids
+                if type(mapping) == list:
+                    mapping_key, mapping_value = tuple(mapping[0])
+                    linked_ids[mapping_key] = mapping_value
+                    mapping_key, mapping_value = tuple(mapping[1])
+                    linked_ids[mapping_key] = mapping_value
+                    manager.linked_ids = linked_ids
+            '''Create intra mapping based on rule 1'''
+            mapping, devices = rule_1(item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data, rule3_check=True)
+            if mapping is not None and len(mapping) == 2:
+                mapping_key, mapping_value = tuple(mapping)
+                linked_ids[mapping_key] = mapping_value
+                manager.linked_ids = linked_ids            
+            
+        for data_tnk in future_tq[int(timestep)+1:len(future_tq)]:
+            # print(item_tn,item_tnk)
+            for item_tnk in data_tnk:
+                devices = rule_4(manager,item_tn,item_tnk, devices)
+                        
         # break
     # break
     #     print(timestep)
