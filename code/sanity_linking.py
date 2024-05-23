@@ -111,7 +111,7 @@ f2.close()
 print(len(linked_ids))
 
 
-f1 = open('user_data.json')
+f1 = open('20240507122632_sniffed_data_19400.json')
  
 # returns JSON object as 
 # a dictionary
@@ -119,26 +119,35 @@ data_user = json.load(f1)
  
 
 f1.close()
-
 count=0
-userid1=1
-userid2=100
+userid1=12312321
+userid2=104343243240
+flag1, flag2 = False, False
 for key,value in linked_ids.items():
     print(key,value)
     for line in data_user:
         if key in line.values():
             userid1=line['user_id']
-            print(userid1)
+            flag1 = True
         if value in line.values():
-            #print(line['user_id'])
             userid2=line['user_id']
-            print(userid2)
+            flag2 = True
         if userid1==userid2:
+            print(userid2)
+            flag1, flag2 = False, False
+            userid1=12312321
+            userid2=104343243240
             count=count+1
             break
-            
+        
+        if flag1 and flag2:
+            flag2, flag1 = False, False
+            print("Not mapped", userid1, userid2)
             
 print(count/len(linked_ids))
+
+            
+print(count1/len(linked_ids))
 
 count=0
 
@@ -146,7 +155,7 @@ count=0
 linked_ids_reconstruct = dict()
 
 for key,value in linked_ids.items():
-    if value not in linked_ids_reconstruct.keys():
+    if key not in linked_ids_reconstruct.values():
         linked_ids_reconstruct[value]=key
 
 file_path = "linked_ids.json"
@@ -209,6 +218,7 @@ for device in manager.device_list:
             if line['user_id'] not in user_devices:
                 user_devices.append(line['user_id'])
             break
+
     print("-----------")    
     print(user_id1)
     print(user_id2)
@@ -216,10 +226,17 @@ for device in manager.device_list:
     print("-----------")
 
 
+print(len(user_devices))
+
+
+print("Number of device binding")
+print(count)
+print(len(manager.device_list))
 print(count/len(manager.device_list))     
 
-
-
+print("Linking")
+print(count1)
+print(len(linked_ids))
     
 
  
