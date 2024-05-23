@@ -143,6 +143,7 @@ for key,value in linked_ids.items():
         if flag1 and flag2:
             flag2, flag1 = False, False
             print("Not mapped", userid1, userid2)
+            break
             
 print(count/len(linked_ids))
 
