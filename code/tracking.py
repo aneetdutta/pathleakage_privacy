@@ -64,35 +64,39 @@ for timestep in range(0, len(future_tq)):
     print(timestep)
     for item_tn_num, item_tn in enumerate(future_tq[timestep]):
         '''Create intermapping based on rule 2'''
-        devices = rule_2(manager, item_tn, devices)
-        '''Add elimination step'''
+        # devices = rule_2(manager, item_tn, devices)
+        # '''Add elimination step'''
         if (timestep+1) > len(future_tq)-1:
             continue
         for item_tn1_num, item_tn1 in enumerate(future_tq[timestep+1]):
             '''Create intra mapping based on rule 3'''
-            mapping, devices = rule_3(manager, item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data)
-            if mapping is not None:
-                if type(mapping) == set:
-                    mapping_key, mapping_value = tuple(mapping)
-                    linked_ids[mapping_key] = mapping_value
-                    manager.linked_ids = linked_ids
-                if type(mapping) == list:
-                    mapping_key, mapping_value = tuple(mapping[0])
-                    linked_ids[mapping_key] = mapping_value
-                    mapping_key, mapping_value = tuple(mapping[1])
-                    linked_ids[mapping_key] = mapping_value
-                    manager.linked_ids = linked_ids
-            '''Create intra mapping based on rule 1'''
-            mapping, devices = rule_1(item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data, rule3_check=True)
-            if mapping is not None and len(mapping) == 2:
-                mapping_key, mapping_value = tuple(mapping)
-                linked_ids[mapping_key] = mapping_value
-                manager.linked_ids = linked_ids            
+            mapping, devices = rule_3_modified(manager, item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data)
+            break
+        break
+    break
+            # mapping, devices = rule_3(manager, item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data)
+            # if mapping is not None:
+            #     if type(mapping) == set:
+            #         mapping_key, mapping_value = tuple(mapping)
+            #         linked_ids[mapping_key] = mapping_value
+            #         manager.linked_ids = linked_ids
+            #     if type(mapping) == list:
+            #         mapping_key, mapping_value = tuple(mapping[0])
+            #         linked_ids[mapping_key] = mapping_value
+            #         mapping_key, mapping_value = tuple(mapping[1])
+            #         linked_ids[mapping_key] = mapping_value
+            #         manager.linked_ids = linked_ids
+            # '''Create intra mapping based on rule 1'''
+            # mapping, devices = rule_1(item_tn, item_tn1, future_tq[timestep+1], devices, str(timestep+1), location_data, rule3_check=True)
+            # if mapping is not None and len(mapping) == 2:
+            #     mapping_key, mapping_value = tuple(mapping)
+            #     linked_ids[mapping_key] = mapping_value
+            #     manager.linked_ids = linked_ids            
             
-        for data_tnk in future_tq[int(timestep)+1:len(future_tq)]:
-            # print(item_tn,item_tnk)
-            for item_tnk in data_tnk:
-                devices = rule_4(manager,item_tn,item_tnk, devices)
+        # for data_tnk in future_tq[int(timestep)+1:len(future_tq)]:
+        #     # print(item_tn,item_tnk)
+        #     for item_tnk in data_tnk:
+        #         devices = rule_4(manager,item_tn,item_tnk, devices)
                         
         # break
     # break

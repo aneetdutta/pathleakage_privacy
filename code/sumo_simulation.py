@@ -7,11 +7,12 @@ from modules.user import User
 import traceback
 from env import *
 import polars as pl
-
+from funct.fn import extract_orjson
 from collections import deque
 
 # from numba import jit
 # from numba.typed import List
+
 
 config_elements = {
     "area_size": AREA_SIZE,
@@ -19,6 +20,11 @@ config_elements = {
     "identifier_length": IDENTIFIER_LENGTH,
 }
 
+sniffer_location = extract_orjson("sniffer_location.json")
+# sl = 
+# print(sl)
+
+# sys.exit()
 # sumo_cmd = [sumo_binary, "-c", "most.sumocfg"]
 # sumo_process = subprocess.Popen(sumo_cmd, stdout=sys.stdout, stderr=sys.stderr)
 
@@ -28,18 +34,55 @@ traci.start(sumo_cmd)
 # Connect to TraCI
 # traci.connect()
 
-def person_iterator(p_ids:deque, users:dict, sniffers:deque, timestep:float, usr_data: deque, detected_usrs: deque):
+def person_iterator(p_ids:deque, users:list, sniffers:deque, timestep:float, usr_data: deque, detected_usrs: deque):
     # Iterate over each person ID
     for person_id in p_ids:
+        lo = traci.person.getPosition(person_id)
+        # user_exists = next((user for user in users if user.user_id == person_id), None)
+        # user_exists: User
+        # if user_exists:
+        #     user_exists.location=lo
+        #     user_exists.randomize_identifiers()
+        #     for sniffer in sniffers:
+        #         detected_usrs.extend(sniffer.detect_users(user_exists, timestep))
+        #     usr_data.append(
+        #     {
+        #         "timestep": timestep,
+        #         "user_id": user_exists.user_id,
+        #         "location": user_exists.location,
+        #         "bluetooth_id": user_exists.bluetooth_id,
+        #         "wifi_id": user_exists.wifi_id,
+        #         "lte_id": user_exists.lte_id,
+        #     }
+        #     )
+        # else:
+        #     user_id=person_id
+        #     location=lo
+        #     user = User(user_id,location,max_step_size=MAX_STEP_SIZE) 
+        #     users.append(user)
+        #     for sniffer in sniffers:
+        #         detected_usrs.extend(sniffer.detect_users(user, timestep))
+    
+        #     usr_data.append(
+        #     {
+        #         "timestep": timestep,
+        #         "user_id": user.user_id,
+        #         "location": user.location,
+        #         "bluetooth_id": user.bluetooth_id,
+        #         "wifi_id": user.wifi_id,
+        #         "lte_id": user.lte_id,
+        #     }
+        # )
+        users: dict = dict()
         user:User
         if person_id in users:
             # user exists
             user = users[person_id]
-            user.location = traci.person.getPosition(person_id)
+            user.location = lo
             user.randomize_identifiers()
         else:
             user_id = person_id
-            location = traci.person.getPosition(person_id)
+            location = lo
             user = User(user_id,location,max_step_size=MAX_STEP_SIZE)              
             users[user_id] = user
             
@@ -56,14 +99,15 @@ def person_iterator(p_ids:deque, users:dict, sniffers:deque, timestep:float, usr
                 "lte_id": user.lte_id,
             })
 
+
     return usr_data, detected_usrs
 
 try:
     # Simulation loop
-    detected_users, user_data, users, sniffers = deque(), deque(),dict(), deque()
+    detected_users, user_data, users, sniffers = deque(), deque(),list(), deque()
     
     timestep = 14400
-    sniffer_locs=[(9832.86,5109.03),(3075.86,686.18),(4749.59,1973.95),(5053.60,2440.58),(4106.14,1580.96),(5022.89,2397.47),(2447.68,335.84),(1541.62,594.71),(2333.54,663.48),(4823.42,2244.27),(8251.47,4557.67),(5085.25,2361.61)]
+    sniffer_locs= sniffer_location["sniffer_location"] #[(9832.86,5109.03),(3075.86,686.18),(4749.59,1973.95),(5053.60,2440.58),(4106.14,1580.96),(5022.89,2397.47),(2447.68,335.84),(1541.62,594.71),(2333.54,663.48),(4823.42,2244.27),(8251.47,4557.67),(5085.25,2361.61)]
     sniffers = [Sniffer(i, sniffer_loc, BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE) for i, sniffer_loc in enumerate(sniffer_locs)]
 
     '''
@@ -73,7 +117,7 @@ try:
     while timestep < TIMESTEPS:
         timestep = traci.simulation.getTime()
         person_ids = traci.person.getIDList()
-        if timestep > 18000 and timestep % 50 == 0:
+        if timestep > 18000:
             print(len(person_ids), timestep)
         user_data, detected_users = person_iterator(person_ids, users, sniffers, timestep, user_data, detected_users)
         # print(detected_users)

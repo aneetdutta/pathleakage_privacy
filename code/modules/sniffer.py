@@ -16,8 +16,8 @@ class Sniffer:
 
     def detect_users(self, user: User, timestep):
         distance = sqrt(
-            (self.location[0] - user.location[0]) ** 2
-            + (self.location[1] - user.location[1]) ** 2
+            (float(self.location[0]) - float(user.location[0])) ** 2
+            + (float(self.location[1]) - float(user.location[1])) ** 2
         )
         
         common_info = {

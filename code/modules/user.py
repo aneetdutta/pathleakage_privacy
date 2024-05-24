@@ -73,5 +73,3 @@ class User:
             # print("randomized lte")
             self.set_next_lte_refresh()
             self.lte_id = random_identifier()
-
-

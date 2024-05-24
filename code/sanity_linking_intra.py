@@ -8,7 +8,7 @@ from funct.fn import extract_orjson
 from modules.device import Device
 from modules.devicemanager import DeviceManager
 
-linked_ids = extract_orjson('rule1.json')
+linked_ids = extract_orjson('linked_ids.json')
 print(len(linked_ids))
 data_user = extract_orjson('20240506150753_sniffed_data.json')
 
@@ -36,5 +36,6 @@ for key,value in linked_ids.items():
         if flag1 and flag2:
             flag2, flag1 = False, False
             print("Not mapped", userid1, userid2)
+            break
             
 print(count/len(linked_ids))

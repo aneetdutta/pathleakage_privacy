@@ -52,21 +52,21 @@ def rule_1(line1: list, line2: list, tn1_list:list, devices: list[Device], times
         if len_sc_1 - len(intersec_l3) == 1 and set_sc_1!=set_sc_2:
             '''check if IDA from t0 exists in t1: entire set
             if old_id_checker, then IDA could be mapped to IDB, but now check distance based on threshold of 1 meter'''
-            if old_id_not_exists(next(iter(set_sc_1.intersection(l3))), tn1_list, 'LTE'):
-                ''' t0: IDA ; t1: IDB (distance calculation) 
-                    |p0 - p1| < delta_p'''
-                d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'LTE'}_{next(iter(set_sc_1.intersection(l3)))}"], location_data[timestep][f"{'LTE'}_{next(iter(set_sc_2.intersection(l3)))}"])
-                mapping = l3 if d < DELTA_P else None
+            # if old_id_not_exists(next(iter(set_sc_1.intersection(l3))), tn1_list, 'LTE'):
+            ''' t0: IDA ; t1: IDB (distance calculation) 
+                |p0 - p1| < delta_p'''
+            d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'LTE'}_{next(iter(set_sc_1.intersection(l3)))}"], location_data[timestep][f"{'LTE'}_{next(iter(set_sc_2.intersection(l3)))}"])
+            mapping = l3 if d < DELTA_P else None
         '''Wifi Range for rule 3 internal'''
         
     elif (len_sa_1, len_sc_1, len_sa_2, len_sc_2) == (0, 0, 0, 0) and len_sb_1 == len_sb_2:
         if len_sb_1 - len(intersec_l2) == 1 and set_sb_1 != set_sb_2:
             '''check if IDA from t0 exists in t1: entire set'''
-            if old_id_not_exists(next(iter(set_sb_1.intersection(l2))), tn1_list, 'WiFi'):
-                ''' t0: IDA ; t1: IDB (distance calculation) 
-                    |p0 - p1| < delta_p'''
-                d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'WiFi'}_{next(iter(set_sb_1.intersection(l2)))}"], location_data[timestep][f"{'WiFi'}_{next(iter(set_sb_2.intersection(l2)))}"])
-                mapping = l2 if d < DELTA_P else None
+            # if old_id_not_exists(next(iter(set_sb_1.intersection(l2))), tn1_list, 'WiFi'):
+            ''' t0: IDA ; t1: IDB (distance calculation) 
+                |p0 - p1| < delta_p'''
+            d = calculate_distance_l(location_data[str(int(timestep)-1)][f"{'WiFi'}_{next(iter(set_sb_1.intersection(l2)))}"], location_data[timestep][f"{'WiFi'}_{next(iter(set_sb_2.intersection(l2)))}"])
+            mapping = l2 if d < DELTA_P else None
     else:
         mapping=None
 
@@ -101,6 +101,72 @@ def rule_2(manager: DeviceManager, line1, devices: list[Device]):
         print(mapping)
         devices.append(mapping)
     return devices
+   
+   
+
+def rule_3_modified(manager: DeviceManager, line1, line2,  tn1_list:list, devices: list[Device], timestep, location_data):
+    mapping = None
+    sa_1, sb_1, sc_1 = line1["Bluetooth"] if "Bluetooth" in line1 else [], line1["WiFi"] if "WiFi" in line1 else [], line1["LTE"] if "LTE" in line1 else []
+    sa_2, sb_2, sc_2 = line2["Bluetooth"] if "Bluetooth" in line2 else [], line2["WiFi"] if "WiFi" in line2 else [], line2["LTE"] if "LTE" in line2 else []
+
+    # Prepare set operations and store in variables
+    set_sa_1, set_sa_2 = set(sa_1), set(sa_2)
+    set_sb_1, set_sb_2 = set(sb_1), set(sb_2)
+    set_sc_1, set_sc_2 = set(sc_1), set(sc_2)
+    
+    l1=set_sa_1.intersection(set_sa_2)
+    l2=set_sb_1.intersection(set_sb_2)    
+    l3=set_sc_1.intersection(set_sc_2)
+    
+    l1_=set_sa_1.symmetric_difference(set_sa_2)
+    l2_=set_sb_1.symmetric_difference(set_sb_2)    
+    l3_=set_sc_1.symmetric_difference(set_sc_2)
+    # potential_mapping = {"w2": (w2`, w3)}
+    # potential_mapping = {"w3": (w4, w5)}
+    
+    
+    '''
+    We have 2 timesteps tx and ty:
+    tx - older timestep and ty - newer timestep
+    
+    compare every mapping from tx with ty:
+    
+    Generate a list of tentative mappings with discarded mappings:
+    eg. 
+    T0 - {W1, W2, L1, L2, L3} -> [{W1, L1,L2,L3}, {W2,L1,L2,L3}, {L1,W1,W2}, {L2,W1,W2}, {L3,W1,W2}]
+    T1 - {W1, W2`,W3, L1, L2, L3, L4, L5, L6} -> [{W2, W2`,W3}, {W1, L1, L2, L3, L4, L5, L6}, {W2`,L1, L2, L3, L4, L5, L6}, {W3, L1, L2, L3, L4, L5, L6}, {L1, W1, W2`, W3}, {L1, W1, W2`, W3}, {L2, W1, W2`, W3}, {L3, W1, W2`, W3}, {L4, W1, W2`, W3}, {L5, W1, W2`, W3}, {L6, W1, W2`, W3}] 
+    Here, we say that W2 can be potentially mapped to W2` or W3
+    Tn - if we get, {W3 -> L4, L5, L6}, we can say that 
+    since Tn:W2->{L1,L2,L3}, Tn:W3->{L4,L5,L6} 
+    :> (Tn:W2)∩(Tn:W3)=∅ (is a null set)
+    W2 cannot be mapped to W3
+    and can be mapped to W2`
+    
+    
+    To check at code level;
+    
+    Find all potential mappings first from T0 to Tn, 
+    capture all null sets by comparing every mapping with each other,
+    remove the potential mappings if mapping in nullset
+    
+    
+    This is to be applicable over all three, LTE, Wifi, Bluetooth
+    
+    '''    
+    pass   
+   
+   
+def rule_4_modified():
+    '''
+    
+    Generate a list of tentative mappings with discarded mappings:
+    eg. 
+    T0 - {W1, W2, L1, L2, L3} -> [{W1, L1,L2,L3}, {W2,L1,L2,L3}, {L1,W1,W2}, {L2,W1,W2}, {L3,W1,W2}]
+    Tn - {W1, W3, L1, L4, L5} -> [{W1, L1,L4,L5}, {W3,L1,L4,L5}, {L1,W1,W3}, {L4,W2,W3}, {L5,W1,W3}]
+    
+    '''
+    pass
+   
    
 def rule_3(manager: DeviceManager, line1, line2,  tn1_list:list, devices: list[Device], timestep, location_data):
     mapping = None
