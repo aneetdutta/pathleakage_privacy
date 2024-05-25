@@ -146,11 +146,10 @@ def group_distances(sniffer_groups):
         i = 0
         groups: list
         while i < len(groups):
-        # for i, group in enumerate(groups):
             group_check = True
             # print(i,group)
             group = groups[i]
-            print(group)
+            print(group, "check")
             compatible = True  # Flag to check if distance is compatible with the group
             group: list
             for d in group:
@@ -168,7 +167,7 @@ def group_distances(sniffer_groups):
                     compatible = True
                 elif d['protocol'] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= WIFI_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
                 elif d['protocol'] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
                     compatible = True
@@ -194,12 +193,18 @@ def group_distances(sniffer_groups):
             
             i = i+1
         
-        if incompatible_list or not group_found:
+        print(sg['lte_id'], sg['WiFi_id'], incompatible_list)
+        
+        if incompatible_list or (not group_found):
             compatible_list.append(sg)
+            print(sg['lte_id'], sg['WiFi_id'], "Adding to compatible list")
             if not list_of_dicts_exists_in_list(compatible_list,groups):
                 groups.append(compatible_list) # appending to new group if group not found
             compatible_list = []
             incompatible_list = []
+        
+            print(groups)
+            print("Added")
 
     return groups
 
