@@ -287,11 +287,7 @@ def D_getter(df: pl.DataFrame):
             old_timestep = timestep
             datagroup[old_timestep] = []
         sniffer_groups = data['sniffer_data']
-        # print(type(sniffer_groups))
-        a.add(type(sniffer_groups))
-        print(a)
-        # print(sniffer_groups)
-        # break
+
         distance_groups = group_distances(sniffer_groups)
         print(distance_groups)
         if timestep != old_timestep:
