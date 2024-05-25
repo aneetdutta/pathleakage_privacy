@@ -23,11 +23,12 @@ linked_ids = dict()
 
 
 # now = time.time()
-D, L = D_getter(data)
+D = D_getter(data)
+print(D, "dict")
 # # # Open the file in write mode
-# with open("processed_dict.json", "w") as json_file:
-#     # Serialize the dictionary to JSON and write it to the file
-#     json.dump(D, json_file)
+with open("processed_dict.json", "w") as json_file:
+    # Serialize the dictionary to JSON and write it to the file
+    json.dump(D, json_file)
     
 # with open("location_dict.json", "w") as json_file:
 #     # Serialize the dictionary to JSON and write it to the file

@@ -7,6 +7,7 @@ from math import sqrt
 import orjson
 import sys
 import time
+import copy
 import pandas as pd
 import polars as pl
 from collections import defaultdict, deque
@@ -139,74 +140,105 @@ def group_distances(sniffer_groups):
     sniffer_groups: dict
     for sg in sniffer_groups:
         # print(sg)
-        group_found = False  # Flag to check if sg is added to an existing group
-        group_check = True
-        incompatible_list: list = []
-        compatible_list: list = []
+        # print(sg["protocol"], sg[protocol_to_id[sg["protocol"]]], sg['dist_S_U'], "sg_tup")
+        sg_tup = (sg["protocol"],sg[protocol_to_id[sg["protocol"]]],sg['dist_S_U'])
+        if not groups:
+            first_group = set()
+            first_group.add(tuple(sg_tup))
+            groups.append(first_group)
+        incompatible_set: set = set()
+        compatible_set: set = set()
         i = 0
+        # print(groups, "check")
         groups: list
         while i < len(groups):
-            group_check = True
             # print(i,group)
             group = groups[i]
-            print(group, "check")
+            # print(i, group, "check")
             compatible = True  # Flag to check if distance is compatible with the group
             group: list
             for d in group:
-                abs_dist = abs(d['dist_S_U'] - sg['dist_S_U'])
-                print(d['lte_id'], d['WiFi_id'], sg['lte_id'], sg['WiFi_id'], abs_dist)
-                if d['protocol'] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                abs_dist = abs(int(d[2]) - int(sg['dist_S_U']))
+                # print(d, sg['WiFi_id'], abs_dist)
+                if d[0] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= WIFI_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
                     compatible = True
-                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= BLUETOOTH_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= BLUETOOTH_LOCALIZATION_ERROR:
                     compatible = True
                 else: 
                     compatible = False
-                    print(compatible, sg['lte_id'], sg['WiFi_id'])
-                
-                group_check = group_check and compatible
+                    # print(compatible, sg['lte_id'], sg['WiFi_id'])
                 
                 if compatible == True:
-                    if d not in compatible_list:
-                        compatible_list.append(d)
+                    if d not in compatible_set:
+                        compatible_set.add(d)
+                        
                 elif compatible == False:
-                    if d not in incompatible_list:
-                        incompatible_list.append(d)
-            
-            if not incompatible_list or group_check:
-                if sg not in groups[i]:
-                    groups[i].append(sg)
-                group_found, group_check = True, True
-            
+                    if d not in incompatible_set:
+                        incompatible_set.add(d)
+        
             i = i+1
-        
-        print(sg['lte_id'], sg['WiFi_id'], incompatible_list)
-        
-        if incompatible_list or (not group_found):
-            compatible_list.append(sg)
-            print(sg['lte_id'], sg['WiFi_id'], "Adding to compatible list")
-            if not list_of_dicts_exists_in_list(compatible_list,groups):
-                groups.append(compatible_list) # appending to new group if group not found
-            compatible_list = []
-            incompatible_list = []
-        
-            print(groups)
-            print("Added")
+            
+        if not compatible_set:
+            fg = set()
+            fg.add(tuple(sg_tup))
+            groups.append(fg)
+        else:
+            temp_group = copy.deepcopy(groups)
+            diff_checker = True
+            for i, group in enumerate(groups):
+                
+                ''' Intersection of Compatible Set and Group - Get common items'''
+                common_set = group.intersection(compatible_set)
 
-    return groups
+                if not common_set:
+                    continue
+                diff = group - compatible_set
+                if not diff:
+                    temp_group[i].add(sg_tup)
+                    diff_checker = False
+            if diff_checker:
+                compatible_set.add(sg_tup)
+                temp_group.append(compatible_set)
+            groups = temp_group
+    
+    '''
+    [
+        {('WiFi', 'W1', 40), ('LTE', 'L1', 40), ('LTE', 'L2', 30), ('Bluetooth', 'B1', 40)},
+        {('LTE', 'L1', 40), ('WiFi', 'W2', 30), ('LTE', 'L2', 30), ('Bluetooth', 'B2', 30)},
+        {('WiFi', 'W2', 30), ('LTE', 'L3', 20), ('LTE', 'L2', 30), ('Bluetooth', 'B2', 30)},
+        {('WiFi', 'W3', 20), ('LTE', 'L3', 20), ('Bluetooth', 'B3', 20), ('LTE', 'L2', 30)},
+        {('WiFi', 'W3', 20), ('Bluetooth', 'B3', 20), ('LTE', 'L4', 10), ('LTE', 'L3', 20)},
+        {('Bluetooth', 'B4', 10), ('LTE', 'L3', 20), ('WiFi', 'W4', 10), ('LTE', 'L4', 10)}
+    ]
+    '''
+            
+    group_list:list = []
+    for element in groups:
+        temp_dict = defaultdict()
+        for devtup in list(element):
+            if devtup[0] in {"Bluetooth", "WiFi", "LTE"}:
+                # print(devtup[0], devtup[1])
+                if devtup[0] not in temp_dict:
+                    temp_dict[devtup[0]] = [devtup[1]]
+                else:
+                    temp_dict[devtup[0]].append(devtup[1])     
+        group_list.append(temp_dict)       
+    # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
+    return group_list
 
 
 
@@ -231,27 +263,69 @@ def D_getter(df: pl.DataFrame):
     df = df.to_pandas()
     grouped_df = df.groupby(['timestep', 'sniffer_id'])['sniffer_data'].apply(list).reset_index()
     ''' Grouping based on timestamp and sniffers done: th'''
-    # print(grouped_df)
-    
     
     ''' Grouping based on distance '''
     ''' Iterating through rows and comparing distance to add them in same group - O(n2)'''
     
-    group_dict: dict[list] = {}
-    for index, row in grouped_df.iterrows():
-        print(row['sniffer_data'])
-        break
-        # '''funct'''
-        # group_dict[row['timestep']].append()
-        
-        
-            # print("Index:", index)
-            # print("Timestep:", row['timestep'])
-            # print("Sniffer ID:", row['sniffer_id'])
-            # print("My Struct:", row['sniffer_data'])
-            # print()
-            
+    print(grouped_df)
+    dict_grouped = grouped_df.to_dict('records')
     
+
+    # marks_list = df['timestep'].tolist()
+    # print(marks_list[0:1000])
+    group_dict: dict[list] = {}
+    old_timestep = ""
+    groups = []
+    datagroup = {}
+    i = 0
+    a = set()
+    for data in dict_grouped:
+        timestep = data['timestep']
+        print(timestep)
+        '''first timestep'''
+        if not datagroup: 
+            old_timestep = timestep
+            datagroup[old_timestep] = []
+        sniffer_groups = data['sniffer_data']
+        # print(type(sniffer_groups))
+        a.add(type(sniffer_groups))
+        print(a)
+        # print(sniffer_groups)
+        # break
+        distance_groups = group_distances(sniffer_groups)
+        print(distance_groups)
+        if timestep != old_timestep:
+            old_timestep = timestep
+            datagroup[timestep] = [distance_groups]
+        else:
+            datagroup[timestep].append(distance_groups)
+        if int(timestep) > 2:
+            break
+        
+    # sys.exit()
+    return datagroup
+    
+        # if i > 1000:
+        #     break
+        # i+=1
+    # for index, row in grouped_df.iterrows():
+    #     print(row['timestep'])
+    #     if i > 100:
+    #         break
+    #     i = i +1
+        # sniffer_groups = row['sniffer_data']
+        # timestep = row['timestep']
+        # distance_groups = group_distances(sniffer_groups)
+        # groups.append(distance_groups)
+        # if not groups:
+        #     old_timestep = timestep
+        # if timestep != old_timestep:
+        #     group[old_timestep] = groups
+        #     old_timestep = timestep
+            
+        # print(timestep)
+
+    # print(group)
     sys.exit()
     # for target_time in range(0, 7200):
     #     if target_time % 100 == 0:

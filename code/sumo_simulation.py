@@ -38,66 +38,66 @@ def person_iterator(p_ids:deque, users:list, sniffers:deque, timestep:float, usr
     # Iterate over each person ID
     for person_id in p_ids:
         lo = traci.person.getPosition(person_id)
-        # user_exists = next((user for user in users if user.user_id == person_id), None)
-        # user_exists: User
-        # if user_exists:
-        #     user_exists.location=lo
-        #     user_exists.randomize_identifiers()
-        #     for sniffer in sniffers:
-        #         detected_usrs.extend(sniffer.detect_users(user_exists, timestep))
-        #     usr_data.append(
-        #     {
-        #         "timestep": timestep,
-        #         "user_id": user_exists.user_id,
-        #         "location": user_exists.location,
-        #         "bluetooth_id": user_exists.bluetooth_id,
-        #         "wifi_id": user_exists.wifi_id,
-        #         "lte_id": user_exists.lte_id,
-        #     }
-        #     )
-        # else:
-        #     user_id=person_id
-        #     location=lo
-        #     user = User(user_id,location,max_step_size=MAX_STEP_SIZE) 
-        #     users.append(user)
-        #     for sniffer in sniffers:
-        #         detected_usrs.extend(sniffer.detect_users(user, timestep))
-    
-        #     usr_data.append(
-        #     {
-        #         "timestep": timestep,
-        #         "user_id": user.user_id,
-        #         "location": user.location,
-        #         "bluetooth_id": user.bluetooth_id,
-        #         "wifi_id": user.wifi_id,
-        #         "lte_id": user.lte_id,
-        #     }
-        # )
-        users: dict = dict()
-        user:User
-        if person_id in users:
-            # user exists
-            user = users[person_id]
-            user.location = lo
-            user.randomize_identifiers()
+        user_exists = next((user for user in users if user.user_id == person_id), None)
+        user_exists: User
+        if user_exists:
+            user_exists.location=lo
+            user_exists.randomize_identifiers()
+            for sniffer in sniffers:
+                detected_usrs.extend(sniffer.detect_users(user_exists, timestep))
+            usr_data.append(
+            {
+                "timestep": timestep,
+                "user_id": user_exists.user_id,
+                "location": user_exists.location,
+                "bluetooth_id": user_exists.bluetooth_id,
+                "wifi_id": user_exists.wifi_id,
+                "lte_id": user_exists.lte_id,
+            }
+            )
         else:
-            user_id = person_id
-            location = lo
-            user = User(user_id,location,max_step_size=MAX_STEP_SIZE)              
-            users[user_id] = user
-            
-        sniffer: Sniffer
-        for sniffer in sniffers:
-            detected_usrs.extend(sniffer.detect_users(user, timestep))
-
-        usr_data.append({
+            user_id=person_id
+            location=lo
+            user = User(user_id,location,max_step_size=MAX_STEP_SIZE) 
+            users.append(user)
+            for sniffer in sniffers:
+                detected_usrs.extend(sniffer.detect_users(user, timestep))
+    
+            usr_data.append(
+            {
                 "timestep": timestep,
                 "user_id": user.user_id,
                 "location": user.location,
                 "bluetooth_id": user.bluetooth_id,
                 "wifi_id": user.wifi_id,
                 "lte_id": user.lte_id,
-            })
+            }
+        )
+        # users: dict = dict()
+        # user:User
+        # if person_id in users:
+        #     # user exists
+        #     user = users[person_id]
+        #     user.location = lo
+        #     user.randomize_identifiers()
+        # else:
+        #     user_id = person_id
+        #     location = lo
+        #     user = User(user_id,location,max_step_size=MAX_STEP_SIZE)              
+        #     users[user_id] = user
+            
+        # sniffer: Sniffer
+        # for sniffer in sniffers:
+        #     detected_usrs.extend(sniffer.detect_users(user, timestep))
+
+        # usr_data.append({
+        #         "timestep": timestep,
+        #         "user_id": user.user_id,
+        #         "location": user.location,
+        #         "bluetooth_id": user.bluetooth_id,
+        #         "wifi_id": user.wifi_id,
+        #         "lte_id": user.lte_id,
+        #     })
 
 
     return usr_data, detected_usrs
