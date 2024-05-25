@@ -11,21 +11,19 @@ from funct.rules import *
 
 # Opening JSON file
 
-# now = time.time()
-# data = extract_json("20240506150753_sniffed_data.json")
+now = time.time()
+data = extract_json("20240506150753_sniffed_data.json")
     
 # print(data)
-# print("data loaded", time.time() - now)
+print("data loaded", time.time() - now)
 # sys.exit()
 
 mapped_devices = dict()
 linked_ids = dict()
 
 
-
-
 # now = time.time()
-# D, L = D_getter(data)
+D, L = D_getter(data)
 # # # Open the file in write mode
 # with open("processed_dict.json", "w") as json_file:
 #     # Serialize the dictionary to JSON and write it to the file
@@ -36,7 +34,7 @@ linked_ids = dict()
 #     json.dump(L, json_file)
 
 
-# sys.exit()
+sys.exit()
 data = extract_orjson("processed_dict.json")
 location_data = extract_orjson("location_dict.json")
 

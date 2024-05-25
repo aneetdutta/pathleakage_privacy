@@ -1,10 +1,12 @@
 from random import uniform, randint, choices
 from string import ascii_uppercase, digits
-from env import IDENTIFIER_LENGTH
+from env import IDENTIFIER_LENGTH, BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR
 import numpy as np
 from math import sqrt
 # import cython
 import orjson
+import sys
+import time
 import pandas as pd
 import polars as pl
 from collections import defaultdict, deque
@@ -56,6 +58,10 @@ def calculate_distance(line1: dict, line2: dict):
     dy = line1["location"][1] - line2["location"][1]
     return sqrt(dx * dx + dy * dy)
 
+def calculate_distance_df(loc1, loc2):
+    return sqrt((loc1[0] - loc2[0])**2+(loc1[1] - loc2[1])**2)
+
+
 def calculate_distance_l(location1: list, location2: list):
     dx = location1[0] - location2[0]
     dy = location1[1] - location2[1]
@@ -105,45 +111,171 @@ def group_lines_by_distance(lines: pd.DataFrame, threshold_distance):
     return groups
 
 
-def extract_lines_with_same_time(data: pl.DataFrame, target_time):
-    return data.filter(pl.col('timestep') == target_time).to_dicts()
 
-def D_getter(data_array: pl.DataFrame):
-    # data_array = np.array(data)
+def list_of_dicts_exists_in_list(target_list, list_of_lists):
+    # Convert the target list of dicts to a set of frozensets
+    target_set = {frozenset(d.items()) for d in target_list}
+    
+    for lst in list_of_lists:
+        # Convert each list of dicts in list_of_lists to a set of frozensets
+        current_set = {frozenset(d.items()) for d in lst}
+        if target_set == current_set:
+            return True
+    return False
+
+
+
+def group_distances(sniffer_groups):
+    
     protocol_to_id = {
         "Bluetooth": "bluetooth_id",
         "WiFi": "WiFi_id",
         "LTE": "lte_id",
     }
-    target_time = 0
-    data_dict = defaultdict(list)
-    location_dict = defaultdict(list)
-    for target_time in range(0, 7200):
-        if target_time % 100 == 0:
-            print(target_time)
-        lines_with_same_time = extract_lines_with_same_time(data_array, target_time)
-        groups = group_lines_by_distance(lines_with_same_time, 0.1)
-        location_dict[target_time] = {}
-        for item in groups:
-            # print(item)
-            # List comprehension with conditional tuples
-            # print(item)
-            temp_dict = defaultdict(set)
-            temp_dict1 = defaultdict()
-            for element in item:
-                if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}:
-                    temp_dict[element["protocol"]].add(element[protocol_to_id[element["protocol"]]])
-                    temp_dict1[f'{element["protocol"]}_{element[protocol_to_id[element["protocol"]]]}'] = element["location"]
+    
+    groups = []  # Initialize list to store final groups
+
+    '''iterate through sniffer_groups'''
+    sniffer_groups: dict
+    for sg in sniffer_groups:
+        # print(sg)
+        group_found = False  # Flag to check if sg is added to an existing group
+        group_check = True
+        incompatible_list: list = []
+        compatible_list: list = []
+        i = 0
+        groups: list
+        while i < len(groups):
+        # for i, group in enumerate(groups):
+            group_check = True
+            # print(i,group)
+            group = groups[i]
+            print(group)
+            compatible = True  # Flag to check if distance is compatible with the group
+            group: list
+            for d in group:
+                abs_dist = abs(d['dist_S_U'] - sg['dist_S_U'])
+                print(d['lte_id'], d['WiFi_id'], sg['lte_id'], sg['WiFi_id'], abs_dist)
+                if d['protocol'] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                    compatible = True
+                elif d['protocol'] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= BLUETOOTH_LOCALIZATION_ERROR:
+                    compatible = True
+                else: 
+                    compatible = False
+                    print(compatible, sg['lte_id'], sg['WiFi_id'])
+                
+                group_check = group_check and compatible
+                
+                if compatible == True:
+                    if d not in compatible_list:
+                        compatible_list.append(d)
+                elif compatible == False:
+                    if d not in incompatible_list:
+                        incompatible_list.append(d)
+            
+            if not incompatible_list or group_check:
+                if sg not in groups[i]:
+                    groups[i].append(sg)
+                group_found, group_check = True, True
+            
+            i = i+1
+        
+        if incompatible_list or not group_found:
+            compatible_list.append(sg)
+            if not list_of_dicts_exists_in_list(compatible_list,groups):
+                groups.append(compatible_list) # appending to new group if group not found
+            compatible_list = []
+            incompatible_list = []
+
+    return groups
+
+
+
+def D_getter(df: pl.DataFrame):
+    # data_array = np.array(data)
+    ''' Droping user_id as not required '''
+    df = df.drop("user_id")
+    ''' Calculating distance between sniffer and its sniffed user location '''
+    df = df.with_columns(pl.struct(['sniffer_location', 'location']).apply(lambda x: calculate_distance_df(x['sniffer_location'], x['location']), return_dtype=pl.Float64).alias('dist_S_U'))
+    ''' Droping sniffer_location and location as we have calculated the distance between '''
+    df = df.drop(["sniffer_location", "location"])
+    ''' Grouping by timestamp and then grouping by sniffers such that 
+    Timestep | Sniffer_id | Sniffer_data
+    0           0           [{},{},{}]
+    0           1           [{},{},{}]   
+    '''
+    df = df.with_columns(pl.col('timestep').cast(pl.Utf8))
+    df = df.with_columns(pl.col('sniffer_id').cast(pl.Utf8))
+    df_columns, expressions = [name for name in df.columns if (name != "timestep" and name != "sniffer_id")], [pl.col(name) for name in df.columns if (name != "timestep" and name != "sniffer_id")]
+    struct_data = pl.struct({name: expr for name, expr in zip(df_columns, expressions)}).alias("sniffer_data")
+    df = df.select(pl.col('timestep'),pl.col('sniffer_id'),struct_data)
+    df = df.to_pandas()
+    grouped_df = df.groupby(['timestep', 'sniffer_id'])['sniffer_data'].apply(list).reset_index()
+    ''' Grouping based on timestamp and sniffers done: th'''
+    # print(grouped_df)
+    
+    
+    ''' Grouping based on distance '''
+    ''' Iterating through rows and comparing distance to add them in same group - O(n2)'''
+    
+    group_dict: dict[list] = {}
+    for index, row in grouped_df.iterrows():
+        print(row['sniffer_data'])
+        break
+        # '''funct'''
+        # group_dict[row['timestep']].append()
+        
+        
+            # print("Index:", index)
+            # print("Timestep:", row['timestep'])
+            # print("Sniffer ID:", row['sniffer_id'])
+            # print("My Struct:", row['sniffer_data'])
+            # print()
+            
+    
+    sys.exit()
+    # for target_time in range(0, 7200):
+    #     if target_time % 100 == 0:
+    #         print(target_time)
+    #     lines_with_same_time = extract_lines_with_same_time(data_array, target_time)
+    #     print(lines_with_same_time)
+    #     break
+    #     groups = group_lines_by_distance(lines_with_same_time, 0.1)
+    #     location_dict[target_time] = {}
+    #     for item in groups:
+    #         # print(item)
+    #         # List comprehension with conditional tuples
+    #         # print(item)
+    #         temp_dict = defaultdict(set)
+    #         temp_dict1 = defaultdict()
+    #         for element in item:
+    #             if element["protocol"] in {"Bluetooth", "WiFi", "LTE"}:
+    #                 temp_dict[element["protocol"]].add(element[protocol_to_id[element["protocol"]]])
+    #                 temp_dict1[f'{element["protocol"]}_{element[protocol_to_id[element["protocol"]]]}'] = element["location"]
                     
-            # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
-            data_dict[target_time].append(defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))) 
-            location_dict[target_time].update(temp_dict1)
-        # print(data_dict)
-        # print(location_dict)
-        # break
-        # print([target_time])
-        # break
-    # print(data_dict)
+    #         # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
+    #         data_dict[target_time].append(defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))) 
+    #         location_dict[target_time].update(temp_dict1)
+    #     # print(data_dict)
+    #     # print(location_dict)
+    #     # break
+    #     # print([target_time])
+    #     # break
+    # # print(data_dict)
     return data_dict, location_dict
 
 
