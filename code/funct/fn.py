@@ -127,5 +127,13 @@ def grouper(sniffer_data, md: MongoDB, id):
         grouped_list.extend(distance_groups)
     return grouped_list
 
+def tracking_algorithm(two_timestep_data):
+    
+    
+    
+    return 0
+
+
+
 
 
