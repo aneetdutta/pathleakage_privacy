@@ -70,7 +70,7 @@ for timestep_pair in timestep_pairs:
     Storing the data in two_timestep_data'''
     two_timestep_data = []
     for document in documents:
-        two_timestep_data.append(tuple(document['timestep'], document['grouped_data']))
+        two_timestep_data.append((document['timestep'], document['grouped_data']))
         
     potential_mapping = tracking_algorithm(two_timestep_data)
 

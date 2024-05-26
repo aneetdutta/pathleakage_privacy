@@ -2,7 +2,10 @@ from env import IDENTIFIER_LENGTH, BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATI
 from math import sqrt
 # import cython
 import copy
+from pprint import pprint
 from funct.mongofn import MongoDB
+from collections import defaultdict
+import itertools
 
 
 def group_distances(sniffer_groups):
@@ -119,7 +122,6 @@ def group_distances(sniffer_groups):
     # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
     return group_list
 
-
 def grouper(sniffer_data, md: MongoDB, id):
     grouped_list = []
     for sniffer_id, data in sniffer_data.items():
@@ -127,11 +129,137 @@ def grouper(sniffer_data, md: MongoDB, id):
         grouped_list.extend(distance_groups)
     return grouped_list
 
-def tracking_algorithm(two_timestep_data):
+
+''' Tracking Algorithm: 
+Input: Data of Two timesteps along with existing potential mapping and visited list 
+Output: Visited List, Potential Mapping'''
+def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_list:defaultdict[set]):
+    
+    timestep0 = two_timestep_data[0][0]
+    mapping0 = two_timestep_data[0][1]
+    
+    timestep1 = two_timestep_data[1][0]
+    mapping1 = two_timestep_data[1][1]
+    
+    # print(mapping0,'\n',mapping1)
+    
+    ''' Performing Intra Mapping '''
+    
+    ''' Step 1: Loop through all groups of Mapping 1 and Mapping 2 - Get all the visited list mappings'''
+    
+    '''Looping through mapping 1'''
+    for m1 in mapping0:
+        ''' Loop through mapping 0 and mapping 1 '''
+        for m2 in mapping1:
+            ''' Fetching protocols and the identifiers in mapping 1 '''
+            for p1, ids1 in m1.items():
+                ''' Comparing with only same protocol types during intra mapping'''
+                if p1 not in m2:
+                    continue
+                ids2 = m2[p1]
+                for id1 in ids1:
+                    ''' Remove id from mapping 1 set since it exists already '''
+                    visited_items = set(ids1) - {id1}
+                    ''' Remove id from mapping 2 set if it exists '''
+                    if id1 in ids2:
+                        visited_items.update(set(ids2) - {id1})
+                    ''' Store the id and visited list to dict '''
+                    visited_list[id1].update(visited_items)
+
+    ''' Step 2: If id not in visited list, add it to the potential mapping '''
+    for m1 in mapping0:
+        ''' Loop through mapping 0 and mapping 1 '''
+        for m2 in mapping1:
+            ''' Compare protocols and identifiers '''
+            for p1, ids1 in m1.items():
+                ''' Comparing with only same protocol types during intra mapping'''
+                if p1 not in m2:
+                    continue
+                ids2 = m2[p1]
+                for id1 in ids1:
+                    ''' If id existing in mapping 2, then ignore, do not compute
+                    Else check if id part of the visited list of mapping 2 and add it if it does not exists '''
+                    if id1 in ids2:
+                        continue
+                    potential = {id2 for id2 in ids2 if id2 not in visited_list.get(id1, set())}
+                    if potential:
+                        intra_potential_mapping[id1].update(potential)
+                        
+    print("Intramapping: ")
+    print("Visited List")
+    pprint(visited_list)
+    print("Potential List")
+    pprint(intra_potential_mapping)
+    
+    ''' Performing Inter Mapping '''
+    
+    ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
+    
+    '''Looping through mapping 0'''
+    timestep_0_potential_mapping = defaultdict(set)
+
+    for m1 in mapping0:
+        ''' Fetching protocols and the identifiers in mapping 1
+        Compare the identifiers with each other for different protocols'''
+        for (p1, ids1), (p2, ids2) in itertools.combinations(m1.items(), 2):
+            for id1 in ids1:
+                timestep_0_potential_mapping[id1].update(ids2)
+            for id2 in ids2:
+                timestep_0_potential_mapping[id2].update(ids1)
+    
+    print('\nIntermapping started')
+    print("Timestep 0 Intermapping: ")
+    pprint(timestep_0_potential_mapping)
+                
+    '''Looping through mapping 1'''
+    timestep_1_potential_mapping = defaultdict(set)
+
+    for m1 in mapping1:
+        ''' Fetching protocols and the identifiers in mapping 1
+        Compare the identifiers with each other for different protocols'''
+        for (p1, ids1), (p2, ids2) in itertools.combinations(m1.items(), 2):
+            for id1 in ids1:
+                timestep_1_potential_mapping[id1].update(ids2)
+            for id2 in ids2:
+                timestep_1_potential_mapping[id2].update(ids1)
+
+    print("Timestep 1 Intermapping: ")
+    pprint(timestep_1_potential_mapping)
+    
+    ''' Step 2: Cleaning intermapping based on intra mapping '''
+    t0_ids = set(list(timestep_0_potential_mapping))
+    t1_ids = set(list(timestep_1_potential_mapping))
+    
+    ''' Fetching common ids in both intermapping dicts '''
+    common_ids = t0_ids.intersection(t1_ids)
+    
+    for id in common_ids:
+        common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
+        inter_potential_mapping[id].update(common_mappings)
+        print(id,common_mappings)
+        t0_1 = timestep_0_potential_mapping[id] - timestep_1_potential_mapping[id]
+        t1_0 = timestep_1_potential_mapping[id] - timestep_0_potential_mapping[id]
+        print("t0_1: ", t0_1, "t1_0: ", t1_0)
+        if t0_1 and t1_0:
+            for i in t0_1:
+                id_in_t1_0 = intra_potential_mapping[i].intersection(t1_0)
+                # print(intra_potential_mapping[i], t0_1, id_in_t1_0)
+                # print(id_in_t1_0)
+                if id_in_t1_0:
+                    inter_potential_mapping[id].update(id_in_t1_0)
+            
+    print("\nInter potential mapping\n")
+    pprint(inter_potential_mapping)
+    
+    
+    ''' Update the inter potential mappings and intra potential mappings '''
     
     
     
-    return 0
+
+
+
+    return intra_potential_mapping, inter_potential_mapping, visited_list
 
 
 
