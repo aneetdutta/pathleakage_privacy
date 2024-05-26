@@ -6,13 +6,21 @@ import numpy as np
 from modules.device import Device
 from modules.devicemanager import DeviceManager
 from funct.fn import *
-
+from funct.mongofn import MongoDB
 from funct.rules import *
 
 # Opening JSON file
 
 now = time.time()
-data = extract_json("20240506150753_sniffed_data.json")
+
+md = MongoDB("20240506150753_sniffed_data")
+
+
+
+# print(md.aggregate(pipeline))
+# pprint.pprint(list(md.aggregate(pipeline)))
+
+# data = extract_json("20240506150753_sniffed_data.json")
     
 # print(data)
 print("data loaded", time.time() - now)
@@ -24,10 +32,11 @@ linked_ids = dict()
 
 # now = time.time()
 D = D_getter(data)
-print(D, "dict")
+# print(D, "dict")
 # # # Open the file in write mode
-with open("processed_dict.json", "w") as json_file:
+with open("processed_dict_small.json", "w") as json_file:
     # Serialize the dictionary to JSON and write it to the file
+    print("Saving to processed_dict.json")
     json.dump(D, json_file)
     
 # with open("location_dict.json", "w") as json_file:

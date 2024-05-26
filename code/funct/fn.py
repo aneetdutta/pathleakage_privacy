@@ -242,6 +242,16 @@ def group_distances(sniffer_groups):
 
 
 
+
+# def grouper(sniffer_data):
+#     for 
+#     pass
+
+
+
+
+
+
 def D_getter(df: pl.DataFrame):
     # data_array = np.array(data)
     ''' Droping user_id as not required '''
@@ -271,8 +281,9 @@ def D_getter(df: pl.DataFrame):
     dict_grouped = grouped_df.to_dict('records')
     
 
-    # marks_list = df['timestep'].tolist()
-    # print(marks_list[0:1000])
+    marks_list = df['timestep'].tolist()
+    print(marks_list[0:300])
+    sys.exit()
     group_dict: dict[list] = {}
     old_timestep = ""
     groups = []
@@ -289,7 +300,7 @@ def D_getter(df: pl.DataFrame):
         sniffer_groups = data['sniffer_data']
 
         distance_groups = group_distances(sniffer_groups)
-        print(distance_groups)
+        # print(distance_groups)
         if timestep != old_timestep:
             old_timestep = timestep
             datagroup[timestep] = [distance_groups]
