@@ -33,8 +33,8 @@ class MongoDB:
                                         "$pow": [
                                             {
                                                 "$subtract": [
-                                                    {"$arrayElemAt": ["$sniffer_location", 0]},
-                                                    {"$arrayElemAt": ["$location", 0]},
+                                                    {"$toDouble": {"$arrayElemAt": ["$sniffer_location", 0]}},
+                                                    {"$toDouble": {"$arrayElemAt": ["$location", 0]}},
                                                 ]
                                             },
                                             2,
@@ -44,8 +44,8 @@ class MongoDB:
                                         "$pow": [
                                             {
                                                 "$subtract": [
-                                                    {"$arrayElemAt": ["$sniffer_location", 1]},
-                                                    {"$arrayElemAt": ["$location", 1]},
+                                                    {"$toDouble": {"$arrayElemAt": ["$sniffer_location", 1]}},
+                                                    {"$toDouble": {"$arrayElemAt": ["$location", 1]}},
                                                 ]
                                             },
                                             2,
