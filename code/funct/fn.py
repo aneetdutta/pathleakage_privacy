@@ -6,12 +6,13 @@ from math import sqrt
 # import cython
 import orjson
 import sys
+from bson.objectid import ObjectId
 import time
 import copy
 import pandas as pd
 import polars as pl
 from collections import defaultdict, deque
-
+from funct.mongofn import MongoDB
 
 
 class MyCollection:
@@ -228,7 +229,7 @@ def group_distances(sniffer_groups):
             
     group_list:list = []
     for element in groups:
-        temp_dict = defaultdict()
+        temp_dict = dict()
         for devtup in list(element):
             if devtup[0] in {"Bluetooth", "WiFi", "LTE"}:
                 # print(devtup[0], devtup[1])
@@ -241,12 +242,12 @@ def group_distances(sniffer_groups):
     return group_list
 
 
-
-
-# def grouper(sniffer_data):
-#     for 
-#     pass
-
+def grouper(sniffer_data, md: MongoDB, id):
+    grouped_list = []
+    for sniffer_id, data in sniffer_data.items():
+        distance_groups = group_distances(data)
+        grouped_list.extend(distance_groups)
+    return grouped_list
 
 
 

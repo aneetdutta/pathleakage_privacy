@@ -57,39 +57,43 @@ class MongoDB:
                     }
                 },
                 {
-                    "$group": {
-                        "_id": {"timestep": "$timestep", "sniffer_id": "$sniffer_id"},
-                        "sniffer_data": {
-                            "$push": {
+                    '$group': {
+                        '_id': {
+                            'timestep': '$timestep',
+                            'sniffer_id': '$sniffer_id'
+                        },
+                        'data': {
+                            '$push': {
                                 "protocol": "$protocol",
                                 "lte_id": "$lte_id",
-                                "wifi_id": "$wifi_id",
+                                "WiFi_id": "$WiFi_id",
                                 "bluetooth_id": "$bluetooth_id",
                                 "dist_S_U": "$dist_S_U",
                                 "location": "$location",
                             }
-                        },
-                    },
+                        }
+                    }
                 },
                 {
                     '$group': {
                         '_id': '$_id.timestep',
                         'sniffer_data': {
                             '$push': {
-                                'k': '$_id.sniffer_id',
+                                'k': { '$toString': '$_id.sniffer_id' },
                                 'v': '$data'
                             }
                         }
                     }
                 },
                 {
-                    '$addFields': {
+                    '$project': {
+                        '_id': 0,
+                        'timestep': '$_id',
                         'sniffer_data': {
                             '$arrayToObject': '$sniffer_data'
                         }
                     }
-                },
-                {"$project": {"_id": 0, "timestep": "$_id", "sniffer_data": 1}},
+                }
             ]
         
         return self.collection.aggregate(pipeline)
