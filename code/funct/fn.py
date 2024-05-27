@@ -294,6 +294,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
         inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
 
     for id in common_ids:
+        # print(id)
+        # pprint(timestep_0_potential_mapping[id])
+        # pprint(timestep_1_potential_mapping[id])
         if not timestep_0_potential_mapping[id]:
             inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
             continue
@@ -319,8 +322,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     inter_potential_mapping[id].update({i})
 
 
-    print("hello")                
-    pprint(inter_potential_mapping)
+    # print("hello")                
+    # pprint(inter_potential_mapping)
     # print("Inter potential mapping")
     # pprint(inter_potential_mapping)
     ''' Update the inter potential mappings and intra potential mappings 
@@ -354,15 +357,15 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     to_remove.add(element)
                     removal = True
                 
-                if element in sorted_inter_potential_mapping and key in sorted_inter_potential_mapping[element]:
-                    len_key = len(sorted_inter_potential_mapping[key])
-                    len_element = len(sorted_inter_potential_mapping[element])
-                    if len_key > len_element:
-                        if len_element == 1:
-                            temp_set_key = {key}.union(sorted_inter_potential_mapping[key])
-                            temp_set_element = {element}.union(sorted_inter_potential_mapping[element])
-                            to_remove_single.update(temp_set_key - temp_set_element)
-                            removal = True
+                # if element in sorted_inter_potential_mapping and key in sorted_inter_potential_mapping[element]:
+                #     len_key = len(sorted_inter_potential_mapping[key])
+                #     len_element = len(sorted_inter_potential_mapping[element])
+                #     if len_key > len_element:
+                #         if len_element == 1:
+                #             temp_set_key = {key}.union(sorted_inter_potential_mapping[key])
+                #             temp_set_element = {element}.union(sorted_inter_potential_mapping[element])
+                #             to_remove_single.update(temp_set_key - temp_set_element)
+                #             removal = True
                 
             ''' Remove elements that are unnecessary '''
             if to_remove:
@@ -380,9 +383,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     sorted_inter_potential_mapping = dict(sorted(sorted_inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     sorted_inter_potential_mapping = defaultdict(set, sorted_inter_potential_mapping)
     
+    # print(sorted_inter_potential_mapping)
     inter_potential_mapping = sorted_inter_potential_mapping
     
-    # print(inter_potential_mapping["LTEDevice43"], "checker ninja")
     ''' Update the intra potential mappings based on inter potential mappings '''
     removal = True
     while removal:

@@ -101,7 +101,7 @@ for timestep_pair in timestep_pairs:
             upsert=True  # Create a new document if no document matches the filter
         )
     # break
-    if int(two_timestep_data[1][0]) > 200:
+    if int(two_timestep_data[1][0]) > 60:
         break
     
     
