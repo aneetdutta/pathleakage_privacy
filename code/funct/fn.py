@@ -153,6 +153,9 @@ def clean_dict_of_sets(mapping):
 Input: Data of Two timesteps along with existing potential mapping and visited list 
 Output: Visited List, Potential Mapping'''
 def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_list:defaultdict[set]):
+    intra_potential_mapping = defaultdict(set,intra_potential_mapping)
+    inter_potential_mapping = defaultdict(set, inter_potential_mapping)
+    visited_list = defaultdict(set, visited_list)
     
     timestep0 = two_timestep_data[0][0]
     mapping0 = two_timestep_data[0][1]
@@ -177,6 +180,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     continue
                 ids2 = m2[p1]
                 for id1 in ids1:
+                    if id1 not in intra_potential_mapping: intra_potential_mapping[id1] = set()
                     ''' Remove id from mapping 1 set since it exists already '''
                     visited_items = set(ids1) - {id1}
                     ''' Remove id from mapping 2 set if it exists '''
@@ -204,12 +208,6 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     if potential:
                         intra_potential_mapping[id1].update(potential)
                         
-    # print("Intramapping: ")
-    # print("Visited List")
-    # pprint(visited_list)
-    print("Potential List")
-    pprint(intra_potential_mapping)
-    
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
@@ -252,6 +250,13 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     ''' Fetching common ids in both intermapping dicts '''
     common_ids = t0_ids.intersection(t1_ids)
     
+    different_ids_0 = t0_ids - t1_ids
+    different_ids_1 = t1_ids - t0_ids
+    for id in different_ids_0:
+        inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
+    for id in different_ids_1:
+        inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
+
     for id in common_ids:
         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
         inter_potential_mapping[id].update(common_mappings)
@@ -261,61 +266,88 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             for i in t0_1:
                 id_in_t1_0 = intra_potential_mapping[i].intersection(t1_0)
                 # print(intra_potential_mapping[i], t0_1, id_in_t1_0)
-                # print(id_in_t1_0)
+                # print(id_in_t1_0)                # print(sorted_inter_potential_mapping)
+
                 if id_in_t1_0:
+                    ''' Update both id in t0_1 and id in t1_0'''
                     inter_potential_mapping[id].update(id_in_t1_0)
-            
+                    inter_potential_mapping[id].update({i})
     
+    # print("Inter potential mapping")
+    # pprint(inter_potential_mapping)
     ''' Update the inter potential mappings and intra potential mappings 
     Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
     sorted_inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
+    # print("Sorted Mapping", sorted_inter_potential_mapping)
+    '''
+    {
+        'L2': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
+        'L3': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
+        'L4': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
+        'W1': {'L4', 'L2', 'L3', 'L1'}, 
+        'W1`': {'L4', 'L2', 'L3', 'L1'}, 
+        'L1': {'W1', 'W1`', 'W4', 'W2'}, 
+        'W2': {'L2', 'L3', 'L1'}, 
+        'W3': {'L2', 'L3'}, 
+        'W4': {'L4'}
+    }
+    '''
     removal = True
     while removal:
         removal = False
         for key, value_set in list(sorted_inter_potential_mapping.items()):
             to_remove = set()
+            to_remove_single= set()
             for element in value_set:
                 ''' Check if element exists in the dictionary and key is not in its set '''
                 if element in sorted_inter_potential_mapping and key not in sorted_inter_potential_mapping[element]:
                     to_remove.add(element)
                     removal = True
+                
+                if element in sorted_inter_potential_mapping and key in sorted_inter_potential_mapping[element]:
+                    len_key = len(sorted_inter_potential_mapping[key])
+                    len_element = len(sorted_inter_potential_mapping[element])
+                    if len_key > len_element:
+                        if len_element == 1:
+                            temp_set_key = {key}.union(sorted_inter_potential_mapping[key])
+                            temp_set_element = {element}.union(sorted_inter_potential_mapping[element])
+                            to_remove_single.update(temp_set_key - temp_set_element)
+                            removal = True
+                
             ''' Remove elements that are unnecessary '''
-            value_set -= to_remove
+            if to_remove:
+                value_set -= to_remove
+            if to_remove_single:
+                value_set -= to_remove_single
 
             if removal:
                 sorted_inter_potential_mapping[key] = value_set
-
         # Only re-sort the dictionary if changes were made
         if removal:
             sorted_inter_potential_mapping = dict(sorted(sorted_inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
 
-
-#   # First pass: Initialize cleaned_mapping with the necessary elements
-#     for key, value_set in mapping.items():
-#         for element in value_set:
-#             if element in mapping and key in mapping[element]:
-#                 cleaned_mapping[key].add(element)
-
-#     # Second pass: Remove redundant elements
-#     for key, value_set in mapping.items():
-#         if key in cleaned_mapping:
-#             necessary_elements = cleaned_mapping[key]
-#             for element in value_set:
-#                 if element not in necessary_elements:
-#                     if all(key not in mapping[other_element] for other_element in necessary_elements):
-#                         necessary_elements.add(element)
-        
-
-    # inter_potential_mapping = clean_dict_of_sets(inter_potential_mapping)
+    sorted_inter_potential_mapping = dict(sorted(sorted_inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     
-    print("\nInter potential mapping\n")
-    print(sorted_inter_potential_mapping)
-    # pprint(inter_potential_mapping)
+    inter_potential_mapping = sorted_inter_potential_mapping
+    ''' Update the intra potential mappings based on inter potential mappings '''
+    removal = True
+    while removal:
+        removal = False
+        for id1, value_set in intra_potential_mapping.items():
+            to_remove = set()
+            for id2 in value_set:
+                set_id1: set = inter_potential_mapping[id1]
+                set_id2: set = inter_potential_mapping[id2]
+                common_set = set_id1.intersection(set_id2)
+                if not common_set:
+                    ''' Remove id2 from the value of intra potential mapping of id1 '''
+                    to_remove.add(id2)
+                    removal = True
+            value_set -= to_remove
+            if removal:
+                intra_potential_mapping[id1] = value_set                    
 
-    # print("\nIntra potential mapping\n")
-    # pprint(intra_potential_mapping)
-
-    return intra_potential_mapping, inter_potential_mapping, visited_list
+    return dict(intra_potential_mapping), inter_potential_mapping, visited_list
 
 
 

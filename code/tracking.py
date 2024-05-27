@@ -62,6 +62,7 @@ total_timesteps = md.get_all_timesteps()
 
 timestep_pairs = [(total_timesteps[i], total_timesteps[i + 1]) for i in range(len(total_timesteps) - 1)]
 
+intra_potential_mapping, inter_potential_mapping, visited_list = defaultdict(set), defaultdict(set), defaultdict(set)
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
     documents = md.collection.find({"timestep": {"$in": timestep_pair}})
@@ -72,6 +73,4 @@ for timestep_pair in timestep_pairs:
     for document in documents:
         two_timestep_data.append((document['timestep'], document['grouped_data']))
         
-    potential_mapping = tracking_algorithm(two_timestep_data)
-
-    break
+    intra_potential_mapping, inter_potential_mapping, visited_list =  tracking_algorithm(timestep_pair, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_list=visited_list)
