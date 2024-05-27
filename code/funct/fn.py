@@ -129,6 +129,25 @@ def grouper(sniffer_data, md: MongoDB, id):
         grouped_list.extend(distance_groups)
     return grouped_list
 
+def clean_dict_of_sets(mapping):
+    cleaned_mapping = defaultdict(set)
+
+    # First pass: Initialize cleaned_mapping with the necessary elements
+    for key, value_set in mapping.items():
+        for element in value_set:
+            if element in mapping and key in mapping[element]:
+                cleaned_mapping[key].add(element)
+
+    # Second pass: Remove redundant elements
+    for key, value_set in mapping.items():
+        if key in cleaned_mapping:
+            necessary_elements = cleaned_mapping[key]
+            for element in value_set:
+                if element not in necessary_elements:
+                    if all(key not in mapping[other_element] for other_element in necessary_elements):
+                        necessary_elements.add(element)
+
+    return dict(cleaned_mapping)
 
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 
@@ -185,9 +204,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     if potential:
                         intra_potential_mapping[id1].update(potential)
                         
-    print("Intramapping: ")
-    print("Visited List")
-    pprint(visited_list)
+    # print("Intramapping: ")
+    # print("Visited List")
+    # pprint(visited_list)
     print("Potential List")
     pprint(intra_potential_mapping)
     
@@ -207,9 +226,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             for id2 in ids2:
                 timestep_0_potential_mapping[id2].update(ids1)
     
-    print('\nIntermapping started')
-    print("Timestep 0 Intermapping: ")
-    pprint(timestep_0_potential_mapping)
+    # print('\nIntermapping started')
+    # print("Timestep 0 Intermapping: ")
+    # pprint(timestep_0_potential_mapping)
                 
     '''Looping through mapping 1'''
     timestep_1_potential_mapping = defaultdict(set)
@@ -223,8 +242,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             for id2 in ids2:
                 timestep_1_potential_mapping[id2].update(ids1)
 
-    print("Timestep 1 Intermapping: ")
-    pprint(timestep_1_potential_mapping)
+    # print("Timestep 1 Intermapping: ")
+    # pprint(timestep_1_potential_mapping)
     
     ''' Step 2: Cleaning intermapping based on intra mapping '''
     t0_ids = set(list(timestep_0_potential_mapping))
@@ -236,10 +255,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     for id in common_ids:
         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
         inter_potential_mapping[id].update(common_mappings)
-        print(id,common_mappings)
         t0_1 = timestep_0_potential_mapping[id] - timestep_1_potential_mapping[id]
         t1_0 = timestep_1_potential_mapping[id] - timestep_0_potential_mapping[id]
-        print("t0_1: ", t0_1, "t1_0: ", t1_0)
         if t0_1 and t1_0:
             for i in t0_1:
                 id_in_t1_0 = intra_potential_mapping[i].intersection(t1_0)
@@ -248,16 +265,55 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 if id_in_t1_0:
                     inter_potential_mapping[id].update(id_in_t1_0)
             
+    
+    ''' Update the inter potential mappings and intra potential mappings 
+    Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
+    sorted_inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
+    removal = True
+    while removal:
+        removal = False
+        for key, value_set in list(sorted_inter_potential_mapping.items()):
+            to_remove = set()
+            for element in value_set:
+                ''' Check if element exists in the dictionary and key is not in its set '''
+                if element in sorted_inter_potential_mapping and key not in sorted_inter_potential_mapping[element]:
+                    to_remove.add(element)
+                    removal = True
+            ''' Remove elements that are unnecessary '''
+            value_set -= to_remove
+
+            if removal:
+                sorted_inter_potential_mapping[key] = value_set
+
+        # Only re-sort the dictionary if changes were made
+        if removal:
+            sorted_inter_potential_mapping = dict(sorted(sorted_inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
+
+
+#   # First pass: Initialize cleaned_mapping with the necessary elements
+#     for key, value_set in mapping.items():
+#         for element in value_set:
+#             if element in mapping and key in mapping[element]:
+#                 cleaned_mapping[key].add(element)
+
+#     # Second pass: Remove redundant elements
+#     for key, value_set in mapping.items():
+#         if key in cleaned_mapping:
+#             necessary_elements = cleaned_mapping[key]
+#             for element in value_set:
+#                 if element not in necessary_elements:
+#                     if all(key not in mapping[other_element] for other_element in necessary_elements):
+#                         necessary_elements.add(element)
+        
+
+    # inter_potential_mapping = clean_dict_of_sets(inter_potential_mapping)
+    
     print("\nInter potential mapping\n")
-    pprint(inter_potential_mapping)
-    
-    
-    ''' Update the inter potential mappings and intra potential mappings '''
-    
-    
-    
+    print(sorted_inter_potential_mapping)
+    # pprint(inter_potential_mapping)
 
-
+    # print("\nIntra potential mapping\n")
+    # pprint(intra_potential_mapping)
 
     return intra_potential_mapping, inter_potential_mapping, visited_list
 
