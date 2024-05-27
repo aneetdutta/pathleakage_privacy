@@ -63,6 +63,12 @@ total_timesteps = md.get_all_timesteps()
 timestep_pairs = [(total_timesteps[i], total_timesteps[i + 1]) for i in range(len(total_timesteps) - 1)]
 
 intra_potential_mapping, inter_potential_mapping, visited_list = defaultdict(set), defaultdict(set), defaultdict(set)
+database_list:list = []
+
+intra_dict = defaultdict(set)
+inter_dict = defaultdict(set)
+visited_dict = defaultdict(set)
+
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
     documents = md.collection.find({"timestep": {"$in": timestep_pair}})
@@ -72,5 +78,38 @@ for timestep_pair in timestep_pairs:
     two_timestep_data = []
     for document in documents:
         two_timestep_data.append((document['timestep'], document['grouped_data']))
+    
+    print(two_timestep_data[1][0])
         
-    intra_potential_mapping, inter_potential_mapping, visited_list =  tracking_algorithm(timestep_pair, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_list=visited_list)
+    # print(two_timestep_data)
+    intra_potential_mapping, inter_potential_mapping, visited_list =  tracking_algorithm(two_timestep_data, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_list=visited_list)
+    
+    # print(intra_potential_mapping)
+    database_mappings = md.db['database_mappings']
+    key = str(two_timestep_data[1][0])
+    # Convert sets to lists in intra_potential_mapping
+    intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
+    inter_potential_mapping_list = convert_sets_to_lists(inter_potential_mapping)
+    visited_list_list = convert_sets_to_lists(visited_list)
+    
+    database_dict = {"timestep": str(two_timestep_data[1][0]), "intra_data": intra_potential_mapping_list, "inter_data": inter_potential_mapping_list, "visited_data": visited_list_list}
+    
+    # intra_dict[str(two_timestep_data[1][0])] = dict(intra_potential_mapping)
+    result = database_mappings.update_one(
+            {"timestep": str(two_timestep_data[1][0])},
+            {"$set": database_dict},
+            upsert=True  # Create a new document if no document matches the filter
+        )
+    # break
+    if int(two_timestep_data[1][0]) > 200:
+        break
+    
+    
+# print("\n INTRA \n")
+# print(dict(intra_potential_mapping))
+
+# print("\n INTER \n")
+# print(dict(inter_potential_mapping))
+
+# print("\n Visited List \n")
+# print(dict(visited_list))
