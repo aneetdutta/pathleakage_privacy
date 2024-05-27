@@ -294,6 +294,13 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
         inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
 
     for id in common_ids:
+        if not timestep_0_potential_mapping[id]:
+            inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
+            continue
+        if not timestep_1_potential_mapping[id]:
+            inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
+            continue
+            
         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
         inter_potential_mapping[id] = set(inter_potential_mapping[id])
         inter_potential_mapping[id].update(common_mappings)
@@ -310,8 +317,10 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     ''' Update both id in t0_1 and id in t1_0'''
                     inter_potential_mapping[id].update(id_in_t1_0)
                     inter_potential_mapping[id].update({i})
-                    
-    
+
+
+    print("hello")                
+    pprint(inter_potential_mapping)
     # print("Inter potential mapping")
     # pprint(inter_potential_mapping)
     ''' Update the inter potential mappings and intra potential mappings 
