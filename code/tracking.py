@@ -91,28 +91,28 @@ for timestep_pair in timestep_pairs:
     
     for i, j in intra_potential_mapping_list.items():
         result = md.db['intra_mappings'].update_one(
-                {"id": str(i)},
-                {"$set": {"id": str(i), "mapping": list(j)}},
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
                 upsert=True  # Create a new document if no document matches the filter
             )
 
     for i, j in inter_potential_mapping_list.items():
         result = md.db['inter_mappings'].update_one(
-                {"id": str(i)},
-                {"$set": {"id": str(i), "mapping": list(j)}},
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
                 upsert=True  # Create a new document if no document matches the filter
             )
         
     for i, j in visited_list_list.items():
         result = md.db['visited_intra_list'].update_one(
-                {"id": str(i)},
-                {"$set": {"id": str(i), "mapping": list(j)}},
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
                 upsert=True  # Create a new document if no document matches the filter
             )
             
             
-    # if int(timestep) > 10:
-    #     break
+    if int(timestep) > 10:
+        break
 # print("\n INTRA \n")
 # print(dict(intra_potential_mapping))
 

@@ -23,23 +23,86 @@ from pprint import pprint
    
 # ]
 
+
+
 test_tuple = [
     (
         0,
         [
-            {"LTE": ["L1"], "WiFi": ["W1"]},
-            {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
-            {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
+            {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
+            {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+            {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
         ],
     ),
     (
         1,
         [
-            {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
-            {"LTE": ["L2"], "WiFi": ["W2"]},
+            {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+            {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
+            {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
         ],
     ),
+   
 ]
+
+test_tuple = [
+    (
+        0,
+        [
+            {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
+            {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+            {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
+        ],
+    ),
+    (
+        1,
+        [
+            {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+            {"LTE": ["L1", "L3"], "WiFi": ["W1'", "W3"]},
+            {"LTE": ["L1", "L2"], "WiFi": ["W1'", "W2"]},
+        ],
+    ),
+   
+]
+
+# test_tuple = [
+#     (
+#         0,
+#         [
+#             {"LTE": ["L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#         ],
+#     ),
+# ]
+
+
+# test_tuple = [
+#     (
+#         0,
+#         [
+#             {"LTE": ["L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#         ],
+#     ),
+# ]
+
+
 
 # test_tuple = [
 #     (
@@ -146,24 +209,29 @@ test_tuple = [
 
 timestep_pairs = [(test_tuple[i], test_tuple[i + 1]) for i in range(len(test_tuple) - 1)]
 # print(timestep_pairs)
-intra_potential_mapping, inter_potential_mapping, visited_list = defaultdict(set), defaultdict(set), defaultdict(set)
+intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list = defaultdict(set), defaultdict(set), defaultdict(set), defaultdict(set)
 
 i = 0
 for timestep_pair in timestep_pairs:
     
     # print(timestep_pair)  
     # potential_mapping = tracking_algorithm(two_timestep_data)
-    intra_potential_mapping, inter_potential_mapping, visited_list =  tracking_algorithm(timestep_pair, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_list=visited_list)
+    intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list =  tracking_algorithm(timestep_pair, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_inter_list=visited_inter_list, visited_intra_list=visited_intra_list)
 
     print(f"for timestep - {i} - {i+1} \n")
+    
     print("\nInter potential mapping\n")
     pprint(inter_potential_mapping)
                                     
     print("\nIntra_potential_mapping\n")
     pprint(intra_potential_mapping)
     print("\n")
-    
-    print("\Visited List\n")
-    pprint(visited_list)
+
+    print("\Visited Inter List\n")
+    pprint(visited_inter_list)
+    print("\n")
+        
+    print("\Visited Intra List\n")
+    pprint(visited_intra_list)
     print("\n")
     i+=1
