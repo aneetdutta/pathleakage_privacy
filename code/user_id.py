@@ -4,7 +4,7 @@ from pymongo.errors import BulkWriteError
 # Connect to MongoDB
 
 md: MongoDB = MongoDB()
-md.set_collection("user_data")
+md.set_collection("sniffer_data")
 # Define the pipeline for aggregation
 pipeline = [
     {
