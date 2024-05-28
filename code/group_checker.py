@@ -45,20 +45,28 @@ pipeline = [
                     "lte_id": "$lte_id",
                     "WiFi_id": "$WiFi_id",
                     "bluetooth_id": "$bluetooth_id",
+                    "location": "$location",
                 }
             }
         }
     },
     {
-        "$project": {
-            "_id": 0,
-            "timestep": "$_id.timestep",
-            "user_id": "$_id.user_id",
-            "location": 1,
-            "user_dict": {
-                "LTE": "$LTE_ID",
-                "WiFi": "$WiFi_ID",
-                "Bluetooth": "$Bluetooth_ID"
+        '$group': {
+            '_id': '$_id.timestep',
+            'user_data': {
+                '$push': {
+                    'k': { '$toString': '$_id.user_id' },
+                    'v': '$data'
+                }
+            }
+        }
+    },
+    {
+        '$project': {
+            '_id': 0,
+            'timestep': '$_id',
+            'user_data': {
+                '$arrayToObject': '$user_data'
             }
         }
     }
