@@ -307,9 +307,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     inter_potential_mapping[id].update({i})
                 else:
                     visited_inter_list[id].update({i})
-                    print(visited_inter_list[id])
+                    # print(visited_inter_list[id])
             if not_common_set:
-                print(not_common_set - common_set_for_t1_0, "check")
+                # print(not_common_set - common_set_for_t1_0, "check")
                 visited_inter_list[id].update(not_common_set - common_set_for_t1_0)
 
 
@@ -365,11 +365,11 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             ''' Remove elements that are unnecessary '''
             if to_remove:
                 value_set -= to_remove
-                print(key, to_remove, "to_remove")
+                # print(key, to_remove, "to_remove")
                 visited_inter_list[key].update(to_remove)
             if to_remove_single:
                 value_set -= to_remove_single
-                print(key, to_remove_single, "to_remove_single")
+                # print(key, to_remove_single, "to_remove_single")
                 visited_inter_list[key].update(to_remove_single)
             if removal:
                 inter_potential_mapping[key] = value_set
