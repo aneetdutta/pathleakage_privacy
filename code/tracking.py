@@ -1,59 +1,14 @@
-import pickle
-import ijson, json
-import time, sys
-import numpy as np
 from modules.device import Device
 from modules.devicemanager import DeviceManager
-from funct.fn import *
-from funct.mongofn import MongoDB
+from services.general import *
+from services.tracking_algorithm import tracking_algorithm
+from modules.mongofn import MongoDB
+from collections import defaultdict
 from pprint import pprint
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
 
-''' The below code converts the sumo_simulation results to aggregated results of the sniffer
-It is modelled as below
-{timestep: 0, sniffer_data: {0: [{groups}]}}'''
-
-# md.set_collection("20240506150753_sniffed_data")
-# results = md.aggregate_save()
-
-# new_collection = md.db['aggregated_results']# Insert the aggregated results into the new collection
-# now = time.time()
-# for result in results: 
-#     # print(result)
-#     # break
-#     new_collection.insert_one(result)
-# print("Time taken to aggregate and save to mongodb: ", time.time() - now)
-
-
-'''The below code converts the aggregated results into groups using the grouping distance algorithm
-The groups of every sniffer are first calculated and then they are appended to single timestep.
-So, we have the dict as 
-{timestep: 0, grouped_data: [{LTE: "", WIFI: "", BLUETOOTH: ""}]}'''
-
-
-# md.set_collection("aggregated_results")
-# '''grouped according to timestep and sniffer'''
-# sniffer_data = md.collection.find().sort('timestep', 1)
-
-
-# group_collection = md.db['groups']
-# # md.set_collection('groups')
-
-# # list_cur = list(sniffer_data)
-# # 
-# ''' Processing every timestep - contains dict : {sniffer_id : [data]}
-# Stores the processed group to mongodb collection '''
-
-# for document in sniffer_data:
-#     id = document["_id"]
-#     timestep = document["timestep"]
-#     sniffer_data = document["sniffer_data"]
-#     print(id, timestep)
-#     group = grouper(sniffer_data, md, id)
-#     group_collection.insert_one({"timestep": timestep, "grouped_data": group})
-    
 '''The below code will fetch groups for every two timesteps and compare them'''
 
 md.set_collection("groups")
@@ -62,10 +17,12 @@ total_timesteps = md.get_all_timesteps()
 
 timestep_pairs = [(total_timesteps[i], total_timesteps[i + 1]) for i in range(len(total_timesteps) - 1)]
 
-intra_potential_mapping, inter_potential_mapping, visited_list = defaultdict(set), defaultdict(set), defaultdict(set)
 database_list:list = []
 
-intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list = defaultdict(set), defaultdict(set), defaultdict(set), defaultdict(set)
+intra_potential_mapping: defaultdict[set] = defaultdict(set)
+inter_potential_mapping: defaultdict[set] = defaultdict(set)
+visited_inter_list: defaultdict[set] = defaultdict(set)
+visited_intra_list: defaultdict[set] = defaultdict(set)
 
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
@@ -118,7 +75,6 @@ for timestep_pair in timestep_pairs:
     
     check_full_document_database = True
     
-    
     if check_full_document_database:
         database_dict = {"intra_data": intra_potential_mapping_list, "inter_data": inter_potential_mapping_list, "visited_inter_data": visited_inter_mapping_list, "visited_intra_data": visited_intra_mapping_list}
         # intra_dict[str(two_timestep_data[1][0])] = dict(intra_potential_mapping)
@@ -127,8 +83,6 @@ for timestep_pair in timestep_pairs:
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
-
-    
             
     # if int(timestep) > 50:
     #     break

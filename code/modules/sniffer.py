@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 from modules.user import User
 from collections import deque
 from math import sqrt
-
+import uuid
+from bson.objectid import ObjectId
 
 @dataclass
 class Sniffer:
@@ -35,6 +36,7 @@ class Sniffer:
         if distance <= self.bluetooth_range:
             detected_users[index] = {
                 **common_info,
+                # "_id": ObjectId(),
                 "protocol": "Bluetooth",
                 "bluetooth_id": user.bluetooth_id,
             }
@@ -43,6 +45,7 @@ class Sniffer:
         if distance <= self.wifi_range:
             detected_users[index] = {
                 **common_info,
+                # "_id": ObjectId(),
                 "protocol": "WiFi",
                 "WiFi_id": user.wifi_id,
             }
@@ -51,6 +54,7 @@ class Sniffer:
         if distance <= self.lte_range:
             detected_users[index] = {
                 **common_info,
+                # "_id": ObjectId(),
                 "protocol": "LTE",
                 "lte_id": user.lte_id,
             }
@@ -58,25 +62,3 @@ class Sniffer:
 
         # Remove excess None values in the preallocated list
         return detected_users[:index]
-
-        # detected_user = {
-        #     "timestep": timestep,
-        #     "user_id": user.user_id,
-        #     "sniffer_id": self.id,
-        #     "sniffer_location": list(self.location),
-        #     "location": list(user.location),
-        #     "bluetooth_id": None,
-        #     "wifi_id": None,
-        #     "lte_id": None,
-        # }
-
-        # if distance <= self.bluetooth_range:
-        #     detected_user["bluetooth_id"] = user.bluetooth_id
-
-        # if distance <= self.wifi_range:
-        #     detected_user["wifi_id"] = user.wifi_id
-
-        # if distance <= self.lte_range:
-        #     detected_user["lte_id"] = user.lte_id
-
-        # return detected_user

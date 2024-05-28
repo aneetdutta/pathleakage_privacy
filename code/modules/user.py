@@ -1,10 +1,10 @@
 from env import *
 from random import uniform, randint, random
-from funct.fn import random_identifier
+from services.general import random_identifier
 
 class User:
     def __init__(
-        self, user_id, location, bluetooth_id=random_identifier(), wifi_id=random_identifier(), lte_id=random_identifier(), max_step_size=0.1
+        self, user_id, location, bluetooth_id, wifi_id, lte_id, max_step_size=0.1
     ):
         self.user_id = user_id
         self.bluetooth_id = bluetooth_id
@@ -60,16 +60,16 @@ class User:
         self.identifier_counter += 1
 
         if self.identifier_counter >= self.next_bluetooth_refresh:
-            # print("Randomized ble")
+            print("Randomized ble")
             self.set_next_bluetooth_refresh()
             self.bluetooth_id = random_identifier()
 
         if self.identifier_counter >= self.next_wifi_refresh:
-            # print("randomized wifi")
+            print("randomized wifi")
             self.set_next_wifi_refresh()
             self.wifi_id = random_identifier()
 
         if self.identifier_counter >= self.next_lte_refresh:
-            # print("randomized lte")
+            print("randomized lte")
             self.set_next_lte_refresh()
             self.lte_id = random_identifier()

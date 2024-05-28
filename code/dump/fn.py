@@ -12,7 +12,7 @@ import copy
 import pandas as pd
 import polars as pl
 from collections import defaultdict, deque
-from funct.mongofn import MongoDB
+from modules.mongofn import MongoDB
 
 
 class MyCollection:
@@ -140,7 +140,6 @@ def group_distances(sniffer_groups):
     return group_list
 
 
-
 # data_array = pd.DataFrame(data)
 def extract_orjson(filename):
     with open(filename, 'rb') as f:
@@ -162,12 +161,6 @@ def json_read_process(filename):
 def id_to_location_link(filename):
     with open(filename, 'rb') as f:
         j = orjson.loads(f.read())
-
-"""
-Generates Random Device Identifier
-"""
-def random_identifier():
-    return "".join(choices(ascii_uppercase + digits, k=IDENTIFIER_LENGTH))
 
 """
 Euclidean Distance

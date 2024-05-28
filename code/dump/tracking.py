@@ -5,9 +5,9 @@ import time, sys
 import numpy as np
 from modules.device import Device
 from modules.devicemanager import DeviceManager
-from funct.fn import *
-from funct.mongofn import MongoDB
-from funct.rules import *
+from services.general import *
+from modules.mongofn import MongoDB
+from dump.rules import *
 
 # Opening JSON file
 
