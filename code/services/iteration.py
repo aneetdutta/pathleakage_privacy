@@ -36,7 +36,7 @@ def person_iterator(p_ids:deque, users:dict, sniffers:deque, timestep:float, usr
                 "timestep": timestep,
                 "user_id": user.user_id,
                 "location": user.location,
-                "bluetooth_id": user.bluetooth_id,
+                # "bluetooth_id": user.bluetooth_id,
                 "wifi_id": user.wifi_id,
                 "lte_id": user.lte_id,
             })
