@@ -116,20 +116,19 @@ for timestep_pair in timestep_pairs:
                 upsert=True  # Create a new document if no document matches the filter
             )
     
-    check_full_document_database = False
+    check_full_document_database = True
     
     
     if check_full_document_database:
-        database_dict = {"timestep": timestep, "intra_data": intra_potential_mapping_list, "inter_data": inter_potential_mapping_list, "visited_inter_data": visited_inter_mapping_list, "visited_intra_data": visited_intra_mapping_list}
-        database_mappings = md.db['database_mappings']
+        database_dict = {"intra_data": intra_potential_mapping_list, "inter_data": inter_potential_mapping_list, "visited_inter_data": visited_inter_mapping_list, "visited_intra_data": visited_intra_mapping_list}
         # intra_dict[str(two_timestep_data[1][0])] = dict(intra_potential_mapping)
-        result = database_mappings.update_one(
-                {"timestep": str(timestep)},
+        result = md.db['database_mappings'].update_one(
+                {"_id": str(timestep)},
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
 
     
             
-    # if int(timestep) > 10:
+    # if int(timestep) > 50:
     #     break
