@@ -1,5 +1,6 @@
 from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR
 import copy
+from services.general import remove_subsets_and_duplicates
 
 def group_distances(sniffer_groups):
     
@@ -120,4 +121,7 @@ def grouper(sniffer_data):
     for sniffer_id, data in sniffer_data.items():
         distance_groups = group_distances(data)
         grouped_list.extend(distance_groups)
+    
+    grouped_list = remove_subsets_and_duplicates(grouped_list)
+    
     return grouped_list

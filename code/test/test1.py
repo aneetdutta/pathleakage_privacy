@@ -1,34 +1,4 @@
-from env import IDENTIFIER_LENGTH
-from random import uniform, randint, choices
-from string import ascii_uppercase, digits
-from math import sqrt
-# import cython
-import copy
 from pprint import pprint
-from modules.mongofn import MongoDB
-import orjson
-
-def convert_sets_to_lists(d):
-    d1 = copy.deepcopy(d)
-    for k, v in d1.items():
-        if isinstance(v, set):
-            d1[k] = list(v)
-        elif isinstance(v, dict):
-            convert_sets_to_lists(v)
-    return d1
-
-
-# data_array = pd.DataFrame(data)
-def extract_orjson(filename):
-    with open(filename, 'rb') as f:
-        return orjson.loads(f.read())
-
-"""
-Generates Random Device Identifier
-"""
-def random_identifier():
-    return "".join(choices(ascii_uppercase + digits, k=IDENTIFIER_LENGTH))
-
 
 def dict_to_tuple(dictionary):
     """
@@ -53,3 +23,10 @@ def remove_subsets_and_duplicates(list_of_arrays):
             unique_arrays = [arr for arr in unique_arrays if not set(dict_to_tuple(arr)).issubset(set(tuple1))]
             unique_arrays.append(array1)
     return unique_arrays
+# Example usage:
+
+# Example usage:
+list_of_arrays = [{'Bluetooth': ['B1'], 'LTE': ['L1', 'L2'], 'WiFi': ['W1']}, {'Bluetooth': ['B1'], 'LTE': ['L1', 'L2'], 'WiFi': ['W1']}, {'Bluetooth': ['B2']}, {'LTE': ['L2', 'L1']},{'LTE': ['L2', 'L1'], 'Bluetooth': ['B2'], 'WiFi': ['W2']}, {'LTE': ['L3', 'L2'], 'Bluetooth': ['B2'], 'WiFi': ['W2']}, {'WiFi': ['W3']},{'LTE': ['L3', 'L2'], 'WiFi': ['W3'], 'Bluetooth': ['B3']}, {'LTE': ['L3', 'L4'], 'WiFi': ['W3'], 'Bluetooth': ['B3']}, {'LTE': ['L3', 'L4'], 'Bluetooth': ['B4'], 'WiFi': ['W4']}]
+
+result = remove_subsets_and_duplicates(list_of_arrays)
+pprint(result)
