@@ -52,7 +52,8 @@ LTE_LOCALIZATION_ERROR=10
 SUMO_BIN_PATH = "/usr/bin/"
 
 sumo_binary = "sumo"
-SUMO_CFG_FILE = "/home/aneet_wisec/privacy_cispa/MoSTScenario/scenario/most.sumocfg"
+SUMO_CFG_FILE = "/home/anonymous/MoSTScenario/scenario/most.sumocfg"
+# SUMO_CFG_FILE = "/home/aneet_wisec/privacy_cispa/MoSTScenario/scenario/most.sumocfg"
 
 
 DELTA_P = 2
