@@ -1,6 +1,8 @@
 from funct.fn import tracking_algorithm
 from collections import defaultdict
 from pprint import pprint
+
+
 # test_tuple = [
 #     (
 #         0,
@@ -20,6 +22,24 @@ from pprint import pprint
 #     ),
    
 # ]
+
+test_tuple = [
+    (
+        0,
+        [
+            {"LTE": ["L1"], "WiFi": ["W1"]},
+            {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
+            {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
+        ],
+    ),
+    (
+        1,
+        [
+            {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
+            {"LTE": ["L2"], "WiFi": ["W2"]},
+        ],
+    ),
+]
 
 # test_tuple = [
 #     (
@@ -41,46 +61,46 @@ from pprint import pprint
 #     )
 # ]
 
-test_tuple = [
-    (
-        0,
-        [
-            {"LTE": [], "WiFi": ["W1", "W2"]},
-            {"LTE": ["L2", "L3", "L4"], "WiFi": ["W3", "W4"]},
-            {"LTE": ["L1", "L4"], "WiFi": []},
-            {"LTE": ["L1", "L2"], "WiFi": []},
-            {"LTE": [], "WiFi": ["W1"]},
-        ],
-    ),
-    (
-        1,
-        [
-            {"LTE": ["L1", "L2", "L3", "L4"], "WiFi": []},
-            {"LTE": [], "WiFi": ["W1", "W2"]},
-            {"LTE": [], "WiFi": ["W3", "W4"]},
-            {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
-            {"LTE": [], "WiFi": ["W3"]},
-            {"LTE": [], "WiFi": ["W3"]},
-            {"LTE": ["L3", "L4"], "WiFi": ["W3", "W4"]},
-            {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
-            {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
-        ],
-    ),
-    (
-        2,
-        [
-            {"LTE": ["L1", "L2"], "WiFi": []},
-            {"LTE": ["L2"], "WiFi": ["W1", "W2"]},
-            {"LTE": [], "WiFi": ["W3", "W4"]},
-            {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
-            {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
-            {"LTE": [], "WiFi": ["W3"]},
-            {"LTE": ["L3", "L4"], "WiFi": ["W4"]},
-            {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
-            {"LTE": [], "WiFi": ["W4"]},
-        ],
-    )
-]
+# test_tuple = [
+#     (
+#         0,
+#         [
+#             {"LTE": [], "WiFi": ["W1", "W2"]},
+#             {"LTE": ["L2", "L3", "L4"], "WiFi": ["W3", "W4"]},
+#             {"LTE": ["L1", "L4"], "WiFi": []},
+#             {"LTE": ["L1", "L2"], "WiFi": []},
+#             {"LTE": [], "WiFi": ["W1"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L1", "L2", "L3", "L4"], "WiFi": []},
+#             {"LTE": [], "WiFi": ["W1", "W2"]},
+#             {"LTE": [], "WiFi": ["W3", "W4"]},
+#             {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
+#             {"LTE": [], "WiFi": ["W3"]},
+#             {"LTE": [], "WiFi": ["W3"]},
+#             {"LTE": ["L3", "L4"], "WiFi": ["W3", "W4"]},
+#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
+#             {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
+#         ],
+#     ),
+#     (
+#         2,
+#         [
+#             {"LTE": ["L1", "L2"], "WiFi": []},
+#             {"LTE": ["L2"], "WiFi": ["W1", "W2"]},
+#             {"LTE": [], "WiFi": ["W3", "W4"]},
+#             {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
+#             {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
+#             {"LTE": [], "WiFi": ["W3"]},
+#             {"LTE": ["L3", "L4"], "WiFi": ["W4"]},
+#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
+#             {"LTE": [], "WiFi": ["W4"]},
+#         ],
+#     )
+# ]
 # test_tuple = [
 #     (
 #         0,
@@ -119,6 +139,8 @@ test_tuple = [
 #     ),
    
 # ]
+
+
 
 
 

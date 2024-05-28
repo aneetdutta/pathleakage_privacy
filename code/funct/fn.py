@@ -401,7 +401,11 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     ''' Remove id2 from the value of intra potential mapping of id1 '''
                     to_remove.add(id2)
                     removal = True
-            value_set_ -= to_remove
+            if to_remove:
+                value_set_ -= to_remove
+                ''' Updating in visited list - to optimizing the processing'''
+                visited_list[id1].update(to_remove)
+                
             if removal:
                 intra_potential_mapping[id1] = set(value_set_)  
                 removal = False                 
