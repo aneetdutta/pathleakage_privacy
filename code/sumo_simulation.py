@@ -10,6 +10,7 @@ from modules.mongofn import MongoDB
 from collections import deque
 from services.general import random_identifier
 import uuid
+import json
 from bson.objectid import ObjectId
 
 md = MongoDB()
@@ -52,16 +53,16 @@ try:
         user_data, detected_users, users = person_iterator(person_ids, users, sniffers, timestep, user_data, detected_users)
         
         
-        for user in user_data:
-            document = user.copy()
-            document['_id'] = ObjectId()
-            user_collection.insert_one(document)
-            # user_collection.insert_one(user)
+        # for user in user_data:
+        #     document = user.copy()
+        #     document['_id'] = ObjectId()
+        #     user_collection.insert_one(document)
+        #     # user_collection.insert_one(user)
             
-        for duser in detected_users:
-            document = duser.copy()
-            document['_id'] = ObjectId()
-            sniffer_collection.insert_one(document)
+        # for duser in detected_users:
+        #     document = duser.copy()
+        #     document['_id'] = ObjectId()
+        #     sniffer_collection.insert_one(document)
         # for duser in detected_users:
         #     sniffer_collection.insert_one(duser)
         # md.batch_insert(user_collection, list(user_data), batch_size=100)
@@ -78,14 +79,14 @@ except Exception as e:
     sys.exit(1)
 
 
-# user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
-# sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"
+user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
+sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"
 
-# print("Saved file to the directory")
+print("Saved file to the directory")
 
-# with open(user_file, "w") as f:
-#     json.dump(list(user_data), f)
+with open(user_file, "w") as f:
+    json.dump(list(user_data), f)
 
-# with open(sniffed_file, "w") as f:
-#     json.dump(list(detected_users), f)
+with open(sniffed_file, "w") as f:
+    json.dump(list(detected_users), f)
 

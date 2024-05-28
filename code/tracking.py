@@ -84,5 +84,5 @@ for timestep_pair in timestep_pairs:
                 upsert=True  # Create a new document if no document matches the filter
             )
             
-    # if int(timestep) > 50:
-    #     break
+    if int(timestep) > 18200:
+        break

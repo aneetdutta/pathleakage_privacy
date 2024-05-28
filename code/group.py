@@ -20,6 +20,6 @@ for document in sniffer_data:
     timestep = document["timestep"]
     sniffer_data = document["sniffer_data"]
     print(id, timestep)
-    group = grouper(sniffer_data, md, id)
+    group = grouper(sniffer_data)
     group_collection.insert_one({"timestep": timestep, "grouped_data": group})
     

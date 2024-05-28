@@ -7,7 +7,7 @@ md = MongoDB()
 It is modelled as below
 {timestep: 0, sniffer_data: {0: [{groups}]}}'''
 
-md.set_collection("20240506150753_sniffed_data")
+md.set_collection("sniffed_data")
 results = md.aggregate_save()
 
 new_collection = md.db['aggregated_results']# Insert the aggregated results into the new collection
