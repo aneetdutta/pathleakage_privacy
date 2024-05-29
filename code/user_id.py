@@ -4,7 +4,7 @@ from pymongo.errors import BulkWriteError
 # Connect to MongoDB
 
 md: MongoDB = MongoDB()
-md.set_collection("sniffer_data")
+md.set_collection("sniffed_data")
 # Define the pipeline for aggregation
 pipeline = [
     {
@@ -12,7 +12,7 @@ pipeline = [
             '_id': '$user_id',
             "lte_ids": {"$addToSet": "$lte_id"},
             "bluetooth_ids": {"$addToSet": "$bluetooth_id"},
-            "wifi_ids": {"$addToSet": "$wifi_id"}
+            "wifi_ids": {"$addToSet": "$WiFi_id"}
         }
     },
     {
@@ -31,7 +31,6 @@ pipeline = [
 
 # Aggregate data
 result = md.collection.aggregate(pipeline)
-
-new_collection = md.db["userid"]
+ 
 # Create a new collection and insert the aggregated data
-new_collection.insert_many(result)
+md.db["userid"].insert_many(result)

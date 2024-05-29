@@ -36,23 +36,23 @@ def group_distances(sniffer_groups):
             for d in group:
                 abs_dist = abs(int(d[2]) - int(sg['dist_S_U']))
                 # print(d, sg['WiFi_id'], abs_dist)
-                if d[0] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                if d[0] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= 2*LTE_LOCALIZATION_ERROR:
                     compatible = True
-                elif d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= (LTE_LOCALIZATION_ERROR + WIFI_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR + WIFI_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= 2*WIFI_LOCALIZATION_ERROR:
                     compatible = True
-                elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= LTE_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= WIFI_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR):
                     compatible = True
-                elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= BLUETOOTH_LOCALIZATION_ERROR:
+                elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= 2*BLUETOOTH_LOCALIZATION_ERROR:
                     compatible = True
                 else: 
                     compatible = False
