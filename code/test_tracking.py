@@ -221,6 +221,14 @@ test_tuple = [
             {"LTE": ["L3", "L2"], "WiFi": ["W3"]},
         ],
     ),
+    (
+        2,
+        [
+            {"LTE": ["L1`","L2", "L3"], "WiFi": ["W1", "W3"]},
+            {"LTE": ["L1`", "L3"], "WiFi": ["W1"]},
+            {"LTE": ["L3", "L2", "L1`"], "WiFi": ["W3", "W2"]},
+        ],
+    ),
    
 ]
 
@@ -243,13 +251,11 @@ for timestep_pair in timestep_pairs:
                                     
     print("\nIntra_potential_mapping\n")
     pprint(intra_potential_mapping)
-    print("\n")
 
-    print("\Visited Inter List\n")
+    print("\nVisited Inter List\n")
     pprint(visited_inter_list)
-    print("\n")
         
-    print("\Visited Intra List\n")
+    print("\nVisited Intra List\n")
     pprint(visited_intra_list)
     print("\n")
     i+=1

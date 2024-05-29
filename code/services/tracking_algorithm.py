@@ -1,5 +1,6 @@
 from collections import defaultdict
 import itertools
+from pprint import pprint
 
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 
@@ -16,7 +17,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     timestep1 = two_timestep_data[1][0]
     mapping1 = two_timestep_data[1][1]
     
-    # print(mapping0,'\n',mapping1)
+    print("Timestep", timestep0, timestep1)
     
     ''' Performing Intra Mapping '''
     
@@ -54,7 +55,6 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     continue
                 ids2 = m2[p1]
                 for id1 in ids1:
-                    # print(p1, id1, "visited")
                     ''' If id existing in mapping 2, then ignore, do not compute
                     Else check if id part of the visited list of mapping 2 and add it if it does not exists '''
                     if id1 in ids2:
@@ -64,44 +64,60 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     if potential:
                         intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
                         intra_potential_mapping[id1].update(potential)
-                    # if id1 == "LTEDevice43":
-                    #     print("potential", id1, intra_potential_mapping[id1])
                         
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
     
-    '''Looping through mapping 0'''
+    
+    ''' Looping through mapping 0 '''
     timestep_0_potential_mapping = defaultdict(set)
-
-    for m1 in mapping0:
-        ''' Fetching protocols and the identifiers in mapping 1
-        Compare the identifiers with each other for different protocols'''
-        for (p1, ids1), (p2, ids2) in itertools.combinations(m1.items(), 2):
-            for id1 in ids1:
-                # print(p1, id1)
-                if id1 not in visited_inter_list:
-                    timestep_0_potential_mapping[id1].update(ids2)
-            for id2 in ids2:
-                # print(p2, id2)
-                if id2 not in visited_inter_list:
-                    timestep_0_potential_mapping[id2].update(ids1)
+    if inter_potential_mapping:
+        timestep_0_potential_mapping = inter_potential_mapping#defaultdict(set)
+    else:
+        for m1 in mapping0:
+            ''' Fetching protocols and the identifiers in mapping 1
+            Compare the identifiers with each other for different protocols'''
+            for (p1, ids1), (p2, ids2) in itertools.combinations(m1.items(), 2):
+                for id1 in ids1:
+                    # print(p1, id1, ids1)
+                    if id1 not in visited_inter_list:
+                        timestep_0_potential_mapping[id1].update(ids2)
+                for id2 in ids2:
+                    # print(p2, id2)
+                    if id2 not in visited_inter_list:
+                        timestep_0_potential_mapping[id2].update(ids1)
+                        
     '''Looping through mapping 1'''
     timestep_1_potential_mapping = defaultdict(set)
-    
+    # print("Mapping1 ", mapping1)
+    # print("Interpotential ", inter_potential_mapping)
+    # print("visited ",visited_inter_list)
     for m1 in mapping1:
         ''' Fetching protocols and the identifiers in mapping 1
         Compare the identifiers with each other for different protocols'''
         for (p1, ids1), (p2, ids2) in itertools.combinations(m1.items(), 2):
+            ids1 = set(ids1)
+            ids2 = set(ids2)
             for id1 in ids1:
                 if id1 not in visited_inter_list:
                     timestep_1_potential_mapping[id1].update(ids2)
+                else:
+                    diff1 = ids2 - visited_inter_list[id1].intersection(ids2)
+                    timestep_1_potential_mapping[id1].update(diff1)
             for id2 in ids2:
                 if id2 not in visited_inter_list:
                     timestep_1_potential_mapping[id2].update(ids1)
-
+                else:
+                    diff2 = ids1 - visited_inter_list[id2].intersection(ids1)
+                    timestep_1_potential_mapping[id2].update(diff2)
+                    
+    # print("Timestep 0 Intermapping: ")
+    # pprint(timestep_0_potential_mapping)
     # print("Timestep 1 Intermapping: ")
     # pprint(timestep_1_potential_mapping)
+    # print("Visited Intermapping: ")
+    # pprint(visited_inter_list)
     
     ''' Step 2: Cleaning intermapping based on intra mapping '''
     t0_ids = set(list(timestep_0_potential_mapping))
@@ -120,9 +136,6 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
         inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
 
     for id in common_ids:
-        # print(id)
-        # pprint(timestep_0_potential_mapping[id])
-        # pprint(timestep_1_potential_mapping[id])
         if not timestep_0_potential_mapping[id]:
             inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
             continue
@@ -131,10 +144,15 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             continue
             
         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
+
         inter_potential_mapping[id] = set(inter_potential_mapping[id])
         inter_potential_mapping[id].update(common_mappings)
         t0_1 = timestep_0_potential_mapping[id] - timestep_1_potential_mapping[id]
         t1_0 = timestep_1_potential_mapping[id] - timestep_0_potential_mapping[id]
+        if not t0_1 and t1_0:
+            visited_inter_list[id].update(t1_0)
+        elif t0_1 and not t1_0:
+            visited_inter_list[id].update(t0_1)
         if t0_1 and t1_0:
             common_set_for_t1_0 = set()
             not_common_set = set()
@@ -155,28 +173,18 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 visited_inter_list[id].update(not_common_set - common_set_for_t1_0)
 
 
-    # print("hello")                
+
+    # print("Inter potential mapping without filtering")
     # pprint(inter_potential_mapping)
-    # print("Inter potential mapping")
-    # pprint(inter_potential_mapping)
+    
+    # print("Visited Inter List without filtering")
+    # pprint(visited_inter_list)
+
     ''' Update the inter potential mappings and intra potential mappings 
     Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
     inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     inter_potential_mapping = defaultdict(set, inter_potential_mapping)
     # print("Sorted Mapping", inter_potential_mapping)
-    '''
-    {
-        'L2': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
-        'L3': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
-        'L4': {'W1', 'W1`', 'W2', 'W3', 'W4'}, 
-        'W1': {'L4', 'L2', 'L3', 'L1'}, 
-        'W1`': {'L4', 'L2', 'L3', 'L1'}, 
-        'L1': {'W1', 'W1`', 'W4', 'W2'}, 
-        'W2': {'L2', 'L3', 'L1'}, 
-        'W3': {'L2', 'L3'}, 
-        'W4': {'L4'}
-    }
-    '''
     removal = True
     while removal:
         removal = False
@@ -187,22 +195,30 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             ''' Filter 2'''
             to_remove_single= set()
             for element in value_set:
+                inter_potential_mapping_elem = inter_potential_mapping[element]
                 ''' Filter 1 '''
                 ''' Check if element exists in the dictionary and key is not in its set '''
-                if element in inter_potential_mapping and key not in inter_potential_mapping[element]:
+                if element in inter_potential_mapping and key not in inter_potential_mapping_elem:
                     to_remove.add(element)
                     removal = True
                 
                 ''' Filter 2 '''
-                if element in inter_potential_mapping and key in inter_potential_mapping[element]:
+                if element in inter_potential_mapping and key in inter_potential_mapping_elem:
                     len_key = len(inter_potential_mapping[key])
-                    len_element = len(inter_potential_mapping[element])
+                    len_element = len(inter_potential_mapping_elem)
                     if len_key > len_element:
                         if len_element == 1:
                             temp_set_key = {key}.union(inter_potential_mapping[key])
-                            temp_set_element = {element}.union(inter_potential_mapping[element])
-                            to_remove_single.update(temp_set_key - temp_set_element)
-                            removal = True
+                            temp_set_element = {element}.union(inter_potential_mapping_elem)
+                            """ add conditions for W1 - L1, L1`, L2 
+                            L1` - W1 ; check intra mapping for L1, L2 """
+                            common_elements = temp_set_key - temp_set_element
+                            for i in common_elements:
+                                if element in intra_potential_mapping[i] or i in intra_potential_mapping[element]:
+                                    pass
+                                else:
+                                    to_remove_single.update({i})
+                                    removal = True
                 
             ''' Remove elements that are unnecessary '''
             if to_remove:
@@ -251,6 +267,5 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 intra_potential_mapping[id1] = set(value_set_)  
                 # removal = False                 
 
-    # print(intra_potential_mapping["LTEDevice43"], "potential ninja")
     return intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list
 
