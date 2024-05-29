@@ -22,7 +22,7 @@ config_elements = {
 }
 
 sniffer_location = extract_orjson("sniffer_location.json")
-sniffer_location2 = extract_orjson("sniffer_location2.json")
+# sniffer_location2 = extract_orjson("sniffer_location2.json")
 
 sumo_cmd = [os.path.join(SUMO_BIN_PATH, "sumo"), "-c", SUMO_CFG_FILE]
 
@@ -39,7 +39,7 @@ try:
     # Simulation loop
     detected_users, user_data, users, sniffers = deque(), deque(),dict(), deque()
     timestep = 14400
-    sniffer_locs= sniffer_location["sniffer_location"] + sniffer_location2["sniffer_location"]
+    sniffer_locs= sniffer_location["sniffer_location"]# + sniffer_location2["sniffer_location"]
     sniffers = [Sniffer(i, sniffer_loc, BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE) for i, sniffer_loc in enumerate(sniffer_locs)]
 
     '''
@@ -80,8 +80,10 @@ except Exception as e:
     sys.exit(1)
 
 
-user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
-sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"
+# user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
+# sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"
+user_file = "user_data.json"
+sniffed_file = "sniffed_data.json"
 
 print("Saved file to the directory")
 

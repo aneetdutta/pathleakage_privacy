@@ -1,9 +1,26 @@
+## Simulation Experiment
+
+
+### Code Flow
 The following is the structure of the code.
 
-1. sim1.py file runs with the argument for number of users and number of sniffers and generates 2 files: sniffed_user.json(data received by the sniffers) and user_data.json(ground truth of every user)
+#### 1. Sumo Simulation
 
-2. Next, we run tracking.py to find the linkability between the identifiers. Here, 2 files are created, manager.pkl which consists of the information of devices with their corresponding identifiers(bluetooth,wifi and LTE) and linked_ids.json which maps the linking between randomized identifiers.
+- Run the sumo simulation (sumo_simulation.py) in order to generate the data corresponding to the required environment variables
+This creates 2 json files
+     - sniffed_data.json (user data captured by the sniffer)
+     - user_data.json (user data)
 
-3. Next, we check the success of our mapping by running the code sanity_linking.py which gives us the number of mappings that are correctly identified.
+     Add these two files to mongodb under the database named "code"
 
-4. Next, we run the reconstruction.py to generate the reconstructed path and measure the duration of tracking possible through the mappings.
+#### 2. Grouping
+
+- Run the aggregation.py and group.py to generate the groups. These groups are stored in mongodb under the collection "groups". Same database is used.
+
+- test_group.py file can be used to create test cases to test the grouping_algorithm
+
+#### 3. Tracking
+
+- Run tracking.py to find the linkability between the identifiers. The code saves the jsons obtained every timestep to the mongodb.
+
+More to be written soon
