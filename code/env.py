@@ -8,7 +8,7 @@ DURATION_SIMULATION = 7200
 IDENTIFIER_LENGTH = 12
 
 
-TIMESTEPS = 18400
+TIMESTEPS = 19400
 
 #-------------------------#
 #   Movement Parameters   #

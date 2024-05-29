@@ -230,8 +230,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     while removal:
         removal = False
         for id1, value_set in intra_potential_mapping.items():
-            if len(value_set) == 1:
-                continue
+            # if len(value_set) == 1:
+            #     continue
             value_set_ = set(value_set)
             to_remove = set()
             for id2 in value_set_:
@@ -249,7 +249,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 
             if removal:
                 intra_potential_mapping[id1] = set(value_set_)  
-                removal = False                 
+                # removal = False                 
 
     # print(intra_potential_mapping["LTEDevice43"], "potential ninja")
     return intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list
