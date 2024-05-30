@@ -65,7 +65,6 @@ for timestep_pair in timestep_pairs:
                 {"$set": {"_id": str(i), "mapping": list(j)}},
                 upsert=True  # Create a new document if no document matches the filter
             )
-        inter_id
     for i, j in visited_intra_mapping_list.items():
         result = md.db['visited_intra_list'].update_one(
                 {"_id": str(i)},
@@ -84,5 +83,5 @@ for timestep_pair in timestep_pairs:
                 upsert=True  # Create a new document if no document matches the filter
             )
             
-    # if int(timestep) > 18190:
+    # if int(timestep) > 18007:
     #     break

@@ -50,6 +50,24 @@ Groups Formed: {W1,W2,L1,L2,L3,L4}, {W3,W4,L1,L2,L3,L4}
 # ]
 
 
+
+
+sniffer_group = [
+    {'protocol': 'LTE', 'lte_id': 'L1', 'WiFi_id': None, 'bluetooth_id': None, 'dist_S_U': 1},
+    {'protocol': 'WiFi', 'lte_id': None, 'WiFi_id': 'W1', 'bluetooth_id': None, 'dist_S_U': 1},
+    # {'protocol': 'Bluetooth', 'lte_id': None, 'WiFi_id': None, 'bluetooth_id': 'B1', 'dist_S_U': 40},
+    {'protocol': 'LTE', 'lte_id': 'L2', 'WiFi_id': None, 'bluetooth_id': None, 'dist_S_U': 2},
+    {'protocol': 'WiFi', 'lte_id': None, 'WiFi_id': 'W2', 'bluetooth_id': None, 'dist_S_U': 2},
+    # {'protocol': 'Bluetooth', 'lte_id': None, 'WiFi_id': None, 'bluetooth_id': 'B2', 'dist_S_U': 30},
+    {'protocol': 'LTE', 'lte_id': 'L3', 'WiFi_id': None, 'bluetooth_id': None, 'dist_S_U': 20.5},
+    {'protocol': 'WiFi', 'lte_id': None, 'WiFi_id': 'W3', 'bluetooth_id': None, 'dist_S_U': 20.5},
+    # {'protocol': 'Bluetooth', 'lte_id': None, 'WiFi_id': None, 'bluetooth_id': 'B3', 'dist_S_U': 20},
+    # {'protocol': 'LTE', 'lte_id': 'L4', 'WiFi_id': None, 'bluetooth_id': None, 'dist_S_U': 10},
+    # {'protocol': 'WiFi', 'lte_id': None, 'WiFi_id': 'W4', 'bluetooth_id': None, 'dist_S_U': 10},
+    # {'protocol': 'Bluetooth', 'lte_id': None, 'WiFi_id': None, 'bluetooth_id': 'B4', 'dist_S_U': 10},
+]
+
+
 groups = group_distances(sniffer_group)
 print(groups)
 # print(groups)

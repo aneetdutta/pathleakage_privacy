@@ -65,6 +65,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                         intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
                         intra_potential_mapping[id1].update(potential)
                         
+    # print("Intra potential mapping - Initial")
+    # pprint(intra_potential_mapping)
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
@@ -173,7 +175,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 visited_inter_list[id].update(not_common_set - common_set_for_t1_0)
 
 
-
+    # print("Intra potential mapping - After Inter")
+    # pprint(intra_potential_mapping)
     # print("Inter potential mapping without filtering")
     # pprint(inter_potential_mapping)
     
@@ -212,13 +215,33 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                             temp_set_element = {element}.union(inter_potential_mapping_elem)
                             """ add conditions for W1 - L1, L1`, L2 
                             L1` - W1 ; check intra mapping for L1, L2 """
-                            common_elements = temp_set_key - temp_set_element
-                            for i in common_elements:
-                                if element in intra_potential_mapping[i] or i in intra_potential_mapping[element]:
+                            uncommon_elements = temp_set_key - temp_set_element
+                            for i in uncommon_elements:
+                                # print(i, common_elements, element, inter_potential_mapping_elem)
+                                ''' let case be: W1->[L1, L1`], L1->[W1], L1`->[W1`]
+                                while checking through L1, L1` for W1, let element = L1`
+                                if due to randomization, L1` does not exists, then check opposite direction (i in intra[element]) '''
+                                if (element not in intra_potential_mapping and i in intra_potential_mapping) and (element not in intra_potential_mapping[i]):
+                                    # to_remove_single.update({i})
+                                    # removal = True
                                     pass
-                                else:
-                                    to_remove_single.update({i})
-                                    removal = True
+
+                                # if element in intra_potential_mapping:
+                                #     # if (i not in intra_potential_mapping[element]):
+                                #     #     print("case 1: ", element, intra_potential_mapping[element], i, intra_potential_mapping[i])
+                                #     #     print(key, value_set)
+                                #     #     to_remove_single.update({i})
+                                #     #     removal = True
+                                #     pass
+                                #     ''' if not randomization, intra mapping element exists -> check single direction only '''
+                                # elif i in intra_potential_mapping:
+                                #     if element not in intra_potential_mapping[i]:
+                                #         # print("case 2: ", element, i)
+                                #         to_remove_single.update({i})
+                                #         removal = True
+                                    # pass
+                                # if element not in intra_potential_mapping:
+                                #     if (i not in intra_potential_mapping[element]):
                 
             ''' Remove elements that are unnecessary '''
             if to_remove:
@@ -239,8 +262,10 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     inter_potential_mapping = defaultdict(set, inter_potential_mapping)
     
-    # print(inter_potential_mapping)
-    
+    # print("intra_potential_mapping - before updation")
+    # pprint(intra_potential_mapping)
+    # print("inter_potential_mapping - before updation")
+    # pprint(inter_potential_mapping)
     ''' Update the intra potential mappings based on inter potential mappings '''
     removal = True
     while removal:
@@ -254,6 +279,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 set_id1: set = set(inter_potential_mapping[id1])
                 set_id2: set = set(inter_potential_mapping[id2])
                 common_set = set_id1.intersection(set_id2)
+                # print(id1, id2, common_set, set_id1, set_id2)
                 if not common_set and set_id1 and set_id2:
                     ''' Remove id2 from the value of intra potential mapping of id1 '''
                     to_remove.add(id2)

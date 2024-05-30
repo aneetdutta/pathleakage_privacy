@@ -92,5 +92,3 @@ print("total length", len(sniffer_l))
 sniffer_locations["sniffer_location"]=(sniffer_l)
 with open("sniffer_location2.json", "w") as f:
     json.dump(sniffer_locations, f)
-
-    
