@@ -5,12 +5,13 @@ from modules.user import User
 import traceback
 from env import *
 from services.general import extract_orjson
-from services.iteration import person_iterator
+from services.iteration2 import person_iterator
 from modules.mongofn import MongoDB
 from collections import deque
 from services.general import random_identifier
 import uuid
 import json
+import time
 from bson.objectid import ObjectId
 
 md = MongoDB()
@@ -35,6 +36,8 @@ user_collection = md.db['user_data']
 # {timestamp}_sniffer_data_{TIMESTEPS}
 sniffer_collection = md.db['sniffer_data']
 
+now = time.time()
+
 try:
     # Simulation loop
     detected_users, user_data, users, sniffers = deque(), deque(),dict(), deque()
@@ -46,6 +49,7 @@ try:
     timestep - Get current simulation time
     person_ids - Get list of person IDs
     '''
+    
     while timestep < TIMESTEPS:
         timestep = traci.simulation.getTime()
         person_ids = traci.person.getIDList()
@@ -79,6 +83,7 @@ except Exception as e:
     traci.close()
     sys.exit(1)
 
+print("Total time taken for sumo simulation script: ", time.time() - now)
 
 # user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
 # sniffed_file = f"{timestamp}_sniffed_data_{TIMESTEPS}.json"

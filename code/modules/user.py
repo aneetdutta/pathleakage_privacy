@@ -60,16 +60,16 @@ class User:
         self.identifier_counter += 1
 
         if self.identifier_counter >= self.next_bluetooth_refresh:
-            print("Randomized ble")
+            # print("Randomized ble")
             self.set_next_bluetooth_refresh()
             self.bluetooth_id = random_identifier()
 
         if self.identifier_counter >= self.next_wifi_refresh:
-            print("randomized wifi")
+            # print("randomized wifi")
             self.set_next_wifi_refresh()
             self.wifi_id = random_identifier()
 
         if self.identifier_counter >= self.next_lte_refresh:
-            print("randomized lte")
+            # print("randomized lte")
             self.set_next_lte_refresh()
             self.lte_id = random_identifier()
