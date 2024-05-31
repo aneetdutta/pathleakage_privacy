@@ -71,6 +71,14 @@ total_users = len(user_data)
 visited_intra_ids = set()
 visited_inter_ids = set()
 
+lte_intra_total_mapping = set()
+lte_intra__single_mapping = set()
+lte_intra__multiple_mapping = set()
+
+wifi_intra_total_mapping = set()
+wifi_intra__single_mapping = set()
+wifi_intra__multiple_mapping = set()
+
 lte_intra__single_users = set()
 lte_intra__multiple_users = set()
 wifi_intra__single_users = set()
@@ -94,6 +102,7 @@ tracked_inter_lte_users = set()
 untracked_inter_wifi_users = set()
 tracked_inter_wifi_users = set()
 
+
 for index, row in user_data.iterrows():
     # print(f"Index: {index}")
     lte_ids = set(row['lte_ids'])
@@ -114,25 +123,38 @@ for index, row in user_data.iterrows():
         
         ''' Lte implementation here'''
         p1_lte, p2_lte = {intra_id}.intersection(lte_ids), intra_ids.intersection(lte_ids)
-        p1_wifi, p2_wifi = {intra_id}.intersection(wifi_ids), intra_ids.intersection(wifi_ids)
+        
+
         if p1_lte and p2_lte:
+            if intra_id not in lte_intra_total_mapping:
+                lte_intra_total_mapping.add(intra_id)
             tracked_intra_lte_users.add(user_id)
             if len(intra_ids) == 1:
+                if intra_id not in lte_intra__single_mapping:
+                    lte_intra__single_mapping.add(intra_id)
                 lte_intra__single_users.add(user_id)
             else:
+                if intra_id not in lte_intra__multiple_mapping:
+                    lte_intra__multiple_mapping.add(intra_id)
+                # print(user_id, intra_ids, intra_id)
                 lte_intra__multiple_users.add(user_id)
-                #print(user_id, intra_ids, len(intra_ids))
-            # lte_ids.add(intra_id)
         else:
             untracked_intra_lte_users.add(user_id)
             untracked_intra_lte_users = untracked_intra_lte_users - tracked_intra_lte_users
 
         ''' Wifi implementation here'''
+        p1_wifi, p2_wifi = {intra_id}.intersection(wifi_ids), intra_ids.intersection(wifi_ids)
         if p1_wifi and p2_wifi:
+            if intra_id not in wifi_intra_total_mapping:
+                wifi_intra_total_mapping.add(intra_id)
             tracked_intra_wifi_users.add(user_id)
             if len(intra_ids) == 1:
+                if intra_id not in wifi_intra__single_mapping:
+                    wifi_intra__single_mapping.add(intra_id)
                 wifi_intra__single_users.add(user_id)
             else:
+                if intra_id not in wifi_intra__multiple_mapping:
+                    wifi_intra__multiple_mapping.add(intra_id)
                 wifi_intra__multiple_users.add(user_id)
                 #print(user_id, intra_ids, len(intra_ids))
             # tracked_intra_users_wifi[user_id].add(intra_id)
@@ -141,6 +163,7 @@ for index, row in user_data.iterrows():
             untracked_intra_wifi_users = untracked_intra_wifi_users - tracked_intra_wifi_users
         pass
     
+lte_intra__single_users = lte_intra__single_users - lte_intra__single_users.intersection(lte_intra__multiple_users)
 untracked_intra_lte_users = untracked_intra_lte_users - tracked_intra_lte_users
 
 for index, row in user_data.iterrows():
@@ -166,32 +189,21 @@ for index, row in user_data.iterrows():
         # print(p2_wifi, p2_lte)
         
         if p1_lte and p1_wifi:
-            tracked_inter_users_lte_dict[user_id].update(p1_wifi)
+            tracked_inter_users_lte_dict[user_id].update(inter_ids)
             ''' Atleast one mapping from LTE to Wifi present 
             Tracking inter from lte to wifi '''
             tracked_inter_lte_users.add(user_id)
-            # if p1_wifi == wifi_ids:
-            #     lte_inter__single_users.add(user_id)
-            # else:
-            #     ''' add about different users'''
-            #     diff_ids = p1_wifi - wifi_ids
-            #     print(user_id, diff_ids)
-            #     lte_inter__multiple_users.add(user_id)
+            # print(user_id, inter_id, inter_ids)
         else:
             untracked_inter_lte_users.add(user_id)
             untracked_inter_lte_users = untracked_inter_lte_users - tracked_inter_lte_users
                 
         if p2_wifi and p2_lte:
-            tracked_inter_users_wifi_dict[user_id].update(p2_lte)
+            tracked_inter_users_wifi_dict[user_id].update(inter_ids)
             ''' Atleast one mapping from Wifi to LTE present 
             Tracking inter from wifi to lte '''
             tracked_inter_wifi_users.add(user_id)
-            # if p2_lte == lte_ids:
-            #     wifi_inter__single_users.add(user_id)
-            # else:
-            #     ''' add about different users'''
-            #     diff_users = p2_lte - lte_ids
-            #     wifi_inter__multiple_users.add(user_id)
+            
         else:
             untracked_inter_wifi_users.add(user_id)
             untracked_inter_wifi_users = untracked_inter_wifi_users - tracked_inter_wifi_users
@@ -204,23 +216,33 @@ for index, row in user_data.iterrows():
     ids = set(row['ids'])     
     
     if tracked_inter_users_wifi_dict[user_id] == lte_ids:
+        # print(user_id, tracked_inter_users_wifi_dict[user_id])
         wifi_inter__single_users.add(user_id)
     else:
         wifi_inter__multiple_users.add(user_id)
     
     if tracked_inter_users_lte_dict[user_id] == wifi_ids:
+        # print(user_id, tracked_inter_users_lte_dict[user_id])
         lte_inter__single_users.add(user_id)
     else:
         lte_inter__multiple_users.add(user_id)
         
         
+print("Total LTE Intra tracked users ", len(tracked_intra_lte_users))
 print("Total LTE Intra users with single mapping: ", len(lte_intra__single_users))
 print("Total LTE Intra users with multiple mapping: ", len(lte_intra__multiple_users))
-print("Total LTE Intra tracked users ", len(tracked_intra_lte_users))
 
-print("Total Wifi Intra users with single mapping: ", len(wifi_intra__single_users))
-print("Total Wifi Intra users with multiple mapping: ", len(wifi_intra__multiple_users))
+print("\nTotal LTE Intra mappings: ", len(lte_intra_total_mapping))
+print("Total LTE Intra single mappings: ", len(lte_intra__single_mapping))
+print("Total LTE Intra multiple mappings: ", len(lte_intra__multiple_mapping))
+
 print("Total Wifi Intra tracked users ", len(tracked_intra_wifi_users))
+print("\nTotal Wifi Intra users with single mapping: ", len(wifi_intra__single_users))
+print("Total Wifi Intra users with multiple mapping: ", len(wifi_intra__multiple_users))
+
+print("\nTotal Wifi Intra mappings: ", len(wifi_intra_total_mapping))
+print("Total Wifi Intra single mappings: ", len(wifi_intra__single_mapping))
+print("Total WIfi Intra multiple mappings: ", len(wifi_intra__multiple_mapping))
 
 print("\nTotal LTE-Wifi Inter users with single mapping: ", len(lte_inter__single_users))
 print("Total LTE-Wifi Inter users with multiple mapping: ", len(lte_inter__multiple_users))
@@ -237,12 +259,6 @@ print("\nTotal Untracked Intra users", len(untracked_intra_lte_users))
 print("Total Untracked Inter users", len(untracked_inter_lte_users))
 
 print("Total Users", total_users)
-
-
-
-
-
-
 
 
 

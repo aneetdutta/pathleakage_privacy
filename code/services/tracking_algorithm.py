@@ -67,6 +67,42 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                         
     # print("Intra potential mapping - Initial")
     # pprint(intra_potential_mapping)
+    
+    ''' Filtering Intra mapping based on device direction 
+    We consider randomization in single direction in the algorithm W1-> W1`, W1`->W1``
+    However, if any case where W1->W2, and W2->W1 '''
+    
+    
+    removal = True
+    while removal:
+        removal = False
+        for id, value_set in list(intra_potential_mapping.items()):
+            ''' if value is null; continue'''
+            if not value_set:
+                continue
+            
+            to_remove = set()
+            ''' Check if W1->{W2,W3}, W2->{W1, W3}
+            Remove '''
+            for element in value_set:
+                if element in intra_potential_mapping:
+                    if id in intra_potential_mapping[element]:
+                        to_remove.add(element)
+                        intra_potential_mapping[element].remove(id)
+                        removal = True
+                
+            if to_remove:
+                value_set -= to_remove
+                visited_intra_list[id].update(to_remove)
+            
+            if removal:
+                intra_potential_mapping[id] = value_set
+            
+                        
+    # print("Intra potential mapping - After filtering")
+    # pprint(intra_potential_mapping)   
+    
+    
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
