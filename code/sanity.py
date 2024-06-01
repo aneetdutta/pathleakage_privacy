@@ -147,7 +147,9 @@ for index, row in user_data.iterrows():
         pass
     
 lte_intra__single_users = lte_intra__single_users - lte_intra__single_users.intersection(lte_intra__multiple_users)
+wifi_intra__single_users = wifi_intra__single_users - wifi_intra__single_users.intersection(wifi_intra__multiple_users)
 untracked_intra_lte_users = untracked_intra_lte_users - tracked_intra_lte_users
+untracked_intra_wifi_users = untracked_intra_wifi_users - tracked_intra_wifi_users
 
 for index, row in user_data.iterrows():
     # print(f"Index: {index}")
@@ -243,5 +245,5 @@ print("Total Wifi-LTE Inter tracked users: ", len(tracked_inter_wifi_users))
 print("\nTotal Null (Wifi+LTE) Intra_ids: ", null_intra_counter)
 print("Total Null (Wifi+LTE) Inter_ids: ", null_inter_counter)
 
-print(null_inter_users)
-print(visited_inter_ids)
+# print(null_inter_users)
+# print(visited_inter_ids)

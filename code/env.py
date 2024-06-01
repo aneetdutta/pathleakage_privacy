@@ -7,7 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-TIMESTEPS = 18100
+TIMESTEPS = 18200
 
 #-------------------------#
 #   Movement Parameters   #
@@ -51,8 +51,11 @@ LTE_LOCALIZATION_ERROR=10
 SUMO_BIN_PATH = "/usr/bin/"
 
 sumo_binary = "sumo"
-SUMO_CFG_FILE = "/home/anonymous/MoSTScenario/scenario/most.sumocfg"
-# SUMO_CFG_FILE = "/home/aneet_wisec/privacy_cispa/MoSTScenario/scenario/most.sumocfg"
+common_path = "/MoSTScenario/scenario/most.sumocfg"
+
+SUMO_CFG_FILE = f"/home/anonymous{common_path}"
+# SUMO_CFG_FILE = f"/home/aneet_wisec/privacy_cispa{common_path}"
+# SUMO_CFG_FILE = f"/home/wisec{common_path}"
 
 
 DELTA_P = 2

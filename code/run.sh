@@ -5,7 +5,7 @@ python3 raw_user_data.py
 echo "Generated raw user data"
 
 echo "Generating sniffer data"
-python3 raw_sniffer_data.py
+python3 raw_sniffer_data_parallel.py
 echo "Generated raw sniffer data"
 
 # python3 sumo_simulation.py

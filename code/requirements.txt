@@ -1,2 +1,8 @@
 libsumo
-numba
+shapely
+orjson
+polars
+pandas
+numpy
+scipy
+pymongo

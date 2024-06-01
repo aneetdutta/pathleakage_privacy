@@ -28,6 +28,7 @@ try:
     timestep - Get current simulation time
     person_ids - Get list of person IDs
     """
+    
     detected_users = []
     for user_data in raw_user_data:
         # print(user_data["timestep"])

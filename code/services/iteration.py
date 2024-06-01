@@ -18,13 +18,22 @@ polygon_coords = [
 # Create a polygon object
 polygon = Polygon(polygon_coords)
 
+''' If not person id , save the person id and discard if visited next time'''
+visited_person:set = set()
 
 def user_data_generate(p_ids:deque, users:dict, timestep:float, usr_data: deque):
     # Iterate over each person ID
     for person_id in p_ids:
         lo = traci.person.getPosition(person_id)
+        ''' If user exits the polygon, remove the user from the user data'''
         if not is_point_inside_polygon(lo[0],lo[1],polygon):
+            visited_person.add(person_id)
             continue
+        
+        ''' If user enters the polygon after some time, remove the user again from the user data'''
+        if person_id in visited_person:
+            continue
+        
         person_id = str(person_id)
         user:User
         if person_id in list(users):

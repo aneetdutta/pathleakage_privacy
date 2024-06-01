@@ -15,11 +15,13 @@ group_collection = md.db['groups']
 ''' Processing every timestep - contains dict : {sniffer_id : [data]}
 Stores the processed group to mongodb collection '''
 
+grouping_list = []
 for document in sniffer_data:
     id = document["_id"]
     timestep = document["timestep"]
     sniffer_data = document["sniffer_data"]
     print(id, timestep)
     group = grouper(sniffer_data)
-    group_collection.insert_one({"timestep": timestep, "grouped_data": group})
-    
+    grouping_list.append({"timestep": timestep, "grouped_data": group})
+   
+group_collection.insert_many(grouping_list)
