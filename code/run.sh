@@ -24,9 +24,6 @@ echo "Performed grouping operations"
 python3 group_checker.py
 echo "Checked group data"
 
-python3 user_id.py
-echo "Performed user ID operations"
-
 python3 tracking.py
 echo "Performed Tracking operation"
 
