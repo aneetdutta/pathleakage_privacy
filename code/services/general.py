@@ -6,8 +6,8 @@ from math import sqrt
 import copy
 from collections import defaultdict
 from pprint import pprint
-from modules.mongofn import MongoDB
 import orjson
+from shapely.geometry import Point, Polygon
 
 def convert_sets_to_lists(d):
     d1 = copy.deepcopy(d)
@@ -23,6 +23,13 @@ def convert_sets_to_lists(d):
 def extract_orjson(filename):
     with open(filename, 'rb') as f:
         return orjson.loads(f.read())
+
+
+
+# Function to check if a point is inside the polygon
+def is_point_inside_polygon(x, y, polygon: Polygon):
+    point = Point(x, y)
+    return polygon.contains(point)
 
 """
 Generates Random Device Identifier

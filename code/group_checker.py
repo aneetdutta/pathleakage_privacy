@@ -86,9 +86,9 @@ sniffer_locations: dict[list] = extract_orjson("sniffer_location2.json")
 sniffer_l = sniffer_locations["sniffer_location"]
 
 print("Previous", len(sniffer_l))
-print("New", len(locations), location)
+print("New", len(locations))
 sniffer_l.extend(locations)
 print("total length", len(sniffer_l))
-sniffer_locations["sniffer_location"]=(sniffer_l)
-with open("sniffer_location2.json", "w") as f:
-    json.dump(sniffer_locations, f)
+# sniffer_locations["sniffer_location"]=(sniffer_l)
+# with open("sniffer_location2.json", "w") as f:
+#     json.dump(sniffer_locations, f)

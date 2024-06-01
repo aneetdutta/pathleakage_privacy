@@ -60,7 +60,7 @@ except Exception as e:
 
 print("Total time take to fetch user_data from sumo_simulation: ", time.time()-now)
 # user_file = f"{timestamp}_user_data_{TIMESTEPS}.json"
-user_file = "raw_user_data.json"
+user_file = "user_data.json"
 
 print("Saved file to the directory")
 

@@ -14,9 +14,10 @@ import json
 from bson.objectid import ObjectId
 
 
-sniffer_location = extract_orjson("sniffer_location.json")
-sniffer_location2 = extract_orjson("sniffer_location2.json")
-raw_user_data = extract_orjson("raw_user_data.json")
+# sniffer_location = extract_orjson("sniffer_location.json")
+# sniffer_location2 = extract_orjson("sniffer_location2.json")
+sniffer_location = extract_orjson("new_sniffer_location.json")
+raw_user_data = extract_orjson("user_data.json")
 
 import time
 
@@ -27,7 +28,7 @@ try:
     # Simulation loop
     detected_users, user_data, users, sniffers = deque(), deque(), dict(), deque()
     sniffer_locs = (
-        sniffer_location["sniffer_location"] + sniffer_location2["sniffer_location"]
+        sniffer_location["sniffer_location"]# + sniffer_location2["sniffer_location"]
     )
     sniffers = [
         Sniffer(i, sniffer_loc, BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE)
@@ -65,7 +66,7 @@ except Exception as e:
 print("Total time take to fetch sniffer_data from user_data: ", time.time()-now)
 
 
-sniffed_file = "raw_sniffed_data.json"
+sniffed_file = "sniffed_data.json"
 
 print("Saved file to the directory")
 
