@@ -73,22 +73,17 @@ for result in results:
     if lte and not wifi and not bluetooth:
         print(timestep, user_id, lte, wifi, bluetooth, location)
         user_location[str(user_id)].append([timestep, location])
-        
-with open("user_location.json", "w") as f:
-    json.dump(user_location, f)
-
-user_location = extract_orjson("user_location.json")
-sniffer_locations = []
-# for users, location_data in user_location.items():
-locations = process_dict(user_location, 20)
-
-sniffer_locations: dict[list] = extract_orjson("sniffer_location2.json")
-sniffer_l = sniffer_locations["sniffer_location"]
-
-print("Previous", len(sniffer_l))
-print("New", len(locations))
-sniffer_l.extend(locations)
-print("total length", len(sniffer_l))
-# sniffer_locations["sniffer_location"]=(sniffer_l)
-# with open("sniffer_location2.json", "w") as f:
-#     json.dump(sniffer_locations, f)
+     
+if user_location:
+    dump_orjson("user_location.json", user_location)
+    user_location = extract_orjson("user_location.json")
+    sniffer_locations = []
+    locations = process_dict(user_location, 20)
+    sniffer_locations: dict[list] = extract_orjson("new_sniffer_location.json")
+    sniffer_l = sniffer_locations["sniffer_location"]
+    print("Previous", len(sniffer_l))
+    print("New", len(locations))
+    sniffer_l.extend(locations)
+    print("total length", len(sniffer_l))
+else:
+    print("No new sniffer locations found")

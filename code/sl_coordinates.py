@@ -1,7 +1,7 @@
 import numpy as np
 from shapely.geometry import Point, Polygon
 import matplotlib.pyplot as plt
-
+from services.general import dump_orjson
 # Coordinates of the polygon
 polygon_coords = [
     (3499.77, 1500.07),
@@ -48,13 +48,17 @@ y_coords = [point.y for point in sniffer_points]
 # Plot the polygon and the sniffer points
 x_poly, y_poly = polygon.exterior.xy
 # plt.figure(figsize=(10, 10))
-# plt.plot(x_poly, y_poly, 'b-', label='Polygon')
-# plt.scatter(x_coords, y_coords, c='r', label='Sniffer Locations')
+# # plt.plot(x_poly, y_poly, 'b-', label='Polygon')
+# # plt.scatter(x_coords, y_coords, c='r', label='Sniffer Locations')
+# plt.plot(x_poly, y_poly, 'b-')
+# plt.scatter(x_coords, y_coords, color="red", alpha=0.5)
+# plt.axis('off')
 # plt.gca().set_aspect('equal', adjustable='box')
 # plt.legend()
-# plt.xlabel('X Coordinate')
-# plt.ylabel('Y Coordinate')
-# plt.title('Hexagonal Grid of Sniffer Locations')
+# plt.savefig('monaco.png', transparent=True)
+# # plt.xlabel('X Coordinate')
+# # plt.ylabel('Y Coordinate')
+# # plt.title('Hexagonal Grid of Sniffer Locations')
 # plt.show()
 
 # Print the selected sniffer locations
@@ -64,3 +68,6 @@ print("Selected sniffer locations (x, y):")
 print(selected_locations)
 # for loc in selected_locations:
 #     print(loc)
+
+dump_orjson('new_sniffer_location.json', {"sniffer_location": selected_locations})
+    

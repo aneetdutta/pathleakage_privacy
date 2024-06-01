@@ -24,12 +24,18 @@ inter_potential_mapping: defaultdict[set] = defaultdict(set)
 visited_inter_list: defaultdict[set] = defaultdict(set)
 visited_intra_list: defaultdict[set] = defaultdict(set)
 
+intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
+inter_potential_mapping_list = convert_sets_to_lists(inter_potential_mapping)
+visited_inter_mapping_list = convert_sets_to_lists(visited_inter_list)
+visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
+
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
     documents = md.collection.find({"timestep": {"$in": timestep_pair}})
     # Process or print the documents as needed
     ''' Collected data of two timesteps - T0 and T1 which consists of multiple groups
     Storing the data in two_timestep_data'''
+    
     two_timestep_data = []
     for document in documents:
         two_timestep_data.append((document['timestep'], document['grouped_data']))
@@ -45,33 +51,6 @@ for timestep_pair in timestep_pairs:
     visited_inter_mapping_list = convert_sets_to_lists(visited_inter_list)
     visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
     
-    for i, j in intra_potential_mapping_list.items():
-        result = md.db['intra_mappings'].update_one(
-                {"_id": str(i)},
-                {"$set": {"_id": str(i), "mapping": list(j)}},
-                upsert=True  # Create a new document if no document matches the filter
-            )
-
-    for i, j in inter_potential_mapping_list.items():
-        result = md.db['inter_mappings'].update_one(
-                {"_id": str(i)},
-                {"$set": {"_id": str(i), "mapping": list(j)}},
-                upsert=True  # Create a new document if no document matches the filter
-            )
-        
-    for i, j in visited_inter_mapping_list.items():
-        result = md.db['visited_inter_list'].update_one(
-                {"_id": str(i)},
-                {"$set": {"_id": str(i), "mapping": list(j)}},
-                upsert=True  # Create a new document if no document matches the filter
-            )
-    for i, j in visited_intra_mapping_list.items():
-        result = md.db['visited_intra_list'].update_one(
-                {"_id": str(i)},
-                {"$set": {"_id": str(i), "mapping": list(j)}},
-                upsert=True  # Create a new document if no document matches the filter
-            )
-    
     check_full_document_database = True
     
     if check_full_document_database:
@@ -85,3 +64,30 @@ for timestep_pair in timestep_pairs:
             
     # if int(timestep) > 18007:
     #     break
+    
+for i, j in intra_potential_mapping_list.items():
+    result = md.db['intra_mappings'].update_one(
+            {"_id": str(i)},
+            {"$set": {"_id": str(i), "mapping": list(j)}},
+            upsert=True  # Create a new document if no document matches the filter
+        )
+
+for i, j in inter_potential_mapping_list.items():
+    result = md.db['inter_mappings'].update_one(
+            {"_id": str(i)},
+            {"$set": {"_id": str(i), "mapping": list(j)}},
+            upsert=True  # Create a new document if no document matches the filter
+        )
+    
+for i, j in visited_inter_mapping_list.items():
+    result = md.db['visited_inter_list'].update_one(
+            {"_id": str(i)},
+            {"$set": {"_id": str(i), "mapping": list(j)}},
+            upsert=True  # Create a new document if no document matches the filter
+        )
+for i, j in visited_intra_mapping_list.items():
+    result = md.db['visited_intra_list'].update_one(
+            {"_id": str(i)},
+            {"$set": {"_id": str(i), "mapping": list(j)}},
+            upsert=True  # Create a new document if no document matches the filter
+        )

@@ -23,8 +23,7 @@ def user_data_generate(p_ids:deque, users:dict, timestep:float, usr_data: deque)
     # Iterate over each person ID
     for person_id in p_ids:
         lo = traci.person.getPosition(person_id)
-        location_checker = is_point_inside_polygon(lo[0],lo[1],polygon)
-        if not location_checker:
+        if not is_point_inside_polygon(lo[0],lo[1],polygon):
             continue
         person_id = str(person_id)
         user:User

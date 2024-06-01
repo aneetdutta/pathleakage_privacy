@@ -1,12 +1,11 @@
 from shapely.geometry import Point, Polygon
-from services.general import extract_orjson
 # Define the polygon vertices
-polygon_coords = [
-    (3499.77, 1500.07),
-    (5798.43, 3799.93),
-    (6799.91, 2799.96),
-    (4500.10, 498.92)
-]
+# polygon_coords = [
+#     (3499.77, 1500.07),
+#     (5798.43, 3799.93),
+#     (6799.91, 2799.96),
+#     (4500.10, 498.92)
+# ]
 
 polygon_coords = [
     (3499.77,1500.07),

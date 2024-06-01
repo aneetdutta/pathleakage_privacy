@@ -3,6 +3,7 @@ from random import uniform, randint, choices
 from string import ascii_uppercase, digits
 from math import sqrt
 # import cython
+import numpy as np
 import copy
 from collections import defaultdict
 from pprint import pprint
@@ -19,12 +20,21 @@ def convert_sets_to_lists(d):
     return d1
 
 
+def serialize_floats(obj):
+    if isinstance(obj, np.float64):
+        return float(obj)
+    return obj
+
 # data_array = pd.DataFrame(data)
 def extract_orjson(filename):
     with open(filename, 'rb') as f:
         return orjson.loads(f.read())
 
 
+def dump_orjson(filename, data):
+    with open(filename, "wb") as f:
+        f.write(orjson.dumps(data, default=serialize_floats))
+    
 
 # Function to check if a point is inside the polygon
 def is_point_inside_polygon(x, y, polygon: Polygon):

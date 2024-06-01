@@ -1,28 +1,17 @@
-import os, sys, libsumo as traci
-from datetime import datetime
+import sys, libsumo as traci
 from modules.sniffer import Sniffer
-from modules.user import User
 import traceback
 from env import *
-from services.general import extract_orjson
-from services.iteration2 import person_iterator
-from modules.mongofn import MongoDB
+from services.general import extract_orjson, dump_orjson
 from collections import deque
-from services.general import random_identifier
-import uuid
 import json
-from bson.objectid import ObjectId
 
-
-# sniffer_location = extract_orjson("sniffer_location.json")
-# sniffer_location2 = extract_orjson("sniffer_location2.json")
 sniffer_location = extract_orjson("new_sniffer_location.json")
 raw_user_data = extract_orjson("user_data.json")
 
 import time
 
 now = time.time()
-
 
 try:
     # Simulation loop
@@ -70,6 +59,4 @@ sniffed_file = "sniffed_data.json"
 
 print("Saved file to the directory")
 
-with open(sniffed_file, "w") as f:
-    json.dump(list(detected_users), f)
-
+dump_orjson(sniffed_file, list(detected_users))
