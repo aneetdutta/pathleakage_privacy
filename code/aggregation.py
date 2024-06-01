@@ -3,15 +3,19 @@ from modules.mongofn import MongoDB
 import time
 md = MongoDB()
 
-''' The below code converts the sumo_simulation results to aggregated results of the sniffer
-It is modelled as below
-{timestep: 0, sniffer_data: {0: [{groups}]}}'''
+now = time.time()
 
 md.set_collection("sniffed_data")
-results = md.aggregate_save()
 
-new_collection = md.db['aggregated_results']# Insert the aggregated results into the new collection
-now = time.time()
-for result in results: 
-    new_collection.insert_one(result)
+''' The below code converts the sniffer data into 3 collections 
+- Aggregation by sniffers and timesteps 
+- Aggregation by users
+- Aggregation by timesteps '''
+
+md.db['aggregated_results'].insert_many(md.aggregate_save())
+
+md.db["aggregate_users"].insert_many(md.aggregate_users())
+ 
+md.db["aggregate_timesteps"].insert_many(md.aggregate_timestep())
+
 print("Time taken to aggregate and save to mongodb: ", time.time() - now)

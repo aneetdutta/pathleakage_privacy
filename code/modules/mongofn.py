@@ -92,7 +92,64 @@ class MongoDB:
         
         return self.collection.aggregate(pipeline)
 
+    def aggregate_timestep(self):
+        pipeline = [
+            {
+                '$group': {
+                    '_id': '$timestep',
+                    "lte_ids": {"$addToSet": "$lte_id"},
+                    "bluetooth_ids": {"$addToSet": "$bluetooth_id"},
+                    "wifi_ids": {"$addToSet": "$WiFi_id"}
+                }
+            },
+            {
+                '$project': {
+                    'timestep': '$_id',
+                    '_id': 0,
+                    'lte_ids': 1,
+                    'bluetooth_ids': 1,
+                    'wifi_ids': 1,
+                    "ids": {
+                        "$setUnion": ["$lte_ids", "$bluetooth_ids", "$wifi_ids"]
+                    }
+                }
+            },
+            {
+                "$sort": { "timestep": 1 }  # Sort by timestep in ascending order
+            }
+        ]
 
+        return self.collection.aggregate(pipeline)
+
+
+    def aggregate_users(self):
+        pipeline = [
+            {
+                '$group': {
+                    '_id': '$user_id',
+                    "lte_ids": {"$addToSet": "$lte_id"},
+                    "bluetooth_ids": {"$addToSet": "$bluetooth_id"},
+                    "wifi_ids": {"$addToSet": "$WiFi_id"}
+                }
+            },
+            {
+                '$project': {
+                    'user_id': '$_id',
+                    '_id': 0,
+                    'lte_ids': 1,
+                    'bluetooth_ids': 1,
+                    'wifi_ids': 1,
+                    "ids": {
+                        "$setUnion": ["$lte_ids", "$bluetooth_ids", "$wifi_ids"]
+                    }
+                }
+            },
+            {
+                "$sort": { "user_id": 1 }  # Sort by timestep in ascending order
+            }
+        ]
+        return self.collection.aggregate(pipeline)
+        
     def batch_insert(self, collection, documents, batch_size=100):
         for i in range(0, len(documents), batch_size):
             batch = documents[i:i + batch_size]

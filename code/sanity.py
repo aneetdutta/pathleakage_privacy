@@ -1,36 +1,14 @@
-from modules.device import Device
-from modules.devicemanager import DeviceManager
 from services.general import *
-from services.tracking_algorithm import tracking_algorithm
 from modules.mongofn import MongoDB
 from collections import defaultdict
-from pprint import pprint
 ''' Load the sumo_simulation result from mongodb '''
-import sys
 import pandas as pd
-
+import sys
 md = MongoDB()
 
-md.set_collection("userid")
-
-# Define the aggregation pipeline
-pipeline = [
-    {
-        "$project": {
-            "_id": 0,
-            "user_id": 1,
-            "lte_ids": 1,
-            "wifi_ids": 1,
-            "ids": 1
-        }
-    }
-]
-
-documents = md.collection.aggregate(pipeline)
-
-
+md.set_collection("aggregate_users")
+documents = md.collection.find()
 user_data = pd.DataFrame(documents)
-# print(user_data)
 
 md.set_collection('intra_mappings')
 
@@ -183,7 +161,7 @@ for index, row in user_data.iterrows():
         inter_ids = set(inter_ids)
         if not inter_ids and inter_id not in visited_inter_ids:
             null_inter_counter +=1
-            print(user_id, inter_id)
+            # print(user_id, inter_id)
             null_inter_users.add(user_id)
             visited_inter_ids.add(inter_id)
             continue
