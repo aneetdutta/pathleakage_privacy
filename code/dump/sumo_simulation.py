@@ -5,7 +5,7 @@ from modules.user import User
 import traceback
 from env import *
 from services.general import extract_orjson
-from services.iteration2 import person_iterator
+from dump.iteration2 import person_iterator
 from modules.mongofn import MongoDB
 from collections import deque
 from services.general import random_identifier

@@ -25,7 +25,7 @@ echo "Calculated duration of user as per sniffed data"
 
 
 echo "Grouping"
-python3 group.py
+python3 group_parallel.py
 echo "Performed grouping operations"
 
 

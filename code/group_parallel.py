@@ -1,0 +1,52 @@
+from modules.mongofn import MongoDB
+from services.grouping_algorithm import grouper
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
+import time
+import itertools
+
+md = MongoDB()
+'''The below code converts the aggregated results into groups using the grouping distance algorithm
+The groups of every sniffer are first calculated and then they are appended to single timestep.
+So, we have the dict as 
+{timestep: 0, grouped_data: [{LTE: "", WIFI: "", BLUETOOTH: ""}]}'''
+
+md.set_collection("aggregated_results")
+'''grouped according to timestep and sniffer'''
+sniffer_data = md.collection.find().sort('timestep', 1)
+
+group_collection = md.db['groups']
+''' Processing every timestep - contains dict : {sniffer_id : [data]}
+Stores the processed group to mongodb collection '''
+
+def process_batch(batch):
+    grouping_list = []
+    for document in batch:
+        id = document["_id"]
+        timestep = document["timestep"]
+        sniffer_data = document["sniffer_data"]
+        # print(id, timestep)
+        group = grouper(sniffer_data)
+        grouping_list.append({"timestep": timestep, "grouped_data": group})
+    return grouping_list
+
+def batch_data(data, batch_size):
+    for i in range(0, len(data), batch_size):
+        yield data[i:i + batch_size]
+        
+batch_size, grouping_list = 10, []
+
+now = time.time()
+batches = list(batch_data(list(sniffer_data), batch_size))
+
+with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
+    futures = [executor.submit(process_batch, batch) for batch in batches]
+    results = [future.result() for future in futures]
+
+grouping_list = list(itertools.chain.from_iterable(results))
+
+print(len(grouping_list))
+grouping_list.sort(key=lambda x: x['timestep'])
+group_collection.drop()
+group_collection.insert_many(grouping_list)
+print("Total time taken to group: ", time.time()-now)

@@ -8,7 +8,35 @@ import copy
 from collections import defaultdict
 from pprint import pprint
 import orjson
+import pandas as pd
 from shapely.geometry import Point, Polygon
+
+def remove_subsets(chains):
+    chains_copy = sorted(chains, key=len, reverse=True)
+    subsets_removed = []
+    for chain in chains_copy:
+        if not any(set(chain).issubset(set(other)) for other in subsets_removed):
+            subsets_removed.append(chain)
+    return subsets_removed
+
+def build_chain_for_key(current_key, current_chain:list, visited: set, data: dict, all_chains):
+    if current_key in visited:
+        return
+
+    visited.add(current_key)
+    current_chain.append(current_key)
+
+    next_key = data.get(current_key)
+    print(next_key)
+    if next_key:
+        build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains)
+    else:
+        all_chains.append(current_chain.copy())
+
+def find_chain_for_key(data, start_key):
+    all_chains = []
+    build_chain_for_key(start_key, [], set(), data, all_chains)
+    return remove_subsets(all_chains)
 
 def convert_sets_to_lists(d):
     d1 = copy.deepcopy(d)
@@ -102,3 +130,32 @@ def process_dict(data, threshold):
         # if current_segment:
         #     segments.append(current_segment)
     return segments
+
+
+class UnionFind:
+    def __init__(self):
+        self.parent = {}
+        self.rank = {}
+
+    def find(self, item):
+        if self.parent[item] != item:
+            self.parent[item] = self.find(self.parent[item])
+        return self.parent[item]
+
+    def union(self, item1, item2):
+        root1 = self.find(item1)
+        root2 = self.find(item2)
+
+        if root1 != root2:
+            if self.rank[root1] > self.rank[root2]:
+                self.parent[root2] = root1
+            elif self.rank[root1] < self.rank[root2]:
+                self.parent[root1] = root2
+            else:
+                self.parent[root2] = root1
+                self.rank[root1] += 1
+
+    def add(self, item):
+        if item not in self.parent:
+            self.parent[item] = item
+            self.rank[item] = 0

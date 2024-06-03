@@ -7,7 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-TIMESTEPS = 18200
+TIMESTEPS = 18100
 
 #-------------------------#
 #   Movement Parameters   #
@@ -44,7 +44,7 @@ WIFI_RANGE=30
 LTE_RANGE=100
 
 BLUETOOTH_LOCALIZATION_ERROR=1
-WIFI_LOCALIZATION_ERROR=1
+WIFI_LOCALIZATION_ERROR=5
 LTE_LOCALIZATION_ERROR=10
 
 # Start SUMO as a subprocess
@@ -56,6 +56,5 @@ common_path = "/MoSTScenario/scenario/most.sumocfg"
 SUMO_CFG_FILE = f"/home/anonymous{common_path}"
 # SUMO_CFG_FILE = f"/home/aneet_wisec/privacy_cispa{common_path}"
 # SUMO_CFG_FILE = f"/home/wisec{common_path}"
-
 
 DELTA_P = 2

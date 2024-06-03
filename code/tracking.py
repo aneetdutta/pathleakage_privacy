@@ -64,7 +64,11 @@ for timestep_pair in timestep_pairs:
             
     # if int(timestep) > 18007:
     #     break
-    
+md.db['intra_mappings'].drop()
+md.db['inter_mappings'].drop()
+md.db['visited_inter_list'].drop()
+md.db['visited_intra_list'].drop()
+
 for i, j in intra_potential_mapping_list.items():
     result = md.db['intra_mappings'].update_one(
             {"_id": str(i)},

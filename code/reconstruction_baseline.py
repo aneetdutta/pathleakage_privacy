@@ -31,8 +31,6 @@ c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_i
 
 ''' Baseline single protocol'''
 
-
-
 # baseline_data: defaultdict[list] = defaultdict(list)
 # different_id = []
 baseline = []
@@ -75,6 +73,18 @@ bl_df['start_timestep'] = bl_df['start_timestep'].astype(float)
 bl_df["duration"] = bl_df["last_timestep"] - bl_df["start_timestep"]
 bl_df["privacy_score"] = bl_df["duration"]/bl_df["ideal_duration"]
 
-bl_data = bl_df.to_dict(orient='records')
+wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
+lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
+idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
+wifi_df = wifi_df.loc[idx].reset_index(drop=True)
+
+idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
+lte_df = lte_df.loc[idx].reset_index(drop=True)
+
+wifi_df.to_csv('baseline_wifi.csv', index=False)
+lte_df.to_csv('baseline_lte.csv', index=False)
+
+bl_data = bl_df.to_dict(orient='records')
+md.db['reconstruction_baseline'].drop()
 md.db['reconstruction_baseline'].insert_many(bl_data)

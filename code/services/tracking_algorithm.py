@@ -97,16 +97,13 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             
             if removal:
                 intra_potential_mapping[id] = value_set
-            
-                        
+                
     # print("Intra potential mapping - After filtering")
     # pprint(intra_potential_mapping)   
-    
     
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
-    
     
     ''' Looping through mapping 0 '''
     timestep_0_potential_mapping = defaultdict(set)
