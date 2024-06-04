@@ -13,7 +13,7 @@ ml = MyLogger("reconstruction_multiprotocol")
 
 md.set_collection('intra_mappings')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
-intra_data = {document['_id']: document['mapping'][0] for document in documents}
+intra_data = {document['_id']: (document['mapping'][0], document["user_id"]) for document in documents}
 intra_df = pd.DataFrame(documents)
 
 md.set_collection('inter_mappings')
@@ -32,28 +32,6 @@ a) Take an id from inter identifier - calculate whether the mappings in it are c
 b) Take user_id corresponding to the linked_id, - measure its duration in sniffed data
 c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_id_in_sniffed_data'''
 
-# merge_columns_inter = ["id","start_timestep","last_timestep","duration","user_id","ideal_duration","protocol",]
-merge_columns= ["id","start_timestep", "last_timestep", "duration"]
-
-inter_df = (
-    pd.merge(
-        inter_df,
-        baseline_data[merge_columns],
-        left_on="_id",
-        right_on="id",
-        how="left",
-    )
-    .drop(columns=["id"])
-    .sort_values(by="start_timestep")
-)
-intra_df = pd.merge(
-    intra_df,
-    baseline_data[merge_columns],
-    left_on="_id",
-    right_on="id",
-    how="left",
-).drop(columns=["id"])
-
 multi_protocol = []
 visited_set = set()
 for index, inter_row in inter_df.iterrows():
@@ -62,11 +40,12 @@ for index, inter_row in inter_df.iterrows():
     ml.logger.info(f'{index}, {inter_id}')
     
     inter_mapping = inter_row["mapping"]
+    user_id = inter_row["user_id"]
+    
     if inter_id in visited_set:
         continue
     visited_set.add(inter_id)
     # id1=inter_id
-    inter_start_timestep = inter_row["start_timestep"]
     
     ''' Fetch chain for id1 - (inter id) intra mapping and calculating min/max timestep'''
     inter_in_intra = False
@@ -74,7 +53,7 @@ for index, inter_row in inter_df.iterrows():
         inter_in_intra = True
         
     if inter_in_intra:
-        chain = find_chain_for_key(intra_data, inter_id)
+        chain = find_chain_for_key(intra_data, inter_id, user_id)
         chain: list = chain[0]
         id1_df = inter_df[inter_df['_id'].isin(chain)]
         count_timesteps = (id1_df["last_timestep"] == TIMESTEPS).sum()
@@ -100,10 +79,11 @@ for index, inter_row in inter_df.iterrows():
     if len(fetch_inter_mapping_timesteps) == 1:
         ''' Fetch chain for its intra mapping and calculating min/max timestep'''
         intra_id1 = str(fetch_inter_mapping_timesteps['_id'].values[0])
+        user_id1 = str(fetch_inter_mapping_timesteps['user_id'].values[0])
         visited_set.add(intra_id1)
         # id2=intra_id1
         if intra_id1 in intra_data:
-            chain = find_chain_for_key(intra_data, intra_id1)[0]
+            chain = find_chain_for_key(intra_data, intra_id1, user_id1)[0]
             ''' considering inter for search as it contains all id mappings '''
             id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
             # print(id2_df)

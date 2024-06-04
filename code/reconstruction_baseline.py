@@ -18,11 +18,15 @@ documents = md.collection.find()
 timestep_data = pd.DataFrame(documents)
 
 md.set_collection('inter_mappings')
+documents = list(md.collection.find())
+inter_df = pd.DataFrame(documents)
+inter_data = {document['_id']: document['mapping'] for document in documents}
 
-inter_docs = md.collection.find()
-inter_data = {}
-for document in inter_docs:
-    inter_data[document['_id']] = document['mapping']
+md.set_collection('intra_mappings')
+documents = list(md.collection.find({"mapping": {"$size": 1}}))
+intra_data = {document['_id']: document['mapping'][0] for document in documents}
+intra_df = pd.DataFrame(documents)
+
 
 ml.logger.info("MongoDB data loaded")
 
@@ -96,6 +100,34 @@ ml.logger.info("Saving WIFI and LTE csv")
 wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
 lte_df.to_csv('csv/baseline_lte.csv', index=False)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
+
+
+merge_columns= ["id","start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
+
+inter_df = (
+    pd.merge(
+        inter_df,
+        bl_df[merge_columns],
+        left_on="_id",
+        right_on="id",
+        how="left",
+    )
+    .drop(columns=["id"])
+    .sort_values(by="start_timestep")
+)
+intra_df = pd.merge(
+    intra_df,
+    bl_df[merge_columns],
+    left_on="_id",
+    right_on="id",
+    how="left",
+).drop(columns=["id"])
+
+md.db['inter_mappings'].drop()
+md.db['inter_mappings'].insert_many(inter_df.to_dict(orient='records'))
+md.db['intra_mappings'].drop()
+md.db['intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
+
 bl_data = bl_df.to_dict(orient='records')
 md.db['reconstruction_baseline'].drop()
 md.db['reconstruction_baseline'].insert_many(bl_data)

@@ -32,19 +32,6 @@ ml.logger.info("MongoDB data loaded")
 merge_columns_inter = ["id","start_timestep","last_timestep","duration","user_id","ideal_duration","protocol",]
 merge_columns_intra = ["id","start_timestep", "last_timestep", "duration"]
 
-inter_df = (
-    pd.merge(
-        inter_df,
-        baseline_data[merge_columns_inter],
-        left_on="_id",
-        right_on="id",
-        how="left",
-    )
-    .drop(columns=["id"])
-    .sort_values(by="start_timestep")
-)
-
-
 baseline_random = []
 
 visited_set = set()

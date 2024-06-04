@@ -19,23 +19,26 @@ def remove_subsets(chains):
             subsets_removed.append(chain)
     return subsets_removed
 
-def build_chain_for_key(current_key, current_chain:list, visited: set, data: dict, all_chains):
+def build_chain_for_key(current_key, current_chain:list, visited: set, data: dict, all_chains, user_id):
     if current_key in visited:
         return
 
     visited.add(current_key)
     current_chain.append(current_key)
 
-    next_key = data.get(current_key)
-    # print(next_key)
-    if next_key:
-        build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains)
+    result = data.get(current_key)
+    if result:
+        next_key, next_user_id = result
+    else:
+        next_key, next_user_id = None, None
+    if next_key and user_id==next_user_id:
+        build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains, user_id=user_id)
     else:
         all_chains.append(current_chain.copy())
 
-def find_chain_for_key(data, start_key):
+def find_chain_for_key(data, start_key, user_id):
     all_chains = []
-    build_chain_for_key(start_key, [], set(), data, all_chains)
+    build_chain_for_key(start_key, [], set(), data, all_chains, user_id)
     return remove_subsets(all_chains)
 
 def convert_sets_to_lists(d):

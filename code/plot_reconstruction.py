@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the CSV files
-baseline_wifi_df = pd.read_csv('baseline_wifi.csv')
-baseline_lte_df = pd.read_csv('baseline_lte.csv')
-baseline_random_wifi_df = pd.read_csv('baseline_random_wifi.csv')
-baseline_random_lte_df = pd.read_csv('baseline_random_lte.csv')
-multi_protocol_df = pd.read_csv('multi_protocol.csv')
+baseline_wifi_df = pd.read_csv('csv/baseline_wifi.csv')
+baseline_lte_df = pd.read_csv('csv/baseline_lte.csv')
+baseline_random_wifi_df = pd.read_csv('csv/baseline_random_wifi.csv')
+baseline_random_lte_df = pd.read_csv('csv/baseline_random_lte.csv')
+multi_protocol_df = pd.read_csv('csv/multi_protocol.csv')
 
 # Extract the privacy scores
 baseline_wifi_scores = baseline_wifi_df['privacy_score'].values
@@ -44,5 +44,5 @@ plt.ylabel('Privacy Leakage', fontsize=14)
 plt.title('Privacy Leakage for different tracking mechanisms',fontsize=14)
 plt.legend(loc='lower right', fontsize=9)
 plt.grid(True)
-plt.savefig('images/privacy_leakage.pdf', dpi=600)
+plt.savefig('images/privacy_leakage1.pdf', dpi=600)
 # plt.show()
