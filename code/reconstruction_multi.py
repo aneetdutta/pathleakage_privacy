@@ -72,10 +72,9 @@ for index, inter_row in inter_df.iterrows():
         max_last_timestep_id1 = inter_row["last_timestep"]
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
-    # print(inter_mapping)
-    # print(fetch_inter_mapping_timesteps)
+    print(inter_id, fetch_inter_mapping_timesteps)
     temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
-
+    
     # Filter the DataFrame to include only rows with the minimum start_timestep
     fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['start_timestep'] == temp_start]
     if len(fetch_inter_mapping_timesteps) == 1 and user_id == str(fetch_inter_mapping_timesteps['user_id'].values[0]):
@@ -87,14 +86,6 @@ for index, inter_row in inter_df.iterrows():
             chain = find_chain_for_key(intra_data, intra_id1, user_id)[0]
             ''' considering inter for search as it contains all id mappings '''
             id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
-            # print(id2_df)
-            # count_timesteps = (id2_df['last_timestep'] == TIMESTEPS).sum()
-            # for id in reversed(chain):
-            #     if count_timesteps > 1 and id2_df.loc[id2_df['_id'] == id, 'last_timestep'].values[0] == TIMESTEPS:
-            #         chain.remove(id)
-            #         id2_df = id2_df[id2_df['_id'] != id]
-            #         count_timesteps -= 1
-                    
             min_start_timestep_id2 = id2_df['start_timestep'].min()
             max_last_timestep_id2 = id2_df['last_timestep'].max()        
             visited_set.update(set(chain))
@@ -104,12 +95,22 @@ for index, inter_row in inter_df.iterrows():
 
         min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
         max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
-    
-    elif len(fetch_inter_mapping_timesteps) != 1:
+    elif fetch_inter_mapping_timesteps.empty:
+        intra_id1 = inter_mapping[0]
+        visited_set.add(intra_id1)
+        result = inter_df.loc[inter_df['_id'] == intra_id1]
+        if user_id == result["user_id"].values[0]:
+            min_start_timestep_id2 = result['start_timestep'].values[0]
+            max_last_timestep_id2 = result['last_timestep'].values[0]
+            min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
+            max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
+        else:
+            min_start_timestep = min_start_timestep_id1
+            max_last_timestep = max_last_timestep_id1
+    else:
         ''' stop  there , just check intra mappings of inter_id '''
         min_start_timestep = min_start_timestep_id1
         max_last_timestep = max_last_timestep_id1
-        linked_id = f"{inter_id}"
         
     duration = max_last_timestep - min_start_timestep
     multi_protocol.append({"id1": inter_id, "id2": intra_id1, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": user_id})
