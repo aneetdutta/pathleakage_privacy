@@ -27,7 +27,7 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
     current_chain.append(current_key)
 
     next_key = data.get(current_key)
-    print(next_key)
+    # print(next_key)
     if next_key:
         build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains)
     else:

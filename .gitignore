@@ -5,3 +5,5 @@ code/__pycache__
 */*.log
 code/*.log
 code/*.pkl
+code/logs/*
+code/csv/*
