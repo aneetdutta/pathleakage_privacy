@@ -5,9 +5,11 @@ from services.tracking_algorithm_single import tracking_algorithm_single
 from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
+from modules.logger import MyLogger
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
+ml = MyLogger("tracking_single")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -37,7 +39,7 @@ for timestep_pair in timestep_pairs:
         two_timestep_data.append((document['timestep'], document['grouped_data']))
     
     timestep = two_timestep_data[1][0]
-    print(timestep)
+    ml.logger.info(timestep)
         
     intra_potential_mapping, visited_intra_list  =  tracking_algorithm_single(two_timestep_data, intra_potential_mapping=intra_potential_mapping, visited_intra_list=visited_intra_list)
     
