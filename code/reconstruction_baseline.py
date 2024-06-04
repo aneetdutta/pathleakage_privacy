@@ -93,8 +93,8 @@ wifi_df = wifi_df.loc[idx].reset_index(drop=True)
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
 lte_df = lte_df.loc[idx].reset_index(drop=True)
 
-wifi_df.to_csv('baseline_wifi_.csv', index=False)
-lte_df.to_csv('baseline_lte_.csv', index=False)
+wifi_df.to_csv('baseline_wifi.csv', index=False)
+lte_df.to_csv('baseline_lte.csv', index=False)
 
 bl_data = bl_df.to_dict(orient='records')
 md.db['reconstruction_baseline'].drop()
