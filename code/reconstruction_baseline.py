@@ -7,7 +7,7 @@ import pandas as pd
 md = MongoDB()
 from modules.logger import MyLogger
 
-ml = MyLogger("reconstruction_baseline_random")
+ml = MyLogger("reconstruction_baseline")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -75,8 +75,7 @@ for id in inter_data.keys():
         "protocol": user_info_dict.get(id, {}).get("protocol", "")
     }
     baseline.append(baseline_)
-    # else:
-    #     different_id.append(id)
+
 ml.logger.info("Baseline iteration completed")
 
 bl_df = pd.DataFrame(baseline)

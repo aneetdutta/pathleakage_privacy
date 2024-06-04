@@ -13,20 +13,11 @@ ml = MyLogger("reconstruction_baseline_random")
 # import sys
 md = MongoDB()
 
-md.set_collection("aggregate_users")
-documents = md.collection.find()
-user_df = pd.DataFrame(documents)
-
-md.set_collection("aggregate_timesteps")
-documents = md.collection.find()
-timestep_data = pd.DataFrame(documents)
-
 md.set_collection("baseline_intra_mappings")
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {}
 for document in documents:
     intra_data[document["_id"]] = document["mapping"][0]
-intra_df = pd.DataFrame(documents)
 
 md.set_collection("inter_mappings")
 documents = md.collection.find()
@@ -36,19 +27,10 @@ md.set_collection("reconstruction_baseline")
 documents = md.collection.find()
 baseline_data = pd.DataFrame(documents)
 
-
 ml.logger.info("MongoDB data loaded")
 
-merge_columns_inter = [
-    "id",
-    "start_timestep",
-    "last_timestep",
-    "duration",
-    "user_id",
-    "ideal_duration",
-    "protocol",
-]
-merge_columns_intra = ["id", "start_timestep", "last_timestep", "duration"]
+merge_columns_inter = ["id","start_timestep","last_timestep","duration","user_id","ideal_duration","protocol",]
+merge_columns_intra = ["id","start_timestep", "last_timestep", "duration"]
 
 inter_df = (
     pd.merge(
@@ -61,13 +43,6 @@ inter_df = (
     .drop(columns=["id"])
     .sort_values(by="start_timestep")
 )
-intra_df = pd.merge(
-    intra_df,
-    baseline_data[merge_columns_intra],
-    left_on="_id",
-    right_on="id",
-    how="left",
-).drop(columns=["id"])
 
 
 baseline_random = []

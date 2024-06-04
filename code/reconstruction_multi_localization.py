@@ -169,5 +169,6 @@ multi_protocol_df["privacy_score"] = multi_protocol_df["duration"]/multi_protoco
 
 # print(multi_protocol_df)
 multi_data = multi_protocol_df.to_dict(orient='records')
-multi_protocol_df.to_csv('multi_protocol_localization.csv', index=False)
+multi_protocol_df.to_csv('csv/multi_protocol_localization.csv', index=False)
+md.db['reconstruction_multiproto_localization'].drop()
 md.db['reconstruction_multiproto_localization'].insert_many(multi_data)
