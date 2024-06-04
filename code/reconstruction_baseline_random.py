@@ -16,7 +16,6 @@ md = MongoDB()
 md.set_collection("inter_mappings")
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
-inter_temp_df = inter_df.rename(columns={'_id': 'intra_id'})
 print(list(inter_df.keys()))
 
 merge_columns= ["intra_id", "start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
@@ -24,16 +23,21 @@ merge_columns= ["intra_id", "start_timestep", "last_timestep", "duration", "user
 md.set_collection("baseline_intra_mappings")
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_df = pd.DataFrame(documents)
+if not set(merge_columns).issubset(intra_df.keys()):
+    inter_temp_df = inter_df.rename(columns={'_id': 'intra_id'})
+    intra_df = pd.merge(
+        pd.DataFrame(documents),
+        inter_temp_df[merge_columns],
+        left_on="_id",
+        right_on="intra_id",
+        how="left",
+    ).drop(columns=["intra_id"])
 
-intra_df = pd.merge(
-    intra_df,
-    inter_temp_df[merge_columns],
-    left_on="_id",
-    right_on="intra_id",
-    how="left",
-).drop(columns=["intra_id"])
+    md.db['baseline_intra_mappings'].drop()
+    md.db['baseline_intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
 
-del inter_temp_df
+    del inter_temp_df
+
 print(intra_df)
 # .drop(columns=["_id"])
 
