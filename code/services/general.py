@@ -10,6 +10,81 @@ from pprint import pprint
 import orjson
 import pandas as pd
 from shapely.geometry import Point, Polygon
+import concurrent.futures
+
+def process_mappings(m1, m2, visited_intra_list):
+    local_intra_potential_mapping = defaultdict(set)
+    for p1, ids1 in m1.items():
+        ''' Comparing with only same protocol types during intra mapping'''
+        if p1 not in m2:
+            continue
+        ids1_set = set(ids1)
+        ids2_set = set(m2[p1])
+        
+        if ids1_set.intersection(ids2_set):
+            t0_1 = ids1_set - ids2_set
+            t1_0 = ids2_set - ids1_set
+        
+            if t0_1 and t1_0:
+                for i in t0_1:
+                    common_set_for_i = visited_intra_list[i].intersection(t1_0)
+                    not_common_set = t1_0 - common_set_for_i
+                    # local_intra_potential_mapping[i] = set(local_intra_potential_mapping[i])
+                    local_intra_potential_mapping[i].update(not_common_set) 
+                     
+    return local_intra_potential_mapping
+
+def optimized_mapping_comparison(mapping0, mapping1, visited_intra_list, intra_potential_mapping):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_mapping = {
+            executor.submit(process_mappings, m1, m2, visited_intra_list): (m1, m2)
+            for m1 in mapping0 for m2 in mapping1
+        }
+
+        for future in concurrent.futures.as_completed(future_to_mapping):
+            result = future.result()
+            for key, value in result.items():
+                if key not in intra_potential_mapping:
+                    intra_potential_mapping[key] = set()
+                intra_potential_mapping[key].update(value)
+                
+    return visited_intra_list, intra_potential_mapping
+                
+                
+def combine_values(dicts, keys):
+    # Initialize a dictionary to hold combined sets for each key
+    combined_dict = {key: set() for key in keys}
+    
+    # Combine values for each key from all dictionaries
+    for d in dicts:
+        for key in keys:
+            combined_dict[key].update(d.get(key, []))
+    
+    return combined_dict
+
+def create_exclusion_set(combined_set, element):
+    return {item for item in combined_set if item != element}
+
+def combine_and_exclude_all(dicts, keys):
+    combined_dict = combine_values(dicts, keys)
+    
+    result_dict = {}
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_element = {}
+        
+        for key in keys:
+            combined_set = combined_dict[key]
+            for element in combined_set:
+                future = executor.submit(create_exclusion_set, combined_set, element)
+                future_to_element[future] = element
+        
+        for future in concurrent.futures.as_completed(future_to_element):
+            element = future_to_element[future]
+            result_dict[element] = future.result()
+    
+    return result_dict
+
 
 def remove_subsets(chains):
     chains_copy = sorted(chains, key=len, reverse=True)
