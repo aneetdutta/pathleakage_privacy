@@ -4,6 +4,7 @@ from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 from services.general import UnionFind
 import pandas as pd
+from env import TIMESTEPS
 import sys
 # import sys
 md = MongoDB()
@@ -16,25 +17,16 @@ md.set_collection("aggregate_timesteps")
 documents = md.collection.find()
 timestep_data = pd.DataFrame(documents)
 
-md.set_collection('intra_mappings')
+md.set_collection('intra_mappings_modified')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {}
 for document in documents:
     intra_data[document['_id']]= document['mapping'][0]
 intra_df = pd.DataFrame(documents)
-    
-# print(intra_data)
 
-# sys.exit()
-   
-md.set_collection('inter_mappings')
+md.set_collection('inter_mappings_modified')
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
-# inter_data = {}
-# for document in documents:
-#     inter_data[document['_id']] = document['mapping']
-
-# print(inter_data)
 
 md.set_collection('reconstruction_baseline')
 documents = md.collection.find()
@@ -89,6 +81,13 @@ for index, inter_row in inter_df.iterrows():
         print(chain)
         chain = chain[0]
         id1_df = inter_df[inter_df['_id'].isin(chain)]
+        count_timesteps = sum(id1_df[id1_df['_id'].isin(chain)]['last_timestep'] == TIMESTEPS)
+        # print(count_timesteps)
+        for id in reversed(chain):
+            if count_timesteps > 1 and id1_df[id1_df['_id'] == id]['last_timestep'].values[0] == TIMESTEPS:
+                chain.remove(id)
+                id1_df = id1_df[id1_df['_id'] != id]
+                count_timesteps -= 1
         min_start_timestep_id1 = id1_df['start_timestep'].min()
         max_last_timestep_id1 = id1_df['last_timestep'].max()        
         visited_set.update(set(chain))
@@ -114,6 +113,15 @@ for index, inter_row in inter_df.iterrows():
             chain = chain[0]
             ''' considering inter for search as it contains all id mappings '''
             id2_df = inter_df[inter_df['_id'].isin(chain)]
+            id2_df = id2_df.drop(columns=['mapping'])
+            count_timesteps = sum(id2_df[id2_df['_id'].isin(chain)]['last_timestep'] == TIMESTEPS)
+            # print(count_timesteps)
+            for id in reversed(chain):
+                if count_timesteps > 1 and id2_df[id2_df['_id'] == id]['last_timestep'].values[0] == TIMESTEPS:
+                    chain.remove(id)
+                    id2_df = id2_df[id2_df['_id'] != id]
+                    count_timesteps -= 1
+                    
             min_start_timestep_id2 = id2_df['start_timestep'].min()
             max_last_timestep_id2 = id2_df['last_timestep'].max()        
             visited_set.update(set(chain))  
@@ -154,76 +162,12 @@ multi_protocol_df.rename(columns={'protocol': 'protocol_id2'}, inplace=True)
 multi_protocol_df = multi_protocol_df[multi_protocol_df['user_id1'] == multi_protocol_df['user_id2']]
 multi_protocol_df.drop(columns=['user_id2'], inplace=True)
 multi_protocol_df.rename(columns={'user_id1': 'user_id'}, inplace=True)
-print(multi_protocol_df)
-
+# print(multi_protocol_df)
+unique_users_df2 = set(multi_protocol_df['user_id'])
+print(unique_users_df2)
 multi_protocol_df["privacy_score"] = multi_protocol_df["duration"]/multi_protocol_df["ideal_duration"]
 
-print(multi_protocol_df)
+# print(multi_protocol_df)
 multi_data = multi_protocol_df.to_dict(orient='records')
-multi_protocol_df.to_csv('multi_protocol.csv', index=False)
-md.db['reconstruction_multiproto'].insert_many(multi_data)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# inter_data_single_mapping: defaultdict[set] = defaultdict(set)
-
-# inter_mapping:set
-# for inter_id, inter_mapping in inter_data.items():
-#     inter_mapping = set(inter_mapping)
-#     for chain in intra_chains:
-#         if inter_mapping == set(chain):
-#             inter_data_single_mapping[inter_id].update(chain)
-        
-
-# print(len(inter_data_single_mapping))
-
-# # sys.exit()
-
-# ''' Creating group of same mappings '''
-# # inter_data_mapping = []
-# # for inter_id1, inter_mapping1 in inter_data_single_mapping.items():
-# #     for inter_id2, inter_mapping2 in inter_data_single_mapping.items():
-# #         if inter_id1 in inter_mapping2
-# # Add all elements to UnionFind and union them based on mappings
-# uf = UnionFind()
-
-# for key, mappings in inter_data_single_mapping.items():
-#     uf.add(key)
-#     for item in mappings:
-#         uf.add(item)
-#         uf.union(key, item)
-
-# # Create a dictionary to store the components
-# components = {}
-
-# # Find the root for each item and group them
-# for item in uf.parent:
-#     root = uf.find(item)
-#     if root not in components:
-#         components[root] = []
-#     components[root].append(item)
-
-# # Get the final list of merged components
-# result = list(components.values())
-
-# print(len(result))
-# # print(result)
-
-# sys.exit()
-
+multi_protocol_df.to_csv('multi_protocol_localization.csv', index=False)
+md.db['reconstruction_multiproto_localization'].insert_many(multi_data)
