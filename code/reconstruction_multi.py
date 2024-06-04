@@ -72,7 +72,7 @@ for index, inter_row in inter_df.iterrows():
         max_last_timestep_id1 = inter_row["last_timestep"]
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
-    print(inter_id, fetch_inter_mapping_timesteps)
+    # print(inter_id, fetch_inter_mapping_timesteps)
     temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
     
     # Filter the DataFrame to include only rows with the minimum start_timestep
@@ -84,6 +84,7 @@ for index, inter_row in inter_df.iterrows():
         # id2=intra_id1
         if intra_id1 in intra_data:
             chain = find_chain_for_key(intra_data, intra_id1, user_id)[0]
+            print(chain)
             ''' considering inter for search as it contains all id mappings '''
             id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
             min_start_timestep_id2 = id2_df['start_timestep'].min()
