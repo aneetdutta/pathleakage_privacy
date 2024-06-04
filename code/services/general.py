@@ -31,6 +31,10 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
         next_key, next_user_id = result
     else:
         next_key, next_user_id = None, None
+        
+    if next_user_id != user_id:
+        current_chain.remove(current_key)
+        
     if next_key and user_id==next_user_id:
         build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains, user_id=user_id)
     else:
