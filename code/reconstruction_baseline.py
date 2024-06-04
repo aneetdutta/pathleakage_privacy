@@ -101,32 +101,33 @@ wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
 lte_df.to_csv('csv/baseline_lte.csv', index=False)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 
-
 merge_columns= ["id","start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
 
-inter_df = (
-    pd.merge(
-        inter_df,
+if set(merge_columns).issubset(set(intra_df.keys())):
+    inter_df = (
+        pd.merge(
+            inter_df,
+            bl_df[merge_columns],
+            left_on="_id",
+            right_on="id",
+            how="left",
+        )
+        .drop(columns=["id"])
+        .sort_values(by="start_timestep")
+    )
+
+    intra_df = pd.merge(
+        intra_df,
         bl_df[merge_columns],
         left_on="_id",
         right_on="id",
         how="left",
-    )
-    .drop(columns=["id"])
-    .sort_values(by="start_timestep")
-)
-intra_df = pd.merge(
-    intra_df,
-    bl_df[merge_columns],
-    left_on="_id",
-    right_on="id",
-    how="left",
-).drop(columns=["id"])
+    ).drop(columns=["id"])
 
-md.db['inter_mappings'].drop()
-md.db['inter_mappings'].insert_many(inter_df.to_dict(orient='records'))
-md.db['intra_mappings'].drop()
-md.db['intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
+    md.db['inter_mappings'].drop()
+    md.db['inter_mappings'].insert_many(inter_df.to_dict(orient='records'))
+    md.db['intra_mappings'].drop()
+    md.db['intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
 
 bl_data = bl_df.to_dict(orient='records')
 md.db['reconstruction_baseline'].drop()

@@ -13,16 +13,36 @@ ml = MyLogger("reconstruction_baseline_random")
 # import sys
 md = MongoDB()
 
-md.set_collection("baseline_intra_mappings")
-documents = list(md.collection.find({"mapping": {"$size": 1}}))
-intra_data = {}
-for document in documents:
-    intra_data[document["_id"]] = document["mapping"][0]
-
 md.set_collection("inter_mappings")
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
+inter_temp_df = inter_df.rename(columns={'_id': 'intra_id'})
+print(list(inter_df.keys()))
 
+merge_columns= ["intra_id", "start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
+
+md.set_collection("baseline_intra_mappings")
+documents = list(md.collection.find({"mapping": {"$size": 1}}))
+intra_df = pd.DataFrame(documents)
+
+intra_df = pd.merge(
+    intra_df,
+    inter_temp_df[merge_columns],
+    left_on="_id",
+    right_on="intra_id",
+    how="left",
+).drop(columns=["intra_id"])
+
+del inter_temp_df
+print(intra_df)
+# .drop(columns=["_id"])
+
+intra_data = {}
+print(list(intra_df.keys()))
+for index, intra_row in intra_df.iterrows():
+    intra_data[intra_row["_id"]] = (intra_row["mapping"][0], intra_row["user_id"])
+
+print(intra_data)
 md.set_collection("reconstruction_baseline")
 documents = md.collection.find()
 baseline_data = pd.DataFrame(documents)
@@ -37,6 +57,7 @@ baseline_random = []
 visited_set = set()
 for index, inter_row in inter_df.iterrows():
     inter_id = inter_row["_id"]
+    user_id = inter_row["user_id"]
 
     ml.logger.info(f'{index}, {inter_id}, {inter_row["user_id"]}, {inter_row["protocol"]}')
 
@@ -45,7 +66,8 @@ for index, inter_row in inter_df.iterrows():
     visited_set.add(inter_id)
     
     if inter_id in intra_data:
-        chain = find_chain_for_key(intra_data, inter_id)
+        
+        chain = find_chain_for_key(intra_data, inter_id, user_id)
         """ chain is ordered - assuming"""
         # print(chain)
         chain = chain[0]
