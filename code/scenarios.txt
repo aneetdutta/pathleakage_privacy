@@ -1,0 +1,9 @@
+Normal scenario - Randomzaton in real world
+bluetooth, wifi, lte
+1,1,1
+1,5,10
+1,5,20
+1,5,78
+
+All randomizing at same time -
+1,5,10

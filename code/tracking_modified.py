@@ -1,7 +1,7 @@
 from modules.device import Device
 from modules.devicemanager import DeviceManager
 from services.general import *
-from services.tracking_algorithm import tracking_algorithm
+from services.tracking_algorithm_modified import tracking_algorithm_modified
 from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
@@ -23,6 +23,7 @@ intra_potential_mapping: defaultdict[set] = defaultdict(set)
 inter_potential_mapping: defaultdict[set] = defaultdict(set)
 visited_inter_list: defaultdict[set] = defaultdict(set)
 visited_intra_list: defaultdict[set] = defaultdict(set)
+intra_mapping_checker: set = set()
 
 intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
 inter_potential_mapping_list = convert_sets_to_lists(inter_potential_mapping)
@@ -43,7 +44,7 @@ for timestep_pair in timestep_pairs:
     timestep = two_timestep_data[1][0]
     print(timestep)
         
-    intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list  =  tracking_algorithm(two_timestep_data, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_inter_list=visited_inter_list, visited_intra_list=visited_intra_list)
+    intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list, intra_mapping_checker  =  tracking_algorithm_modified(two_timestep_data, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_inter_list=visited_inter_list, visited_intra_list=visited_intra_list, intra_mapping_checker=intra_mapping_checker)
     
     # Convert sets to lists in intra_potential_mapping
     intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
@@ -61,36 +62,34 @@ for timestep_pair in timestep_pairs:
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
-            
-    # if int(timestep) > 18007:
-    #     break
-md.db['intra_mappings'].drop()
-md.db['inter_mappings'].drop()
-md.db['visited_inter_list'].drop()
-md.db['visited_intra_list'].drop()
+
+md.db['intra_mappings_modified'].drop()
+md.db['inter_mappings_modified'].drop()
+md.db['visited_inter_list_modified'].drop()
+md.db['visited_intra_list_modified'].drop()
 
 for i, j in intra_potential_mapping_list.items():
-    result = md.db['intra_mappings'].update_one(
+    result = md.db['intra_mappings_modified'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 
 for i, j in inter_potential_mapping_list.items():
-    result = md.db['inter_mappings'].update_one(
+    result = md.db['inter_mappings_modified'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
     
 for i, j in visited_inter_mapping_list.items():
-    result = md.db['visited_inter_list'].update_one(
+    result = md.db['visited_inter_list_modified'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_intra_list'].update_one(
+    result = md.db['visited_intra_list_modified'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter

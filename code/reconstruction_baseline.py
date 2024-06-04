@@ -31,38 +31,49 @@ c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_i
 
 ''' Baseline single protocol'''
 
+
+
+
+
+''' Preprocessing timestep data '''
+timestep_dict = {}
+for index, row in timestep_data.iterrows():
+    for id in row["ids"]:
+        if id not in timestep_dict:
+            timestep_dict[id] = {"start_timestep": row["timestep"], "last_timestep": row["timestep"]}
+        else:
+            timestep_dict[id]["last_timestep"] = row["timestep"]
+            
+
+''' Preprocessing user data '''
+user_info_dict = {}
+for index, row in user_df.iterrows():
+    for protocol in ['lte', 'wifi', 'bluetooth']:
+        ids_column = f"{protocol}_ids"
+        for id in row[ids_column]:
+            user_info_dict[id] = {
+                "user_id": row["user_id"],
+                "ideal_duration": row["duration"],
+                "protocol": protocol
+            }
+
+
+
 # baseline_data: defaultdict[list] = defaultdict(list)
 # different_id = []
 baseline = []
-for id, mapping in inter_data.items():
-    first_row = True
-    baseline_ = {"id": id, "start_timestep": "", "last_timestep": "", "user_id": "", "ideal_duration": "", "protocol": ""}
-    for index, row in timestep_data.iterrows():
-        if id in row["ids"] and first_row:
-            baseline_["start_timestep"] = row["timestep"]
-            first_row = False
-            
-        if id in row["ids"] and not first_row:
-            baseline_["last_timestep"] = row["timestep"]
-            
-    for index, row in user_df.iterrows():
-        if id in row["lte_ids"]:
-            baseline_["user_id"] = row["user_id"]
-            baseline_["ideal_duration"] = row["duration"]
-            baseline_["protocol"] = "lte"
-            break
-        if id in row["wifi_ids"]:
-            baseline_["user_id"] = row["user_id"]
-            baseline_["ideal_duration"] = row["duration"]
-            baseline_["protocol"] = "wifi"
-            break
-        if id in row["bluetooth_ids"]:
-            baseline_["user_id"] = row["user_id"]
-            baseline_["ideal_duration"] = row["duration"]
-            baseline_["protocol"] = "bluetooth"
-            break
-    
-    # if baseline_["start_timestep"] and baseline_["last_timestep"]:
+i=0
+for id in inter_data.keys():
+    print(i)
+    i+=1
+    baseline_ = {
+        "id": id,
+        "start_timestep": timestep_dict.get(id, {}).get("start_timestep", ""),
+        "last_timestep": timestep_dict.get(id, {}).get("last_timestep", ""),
+        "user_id": user_info_dict.get(id, {}).get("user_id", ""),
+        "ideal_duration": user_info_dict.get(id, {}).get("ideal_duration", ""),
+        "protocol": user_info_dict.get(id, {}).get("protocol", "")
+    }
     baseline.append(baseline_)
     # else:
     #     different_id.append(id)
