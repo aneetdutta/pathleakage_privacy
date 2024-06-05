@@ -99,7 +99,7 @@ def combine_and_exclude_all(dicts, keys, result_dict=None):
                 result_dict[element].update(exclusion_set)
     
     # Convert sets back to lists for the final result
-    result_dict = {key: list(value) for key, value in result_dict.items()}
+    # result_dict = {key: list(value) for key, value in result_dict.items()}
     
     return result_dict
 
