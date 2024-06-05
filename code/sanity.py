@@ -215,7 +215,7 @@ for index, row in user_data.iterrows():
         
 print("Total Users", total_users)
 
-print("\nTotal Untracked LTE Intra users", len(untracked_intra_lte_users))
+print("\nTotal Untracked (Not randomized) LTE Intra users", len(untracked_intra_lte_users))
 print("Total Untracked LTE Inter users", len(untracked_inter_lte_users))
 
 print("Total LTE Intra tracked users ", len(tracked_intra_lte_users))
@@ -226,7 +226,7 @@ print("\nTotal LTE Intra mappings: ", len(lte_intra_total_mapping))
 print("Total LTE Intra single mappings: ", len(lte_intra__single_mapping))
 print("Total LTE Intra multiple mappings: ", len(lte_intra__multiple_mapping))
 
-print("\nTotal Untracked WIFI Intra users", len(untracked_intra_wifi_users))
+print("\nTotal Untracked (Not Randomized) WIFI Intra users", len(untracked_intra_wifi_users))
 print("Total Untracked WIFI Inter users", len(untracked_inter_wifi_users))
 
 print("\nTotal Wifi Intra tracked users ", len(tracked_intra_wifi_users))
