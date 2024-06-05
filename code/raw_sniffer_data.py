@@ -33,16 +33,16 @@ try:
     for user_data in raw_user_data:
         # print(user_data["timestep"])
         for sniffer in sniffers:
-            detected_users.extend(
-                sniffer.detect_raw_users(
+            a = sniffer.detect_raw_users(
                     timestep=user_data["timestep"],
                     user_id=user_data["user_id"],
                     user_location=user_data["location"],
                     user_lte_id=user_data["lte_id"],
                     user_wifi_id=user_data["wifi_id"],
+                    user_bluetooth_id=user_data["bluetooth_id"]
                 )
-            )
-            
+            if a:
+                detected_users.extend(a)
 
     traci.close()
 
@@ -54,7 +54,6 @@ except Exception as e:
 
 
 print("Total time take to fetch sniffer_data from user_data: ", time.time()-now)
-
 
 sniffed_file = "sniffed_data.json"
 

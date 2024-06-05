@@ -63,38 +63,35 @@ for timestep_pair in timestep_pairs:
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
-            
-    if int(timestep) > 18177:
-        break
+
     
-    
-md.db['intra_mappings_128'].drop()
-md.db['inter_mappings_128'].drop()
-md.db['visited_inter_list_128'].drop()
-md.db['visited_intra_list_128'].drop()
+md.db['intra_mappings'].drop()
+md.db['inter_mappings'].drop()
+md.db['visited_inter_list'].drop()
+md.db['visited_intra_list'].drop()
 
 for i, j in intra_potential_mapping_list.items():
-    result = md.db['intra_mappings_128'].update_one(
+    result = md.db['intra_mappings'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 
 for i, j in inter_potential_mapping_list.items():
-    result = md.db['inter_mappings_128'].update_one(
+    result = md.db['inter_mappings'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
     
 for i, j in visited_inter_mapping_list.items():
-    result = md.db['visited_inter_list_128'].update_one(
+    result = md.db['visited_inter_list'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_intra_list_128'].update_one(
+    result = md.db['visited_intra_list'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter

@@ -89,7 +89,7 @@ for id in inter_data.keys():
 ml.logger.info("Baseline iteration completed")
 
 bl_df = pd.DataFrame(baseline)
-# print(bl_df.to_string())
+print(bl_df.to_string())
 # non_numeric_rows = bl_df[bl_df['last_timestep'].isna()]
 
 # print("Rows with non-numeric values in 'last_timestep':")
@@ -99,6 +99,8 @@ bl_df['start_timestep'] = bl_df['start_timestep'].astype(float)
 bl_df["duration"] = bl_df["last_timestep"] - bl_df["start_timestep"]
 bl_df['privacy_score'] = bl_df.apply(calculate_privacy_score, axis=1)
 ml.logger.info("Privacy score calculated")
+
+bluetooth_df = bl_df[bl_df['protocol'] == 'bluetooth'].reset_index(drop=True)
 wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
 lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
@@ -108,14 +110,20 @@ idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
 wifi_df = wifi_df.loc[idx].reset_index(drop=True)
 
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
-
 lte_df = lte_df.loc[idx].reset_index(drop=True)
+
+idx = bluetooth_df.groupby('user_id')['privacy_score'].idxmax()
+bluetooth_df = bluetooth_df.loc[idx].reset_index(drop=True)
+
 ml.logger.info("Saving WIFI and LTE csv")
 wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
 wifi_data = wifi_df.to_dict(orient='records')
 md.db['reconstruction_baseline'].insert_many(wifi_data)
 lte_df.to_csv('csv/baseline_lte.csv', index=False)
 lte_data = lte_df.to_dict(orient='records')
+bluetooth_df.to_csv('csv/baseline_bluetooth.csv', index=False)
+bluetooth_data = bluetooth_df.to_dict(orient='records')
+
 md.db['reconstruction_baseline'].insert_many(lte_data)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 

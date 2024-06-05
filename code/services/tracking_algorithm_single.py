@@ -24,7 +24,7 @@ def tracking_algorithm_single(two_timestep_data, intra_potential_mapping: defaul
     
     ''' Loop through mapping 0 and then loop through mapping 1'''
     ''' Picking id from one group and adding other groups to visited list of id'''
-    keys = ["LTE", "WiFi"]
+    keys = ["LTE", "WiFi", "Bluetooth"]
     visited_intra_list = combine_and_exclude_all(mapping0, keys, visited_intra_list)
     # m1: dict
     # for m1 in mapping0:

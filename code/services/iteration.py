@@ -57,7 +57,7 @@ def user_data_generate(p_ids:deque, users:dict, timestep:float, usr_data: deque)
                 "timestep": timestep,
                 "user_id": user.user_id,
                 "location": user.location,
-                # "bluetooth_id": user.bluetooth_id,
+                "bluetooth_id": user.bluetooth_id,
                 "wifi_id": user.wifi_id,
                 "lte_id": user.lte_id,
             })
