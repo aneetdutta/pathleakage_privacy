@@ -23,11 +23,9 @@ echo "Reconstructing user data"
 python3 reconstruction_user_data.py
 echo "Calculated duration of user as per sniffed data"
 
-
 echo "Grouping"
 python3 group_parallel.py
 echo "Performed grouping operations"
-
 
 python3 group_checker.py
 echo "Checked group data"
@@ -36,9 +34,21 @@ echo "Executed tracking algorithm"
 python3 tracking.py
 echo "Performed Tracking operation"
 
+echo "Performing smart tracking algorithm"
+python3 tracking_single.py
+echo "Performed Tracking operation"
+
 python3 sanity.py
 echo "Performed Sanity check"
 
 python3 reconstruction_baseline.py
 echo "Performed Baseline Reconstruction"
 
+python3 reconstruction_baseline_random.py
+echo "Performed Baseline Reconstruction"
+
+python3 reconstruction_multi.py
+echo "Performed Multi Reconstruction"
+
+python3 plot_reconstruction.py
+echo "Performed Multi Reconstruction"

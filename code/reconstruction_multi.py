@@ -11,12 +11,12 @@ md = MongoDB()
 from modules.logger import MyLogger
 ml = MyLogger("reconstruction_multiprotocol")
 
-md.set_collection('intra_mappings')
+md.set_collection('modified_intra_mappings')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {document['_id']: (document['mapping'][0], document["user_id"]) for document in documents}
 intra_df = pd.DataFrame(documents)
 
-md.set_collection('inter_mappings')
+md.set_collection('modified_inter_mappings')
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
 
@@ -131,7 +131,7 @@ multi_protocol_df.rename(columns={'protocol': 'protocol_id2'}, inplace=True)
 # multi_protocol_df.drop(columns=['user_id2'], inplace=True)
 # multi_protocol_df.rename(columns={'user_id1': 'user_id'}, inplace=True)
 
-multi_protocol_df["privacy_score"] = multi_protocol_df["duration"]/multi_protocol_df["ideal_duration"]
+multi_protocol_df['privacy_score'] = multi_protocol_df.apply(calculate_privacy_score, axis=1)
 
 multi_data = multi_protocol_df.to_dict(orient='records')
 # print(multi_protocol_df.to_string())

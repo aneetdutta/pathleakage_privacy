@@ -12,6 +12,13 @@ import pandas as pd
 from shapely.geometry import Point, Polygon
 import concurrent.futures
 
+
+def calculate_privacy_score(row):
+    if row['duration'] == 0 and row['ideal_duration'] == 0:
+        return 1
+    else:
+        return row['duration'] / row['ideal_duration']
+
 def process_mappings(m1, m2, visited_intra_list):
     local_intra_potential_mapping = defaultdict(set)
     for p1, ids1 in m1.items():
@@ -50,7 +57,6 @@ def optimized_mapping_comparison(mapping0, mapping1, visited_intra_list, intra_p
                 
     return visited_intra_list, intra_potential_mapping
                 
-                
 def combine_values(dicts, keys):
     # Initialize a dictionary to hold combined sets for each key
     combined_dict = {key: set() for key in keys}
@@ -66,32 +72,68 @@ def create_exclusion_set(combined_set, element):
     return {item for item in combined_set if item != element}
 
 def combine_and_exclude_all(dicts, keys, result_dict=None):
-    combined_dict = combine_values(dicts, keys)
+    # Initialize a dictionary to hold combined sets for each key
+    combined_dict = {key: set() for key in keys}
+    
+    # Combine values for each key from all dictionaries
+    for d in dicts:
+        for key in keys:
+            combined_dict[key].update(d.get(key, []))
+    
+    # Initialize result_dict if not provided
     if result_dict is None:
         result_dict = {}
     else:
+        # Ensure existing result_dict values are sets
         for key in result_dict:
-            result_dict[key]= set(result_dict[key])
+            result_dict[key] = set(result_dict[key])
     
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_to_element = {}
-        
-        for key in keys:
-            combined_set = combined_dict[key]
-            for element in combined_set:
-                future = executor.submit(create_exclusion_set, combined_set, element)
-                future_to_element[future] = element
-        
-        for future in concurrent.futures.as_completed(future_to_element):
-            element = future_to_element[future]
-            exclusion_set = future.result()
+    # Create the final dictionary with each element as key and the set without that element as value
+    for key in keys:
+        combined_list = list(combined_dict[key])
+        for element in combined_list:
+            exclusion_set = {item for item in combined_list if item != element}
             if element not in result_dict:
                 result_dict[element] = exclusion_set
             else:
                 result_dict[element].update(exclusion_set)
     
+    # Convert sets back to lists for the final result
+    # result_dict = {key: list(value) for key, value in result_dict.items()}
+    
     return result_dict
 
+# def combine_and_exclude_all(dicts, keys, result_dict=None):
+#     combined_dict = combine_values(dicts, keys)
+    
+#     if result_dict is None:
+#         result_dict = {}
+#     else:
+#         # Ensure existing result_dict values are sets
+#         for key in result_dict:
+#             result_dict[key] = set(result_dict[key])
+    
+#     with concurrent.futures.ThreadPoolExecutor() as executor:
+#         future_to_element = {}
+        
+#         for key in keys:
+#             combined_set = combined_dict[key]
+#             for element in combined_set:
+#                 future = executor.submit(create_exclusion_set, combined_set, element)
+#                 future_to_element[future] = element
+        
+#         for future in concurrent.futures.as_completed(future_to_element):
+#             element = future_to_element[future]
+#             exclusion_set = future.result()
+#             if element not in result_dict:
+#                 result_dict[element] = exclusion_set
+#             else:
+#                 result_dict[element].update(exclusion_set)
+    
+#     # Convert sets back to lists for the final result
+#     result_dict = {key: value for key, value in result_dict.items()}
+    
+#     return result_dict
 
 def remove_subsets(chains):
     chains_copy = sorted(chains, key=len, reverse=True)
@@ -110,6 +152,7 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
 
     result = data.get(current_key)
     if result:
+        # print(result, "result")
         next_key, next_user_id = result
     else:
         next_key, next_user_id = None, None

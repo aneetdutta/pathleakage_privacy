@@ -69,7 +69,9 @@ baseline = []
 i=0
 for id in inter_data.keys():
     print(i)
+    ml.logger.info(f"{id} - i")
     i+=1
+    # try:
     baseline_ = {
         "id": id,
         "start_timestep": timestep_dict.get(id, {}).get("start_timestep", ""),
@@ -78,23 +80,35 @@ for id in inter_data.keys():
         "ideal_duration": user_info_dict.get(id, {}).get("ideal_duration", ""),
         "protocol": user_info_dict.get(id, {}).get("protocol", "")
     }
+    # except:
+    #     # print(id, "hello")
+    #     raise Exception
+
     baseline.append(baseline_)
 
 ml.logger.info("Baseline iteration completed")
 
 bl_df = pd.DataFrame(baseline)
+# print(bl_df.to_string())
+# non_numeric_rows = bl_df[bl_df['last_timestep'].isna()]
+
+# print("Rows with non-numeric values in 'last_timestep':")
+# print(non_numeric_rows)
 bl_df['last_timestep'] = bl_df['last_timestep'].astype(float)
 bl_df['start_timestep'] = bl_df['start_timestep'].astype(float)
 bl_df["duration"] = bl_df["last_timestep"] - bl_df["start_timestep"]
-bl_df["privacy_score"] = bl_df["duration"]/bl_df["ideal_duration"]
+bl_df['privacy_score'] = bl_df.apply(calculate_privacy_score, axis=1)
 ml.logger.info("Privacy score calculated")
 wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
 lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
+# print(wifi_df.to_string())
 idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
+# print(idx.to_string())
 wifi_df = wifi_df.loc[idx].reset_index(drop=True)
 
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
+
 lte_df = lte_df.loc[idx].reset_index(drop=True)
 ml.logger.info("Saving WIFI and LTE csv")
 wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
@@ -107,7 +121,7 @@ ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 
 merge_columns= ["id","start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
 
-if set(merge_columns).issubset(set(intra_df.keys())):
+if not set(merge_columns).issubset(set(intra_df.keys())):
     inter_df = (
         pd.merge(
             inter_df,
@@ -128,10 +142,10 @@ if set(merge_columns).issubset(set(intra_df.keys())):
         how="left",
     ).drop(columns=["id"])
 
-    md.db['inter_mappings'].drop()
-    md.db['inter_mappings'].insert_many(inter_df.to_dict(orient='records'))
-    md.db['intra_mappings'].drop()
-    md.db['intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
+    md.db['modified_inter_mappings'].drop()
+    md.db['modified_inter_mappings'].insert_many(inter_df.to_dict(orient='records'))
+    md.db['modified_intra_mappings'].drop()
+    md.db['modified_intra_mappings'].insert_many(intra_df.to_dict(orient='records'))
 
 bl_data = bl_df.to_dict(orient='records')
 md.db['reconstruction_baseline'].drop()
