@@ -36,7 +36,7 @@ def tracking_algorithm_single(
 
     keys = ["LTE", "WiFi"]
 
-    visited_intra_list = combine_and_exclude_all(mapping0, keys)
+    visited_intra_list = combine_and_exclude_all(mapping0, keys, visited_intra_list)
 
     # m1: dict
     # for m1 in mapping0:
@@ -54,34 +54,34 @@ def tracking_algorithm_single(
     #                         visited_intra_list[id1].update(set(ids2))
 
     """ Step 2: If id not in visited list, check localization and then add it to the potential mapping """
-    visited_intra_list, intra_potential_mapping = optimized_mapping_comparison(
-        mapping0=mapping0,
-        mapping1=mapping1,
-        visited_intra_list=visited_intra_list,
-        intra_potential_mapping=intra_potential_mapping,
-    )
-    # for m1 in mapping0:
-    #     ''' Loop through mapping 0 and mapping 1 '''
-    #     for m2 in mapping1:
-    #         ''' Compare protocols and identifiers '''
+    # visited_intra_list, intra_potential_mapping = optimized_mapping_comparison(
+    #     mapping0=mapping0,
+    #     mapping1=mapping1,
+    #     visited_intra_list=visited_intra_list,
+    #     intra_potential_mapping=intra_potential_mapping,
+    # )
+    for m1 in mapping0:
+        ''' Loop through mapping 0 and mapping 1 '''
+        for m2 in mapping1:
+            ''' Compare protocols and identifiers '''
 
-    # for p1, ids1 in m1.items():
-    #     ''' Comparing with only same protocol types during intra mapping'''
-    #     if p1 not in m2:
-    #         continue
-    #     ids1:set = set(ids1)
-    #     ids2:set = set(m2[p1])
+            for p1, ids1 in m1.items():
+                ''' Comparing with only same protocol types during intra mapping'''
+                if p1 not in m2:
+                    continue
+                ids1:set = set(ids1)
+                ids2:set = set(m2[p1])
 
-    #     if ids1.intersection(ids2):
-    #         t0_1 = ids1 - ids2
-    #         t1_0 = ids2 - ids1
-    #         not_common_set = set()
-    #         common_set_for_i = set()
-    #         if t0_1 and t1_0:
-    #             for i in t0_1:
-    #                 common_set_for_i = visited_intra_list[i].intersection(t1_0)
-    #                 not_common_set.update(t1_0 - common_set_for_i)
-    #                 intra_potential_mapping[i] = set(intra_potential_mapping[i])
-    #                 intra_potential_mapping[i].update(not_common_set)
+                if ids1.intersection(ids2):
+                    t0_1 = ids1 - ids2
+                    t1_0 = ids2 - ids1
+                    not_common_set = set()
+                    common_set_for_i = set()
+                    if t0_1 and t1_0:
+                        for i in t0_1:
+                            common_set_for_i = visited_intra_list[i].intersection(t1_0)
+                            not_common_set.update(t1_0 - common_set_for_i)
+                            intra_potential_mapping[i] = set(intra_potential_mapping[i])
+                            intra_potential_mapping[i].update(not_common_set)
 
     return intra_potential_mapping, visited_intra_list

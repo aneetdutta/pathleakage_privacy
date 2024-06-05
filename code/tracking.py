@@ -5,9 +5,11 @@ from services.tracking_algorithm import tracking_algorithm
 from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
+from modules.logger import MyLogger
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
+ml = MyLogger("tracking_128")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -41,7 +43,7 @@ for timestep_pair in timestep_pairs:
         two_timestep_data.append((document['timestep'], document['grouped_data']))
     
     timestep = two_timestep_data[1][0]
-    print(timestep)
+    ml.logger.info(timestep)
         
     intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list  =  tracking_algorithm(two_timestep_data, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_inter_list=visited_inter_list, visited_intra_list=visited_intra_list)
     
@@ -62,35 +64,37 @@ for timestep_pair in timestep_pairs:
                 upsert=True  # Create a new document if no document matches the filter
             )
             
-    # if int(timestep) > 18007:
-    #     break
-md.db['intra_mappings'].drop()
-md.db['inter_mappings'].drop()
-md.db['visited_inter_list'].drop()
-md.db['visited_intra_list'].drop()
+    if int(timestep) > 18177:
+        break
+    
+    
+md.db['intra_mappings_128'].drop()
+md.db['inter_mappings_128'].drop()
+md.db['visited_inter_list_128'].drop()
+md.db['visited_intra_list_128'].drop()
 
 for i, j in intra_potential_mapping_list.items():
-    result = md.db['intra_mappings'].update_one(
+    result = md.db['intra_mappings_128'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 
 for i, j in inter_potential_mapping_list.items():
-    result = md.db['inter_mappings'].update_one(
+    result = md.db['inter_mappings_128'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
     
 for i, j in visited_inter_mapping_list.items():
-    result = md.db['visited_inter_list'].update_one(
+    result = md.db['visited_inter_list_128'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_intra_list'].update_one(
+    result = md.db['visited_intra_list_128'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter

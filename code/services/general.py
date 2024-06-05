@@ -65,10 +65,13 @@ def combine_values(dicts, keys):
 def create_exclusion_set(combined_set, element):
     return {item for item in combined_set if item != element}
 
-def combine_and_exclude_all(dicts, keys):
+def combine_and_exclude_all(dicts, keys, result_dict=None):
     combined_dict = combine_values(dicts, keys)
-    
-    result_dict = {}
+    if result_dict is None:
+        result_dict = {}
+    else:
+        for key in result_dict:
+            result_dict[key]= set(result_dict[key])
     
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_element = {}
@@ -81,7 +84,11 @@ def combine_and_exclude_all(dicts, keys):
         
         for future in concurrent.futures.as_completed(future_to_element):
             element = future_to_element[future]
-            result_dict[element] = future.result()
+            exclusion_set = future.result()
+            if element not in result_dict:
+                result_dict[element] = exclusion_set
+            else:
+                result_dict[element].update(exclusion_set)
     
     return result_dict
 
