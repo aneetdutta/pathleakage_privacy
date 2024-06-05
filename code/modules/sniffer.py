@@ -33,14 +33,14 @@ class Sniffer:
         detected_users = [None] * 3
         index = 0
 
-        # if distance <= self.bluetooth_range:
-        #     detected_users[index] = {
-        #         **common_info,
-        #         # "_id": ObjectId(),
-        #         "protocol": "Bluetooth",
-        #         "bluetooth_id": user.bluetooth_id,
-        #     }
-        #     index += 1
+        if distance <= self.bluetooth_range:
+            detected_users[index] = {
+                **common_info,
+                # "_id": ObjectId(),
+                "protocol": "Bluetooth",
+                "bluetooth_id": user.bluetooth_id,
+            }
+            index += 1
 
         if distance <= self.wifi_range:
             detected_users[index] = {
@@ -81,14 +81,14 @@ class Sniffer:
         detected_users = [None] * 3
         index = 0
 
-        # if distance <= self.bluetooth_range:
-        #     detected_users[index] = {
-        #         **common_info,
-        #         # "_id": ObjectId(),
-        #         "protocol": "Bluetooth",
-        #         "bluetooth_id": user_bluetooth_id,
-        #     }
-        #     index += 1
+        if distance <= self.bluetooth_range:
+            detected_users[index] = {
+                **common_info,
+                # "_id": ObjectId(),
+                "protocol": "Bluetooth",
+                "bluetooth_id": user_bluetooth_id,
+            }
+            index += 1
 
         if distance <= self.wifi_range:
             detected_users[index] = {

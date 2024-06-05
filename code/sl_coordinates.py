@@ -20,7 +20,7 @@ polygon = ShapelyPolygon(polygon_coords)
 min_x, min_y, max_x, max_y = polygon.bounds
 
 # Radius of circles
-radius = 30
+radius = 10
 hex_height = radius * np.sqrt(3)
 hex_width = 2 * radius
 horiz_spacing = hex_width * 3/4

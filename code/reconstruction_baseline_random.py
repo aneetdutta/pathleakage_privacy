@@ -98,9 +98,8 @@ baseline_random_df = pd.DataFrame(baseline_random)
 
 baseline_random_df["privacy_score"] = baseline_random_df["duration"]/baseline_random_df["ideal_duration"]
 
-
+bluetooth_df = baseline_random_df[baseline_random_df['protocol'] == 'bluetooth'].reset_index(drop=True)
 wifi_df = baseline_random_df[baseline_random_df['protocol'] == 'wifi'].reset_index(drop=True)
-# print(list(wifi_df["user_id"]))
 lte_df = baseline_random_df[baseline_random_df['protocol'] == 'lte'].reset_index(drop=True)
 
 idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
@@ -108,6 +107,9 @@ wifi_df = wifi_df.loc[idx].reset_index(drop=True)
 
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
 lte_df = lte_df.loc[idx].reset_index(drop=True)
+
+idx = bluetooth_df.groupby('user_id')['privacy_score'].idxmax()
+bluetooth_df = bluetooth_df.loc[idx].reset_index(drop=True)
 
 unique_users_df1 = set(wifi_df['user_id'])
 unique_users_df2 = set(lte_df['user_id'])
@@ -122,6 +124,7 @@ print("Missing user in df2:", missing_user_in_df2)
 
 wifi_df.to_csv('csv/baseline_random_wifi.csv', index=False)
 lte_df.to_csv('csv/baseline_random_lte.csv', index=False)
+bluetooth_df.to_csv('csv/baseline_random_bluetooth.csv', index=False)
 
 # bl_data = baseline_random_df.to_dict(orient='records')
 # md.db['reconstruction_baseline'].drop()
