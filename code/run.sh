@@ -1,18 +1,18 @@
-mongosh --eval "db.getSiblingDB('code').dropDatabase()"
-echo "Dropped 'code' database"
+mongosh --eval "db.getSiblingDB('scenarioble').dropDatabase()"
+echo "Dropped 'scenarioble' database"
 
-python3 raw_user_data.py
-echo "Generated raw user data"
+# python3 raw_user_data.py
+# echo "Generated raw user data"
 
 echo "Generating sniffer data"
 python3 raw_sniffer_data_parallel.py
 echo "Generated raw sniffer data"
 
 # python3 sumo_simulation.py
-mongoimport --host localhost --port 27017 --db code --collection sniffed_data --type json --file sniffed_data.json --jsonArray
+mongoimport --host localhost --port 27017 --db scenarioble --collection sniffed_data --type json --file sniffed_data.json --jsonArray
 echo "Imported sniffed data into MongoDB"
 
-mongoimport --host localhost --port 27017 --db code --collection user_data --type json --file user_data.json --jsonArray
+mongoimport --host localhost --port 27017 --db scenarioble --collection user_data --type json --file user_data.json --jsonArray
 echo "Imported user data into MongoDB"
 
 echo "Performing aggregation"
@@ -47,8 +47,8 @@ echo "Performed Baseline Reconstruction"
 python3 reconstruction_baseline_random.py
 echo "Performed Baseline Reconstruction"
 
-python3 reconstruction_multi.py
-echo "Performed Multi Reconstruction"
+# python3 reconstruction_multi.py
+# echo "Performed Multi Reconstruction"
 
-python3 plot_reconstruction.py
-echo "Performed Multi Reconstruction"
+# python3 plot_reconstruction.py
+# echo "Performed Multi Reconstruction"

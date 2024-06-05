@@ -7,11 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-<<<<<<< HEAD
-TIMESTEPS = 19400
-=======
-TIMESTEPS = 18150
->>>>>>> 7f1a1abb85ade31031fc473b991bd8e233b0c990
+TIMESTEPS = 18363
 
 #-------------------------#
 #   Movement Parameters   #
@@ -31,8 +27,8 @@ PAUSE_DURATION_MAX = 5
 # Next refresh is always drawn from the intervals specified below
 
 # Bluetooth IDs refresh range uniform (in s)
-BLUETOOTH_MIN_REFRESH = 10*60 
-BLUETOOTH_MAX_REFRESH = 45*60
+BLUETOOTH_MIN_REFRESH = 200
+BLUETOOTH_MAX_REFRESH = 450
 
 # WifI ID refresh range uniform (in s)
 WIFI_MIN_REFRESH = 2*60
@@ -57,8 +53,8 @@ SUMO_BIN_PATH = "/usr/bin/"
 sumo_binary = "sumo"
 common_path = "/MoSTScenario/scenario/most.sumocfg"
 
-SUMO_CFG_FILE = f"/home/anonymous{common_path}"
-# SUMO_CFG_FILE = f"/home/aneet_wisec/privacy_cispa{common_path}"
+# SUMO_CFG_FILE = f"/home/anonymous{common_path}"
+SUMO_CFG_FILE = f"/home/aneet_wisec/privacy_cispa{common_path}"
 # SUMO_CFG_FILE = f"/home/wisec{common_path}"
 
 DELTA_P = 2
