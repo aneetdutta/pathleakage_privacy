@@ -12,13 +12,12 @@ from modules.logger import MyLogger
 ml = MyLogger("reconstruction_multiprotocol")
 
 md.set_collection('modified_intra_mappings')
-documents = list(md.collection.find())
-intra_data = {document['_id']: document['mapping'] for document in documents}
+documents = list(md.collection.find({"mapping": {"$size": 1}}))
+intra_data = {document['_id']: (document['mapping'][0], document["user_id"]) for document in documents}
 intra_df = pd.DataFrame(documents)
 
 md.set_collection('modified_inter_mappings')
-documents = list(md.collection.find())
-inter_data = {document['_id']: document["user_id"] for document in documents}
+documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
 
 md.set_collection('reconstruction_baseline')
@@ -33,30 +32,10 @@ a) Take an id from inter identifier - calculate whether the mappings in it are c
 b) Take user_id corresponding to the linked_id, - measure its duration in sniffed data
 c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_id_in_sniffed_data'''
 
-intra_data_user = {}
-for id, mapping in intra_data.items():
-    user_id = inter_data[id]
-    checker = True
-    # if not mapping:
-    #     continue
-    for id_ in mapping:
-        if inter_data[id_] != user_id:
-            checker = False
-    if checker:
-        intra_data_user[id] = mapping
-    else:
-        intra_data_user[id] = []
-
-# print(intra_data_user)
-chained_intra = remove_subsets_and_merge(intra_data_user)
-# print(chained_intra)
-# sys.exit()
 multi_protocol = []
 visited_set = set()
 visited_user = set()
-# print(inter_df)
 for index, inter_row in inter_df.iterrows():
-    # print(index)
     min_start_timestep, max_last_timestep = None, None
     inter_id, intra_id1 = None, None
     inter_id = inter_row["_id"]
@@ -73,10 +52,18 @@ for index, inter_row in inter_df.iterrows():
     
     ''' Fetch chain for id1 - (inter id) intra mapping and calculating min/max timestep'''
         
-    if inter_id in intra_data_user:
-        chain = get_list_containing_value(chained_intra, inter_id)
-        ml.logger.info(f"{inter_id}, {chain}")
+    if inter_id in intra_data:
+        chain = find_chain_for_key(intra_data, inter_id, user_id)
+        chain: list = chain[0]
         id1_df = inter_df[inter_df['_id'].isin(chain)]
+        # count_timesteps = (id1_df["last_timestep"] == TIMESTEPS).sum()
+        # ml.logger.info(f"{inter_df['_id']} - {count_timesteps}")
+        
+        # for id in reversed(chain):
+        #     if count_timesteps > 1 and id1_df[id1_df['_id'] == id]['last_timestep'].values[0] == TIMESTEPS:
+        #         chain.remove(id)
+        #         id1_df = id1_df[id1_df['_id'] != id]
+        #         count_timesteps -= 1
         min_start_timestep_id1 = id1_df['start_timestep'].min()
         max_last_timestep_id1 = id1_df['last_timestep'].max()        
         visited_set.update(set(chain))
@@ -86,13 +73,10 @@ for index, inter_row in inter_df.iterrows():
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
     
-    if inter_id == "W9VE0Y1YDXSL":
-        print(inter_id)
-        print(fetch_inter_mapping_timesteps.to_string())
-    # dfs = {protocol: fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['protocol'] == protocol] for protocol in fetch_inter_mapping_timesteps}
-
-    # print(inter_id, inter_row["protocol"])
-    # print(fetch_inter_mapping_timesteps)
+    dfs = {protocol: fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['protocol'] == protocol] for protocol in fetch_inter_mapping_timesteps}
+    
+    print(inter_id, inter_row["protocol"])
+    print(fetch_inter_mapping_timesteps)
     # print(inter_id, fetch_inter_mapping_timesteps)
     temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
     
@@ -104,9 +88,8 @@ for index, inter_row in inter_df.iterrows():
         visited_set.add(intra_id1)
         # id2=intra_id1
         if intra_id1 in intra_data:
-            chain = get_list_containing_value(chained_intra, intra_id1)
-            # print(chain)
-            ml.logger.info(f"{intra_id1}, {chain}")
+            chain = find_chain_for_key(intra_data, intra_id1, user_id)[0]
+            print(chain)
             ''' considering inter for search as it contains all id mappings '''
             id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
             min_start_timestep_id2 = id2_df['start_timestep'].min()
@@ -131,17 +114,15 @@ for index, inter_row in inter_df.iterrows():
             min_start_timestep = min_start_timestep_id1
             max_last_timestep = max_last_timestep_id1
     else:
-        ''' stop  there as multiple inter mappings found, just check intra mappings of inter_id '''
+        ''' stop  there , just check intra mappings of inter_id '''
         min_start_timestep = min_start_timestep_id1
         max_last_timestep = max_last_timestep_id1
         
     duration = max_last_timestep - min_start_timestep
-    # print(inter_id, intra_id1)
     multi_protocol.append({"id1": inter_id, "id2": intra_id1, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": user_id})
     # delete 
 
 multi_protocol_df = pd.DataFrame(multi_protocol)
-print(multi_protocol_df)
 multi_protocol_df = pd.merge(multi_protocol_df, baseline_data[['id', 'ideal_duration', 'protocol']], left_on='id1', right_on='id', how='left')
 multi_protocol_df = multi_protocol_df.drop(columns=['id'])
 multi_protocol_df.rename(columns={'protocol': 'protocol_id1'}, inplace=True)

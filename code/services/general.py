@@ -13,6 +13,34 @@ from shapely.geometry import Point, Polygon
 import concurrent.futures
 
 
+
+
+def remove_subsets_and_merge(data):
+    result = []
+    for key, value in data.items():
+        chain = [key] + value
+        chain_set = set(chain)
+        # Check if the chain is a subset of any existing chain or if it intersects with any existing chain
+        subset = next((existing for existing in result if chain_set.issubset(set(existing))), None)
+        intersection = next((existing for existing in result if chain_set.intersection(set(existing))), None)
+        if subset:
+            continue  # Skip if the chain is a subset of an existing chain
+        elif intersection:
+            # Merge the chains and remove the old ones
+            result = [list(set(existing + chain)) if existing == intersection else existing for existing in result]
+        else:
+            result.append(chain)
+    return result
+
+
+def get_list_containing_value(merged_data, value):
+    for chain in merged_data:
+        if value in chain:
+            return chain
+    return None
+
+
+
 def calculate_privacy_score(row):
     if row['duration'] == 0 and row['ideal_duration'] == 0:
         return 1
@@ -157,7 +185,7 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
     else:
         next_key, next_user_id = None, None
         
-    if next_user_id != user_id:
+    if next_user_id != user_id and next_user_id:
         current_chain.remove(current_key)
         
     if next_key and user_id==next_user_id:

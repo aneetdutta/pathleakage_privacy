@@ -23,10 +23,9 @@ inter_df = pd.DataFrame(documents)
 inter_data = {document['_id']: document['mapping'] for document in documents}
 
 md.set_collection('intra_mappings')
-documents = list(md.collection.find({"mapping": {"$size": 1}}))
-intra_data = {document['_id']: document['mapping'][0] for document in documents}
+documents = list(md.collection.find())
+# intra_data = {document['_id']: document['mapping'][0] for document in documents}
 intra_df = pd.DataFrame(documents)
-
 
 ml.logger.info("MongoDB data loaded")
 
@@ -112,11 +111,11 @@ idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
 lte_df = lte_df.loc[idx].reset_index(drop=True)
 ml.logger.info("Saving WIFI and LTE csv")
 wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
-wifi_data = wifi_df.to_dict(orient='records')
-md.db['reconstruction_baseline'].insert_many(wifi_data)
+# wifi_data = wifi_df.to_dict(orient='records')
+# md.db['reconstruction_baseline'].insert_many(wifi_data)
 lte_df.to_csv('csv/baseline_lte.csv', index=False)
-lte_data = lte_df.to_dict(orient='records')
-md.db['reconstruction_baseline'].insert_many(lte_data)
+# lte_data = lte_df.to_dict(orient='records')
+# md.db['reconstruction_baseline'].insert_many(lte_data)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 
 merge_columns= ["id","start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
