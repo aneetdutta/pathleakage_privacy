@@ -8,6 +8,7 @@ from env import TIMESTEPS
 import sys
 # import sys
 md = MongoDB()
+reconstruct_until_timestep = 18364
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -17,25 +18,25 @@ md.set_collection("aggregate_timesteps")
 documents = md.collection.find()
 timestep_data = pd.DataFrame(documents)
 
-md.set_collection('baseline_intra_mappings')
+md.set_collection('baseline_intra_mappings_257')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {}
 for document in documents:
     intra_data[document['_id']]= document['mapping'][0]
 intra_df = pd.DataFrame(documents)
 
-md.set_collection('inter_mappings')
+md.set_collection('inter_mappings_257')
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
 
-md.set_collection('reconstruction_baseline')
+md.set_collection('reconstruction_baseline_257')
 documents = md.collection.find()
 baseline_data = pd.DataFrame(documents)
 
-
-# inter_df = pd.merge(inter_df, baseline_data[['id', 'start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol']], left_on='_id', right_on='id', how='left')
+# inter_df = inter_df.drop(columns=['start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol'])
+inter_df = pd.merge(inter_df, baseline_data[['id', 'start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol']], left_on='_id', right_on='id', how='left')
 intra_df = pd.merge(intra_df, baseline_data[['id', 'start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol']], left_on='_id', right_on='id', how='left')
-# inter_df = inter_df.drop(columns=['id'])
+inter_df = inter_df.drop(columns=['id'])
 intra_df = intra_df.drop(columns=['id'])
 inter_df = inter_df.sort_values(by='start_timestep')
 
@@ -98,6 +99,7 @@ baseline_random_df = pd.DataFrame(baseline_random)
 
 baseline_random_df["privacy_score"] = baseline_random_df["duration"]/baseline_random_df["ideal_duration"]
 
+print(baseline_random_df)
 
 wifi_df = baseline_random_df[baseline_random_df['protocol'] == 'wifi'].reset_index(drop=True)
 # print(list(wifi_df["user_id"]))
@@ -120,8 +122,8 @@ missing_user_in_df2 = unique_users_df2 - unique_users_df1
 
 print("Missing user in df2:", missing_user_in_df2)
 
-wifi_df.to_csv('csv/baseline_random_wifi.csv', index=False)
-lte_df.to_csv('csv/baseline_random_lte.csv', index=False)
+wifi_df.to_csv('csv/baseline_random_wifi_257.csv', index=False)
+lte_df.to_csv('csv/baseline_random_lte_257.csv', index=False)
 
 # bl_data = baseline_random_df.to_dict(orient='records')
 # md.db['reconstruction_baseline'].drop()

@@ -7,11 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-<<<<<<< HEAD
 TIMESTEPS = 19400
-=======
-TIMESTEPS = 18150
->>>>>>> 7f1a1abb85ade31031fc473b991bd8e233b0c990
 
 #-------------------------#
 #   Movement Parameters   #

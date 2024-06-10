@@ -9,7 +9,7 @@ from modules.logger import MyLogger
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
-ml = MyLogger("tracking_257")
+ml = MyLogger("tracking_64")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -64,37 +64,37 @@ for timestep_pair in timestep_pairs:
                 upsert=True  # Create a new document if no document matches the filter
             )
             
-    if int(timestep) > 18363:
+    if int(timestep) > 18100:
         break
     
     
-md.db['intra_mappings_257'].drop()
-md.db['inter_mappings_257'].drop()
-md.db['visited_inter_list_257'].drop()
-md.db['visited_intra_list_257'].drop()
+md.db['intra_mappings_64'].drop()
+md.db['inter_mappings_64'].drop()
+md.db['visited_inter_list_64'].drop()
+md.db['visited_intra_list_64'].drop()
 
 for i, j in intra_potential_mapping_list.items():
-    result = md.db['intra_mappings_257'].update_one(
+    result = md.db['intra_mappings_64'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 
 for i, j in inter_potential_mapping_list.items():
-    result = md.db['inter_mappings_257'].update_one(
+    result = md.db['inter_mappings_64'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
     
 for i, j in visited_inter_mapping_list.items():
-    result = md.db['visited_inter_list_257'].update_one(
+    result = md.db['visited_inter_list_64'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
         )
 for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_intra_list_257'].update_one(
+    result = md.db['visited_intra_list_64'].update_one(
             {"_id": str(i)},
             {"$set": {"_id": str(i), "mapping": list(j)}},
             upsert=True  # Create a new document if no document matches the filter
