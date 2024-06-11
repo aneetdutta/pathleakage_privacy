@@ -38,6 +38,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     if id not in visited_intra_list[id1]:
                         intra_potential_mapping[id1].update({id})
 
+
+    pprint(intra_potential_mapping)
+    pprint(visited_intra_list)
     ''' Step 2: If id not in visited list, add it to the potential mapping '''
     for m1 in mapping0:
         ''' Loop through mapping 0 and mapping 1 '''
@@ -51,18 +54,21 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 for id1 in ids1:
                     ''' If id existing in mapping 2, then ignore, do not compute
                     Else check if id part of the visited list of mapping 2 and add it if it does not exists '''
-                    # if id1 in ids2:
-                    #     continue
-                    potential = {id2 for id2 in ids2 if id2 not in visited_intra_list.get(id1, set())}
-                    if id1 in potential:
-                        potential.remove(id1)
                     
-                    if potential:
-                        intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
-                        intra_potential_mapping[id1].update(potential)
+                    intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
+                    for id2 in ids2:
+                        if id1 == id2:
+                            continue
+                        if id2 in intra_potential_mapping[id1] and id1 in ids2:
+                            intra_potential_mapping[id1].remove(id2)
+                            visited_intra_list[id1].update({id2})
+                            
+                        if id2 not in visited_intra_list.get(id1, set()):
+                            intra_potential_mapping[id1].update({id2})
                         
-    # print("Intra potential mapping - Initial")
-    # pprint(intra_potential_mapping)
+    print("Intra potential mapping - Initial")
+    pprint(intra_potential_mapping)
+    pprint(visited_intra_list)
     
     ''' Filtering Intra mapping based on device direction 
     We consider randomization in single direction in the algorithm W1-> W1`, W1`->W1``

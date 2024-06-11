@@ -86,9 +86,9 @@ for index, inter_row in inter_df.iterrows():
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
     
-    if inter_id == "W9VE0Y1YDXSL":
-        print(inter_id)
-        print(fetch_inter_mapping_timesteps.to_string())
+    # if inter_id == "W9VE0Y1YDXSL":
+    #     print(inter_id)
+    #     print(fetch_inter_mapping_timesteps.to_string())
     # dfs = {protocol: fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['protocol'] == protocol] for protocol in fetch_inter_mapping_timesteps}
 
     # print(inter_id, inter_row["protocol"])

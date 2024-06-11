@@ -7,7 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-TIMESTEPS = 18363
+TIMESTEPS = 18700
 
 #-------------------------#
 #   Movement Parameters   #
