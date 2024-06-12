@@ -9,18 +9,18 @@ import sys
 # import sys
 md = MongoDB()
 from modules.logger import MyLogger
-ml = MyLogger("reconstruction_multiprotocol")
+ml = MyLogger("reconstruction_multiprotocol_old")
 
-md.set_collection('modified_intra_mappings')
+md.set_collection('modified_intra_mappings_old')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {document['_id']: (document['mapping'][0], document["user_id"]) for document in documents}
 intra_df = pd.DataFrame(documents)
 
-md.set_collection('modified_inter_mappings')
+md.set_collection('modified_inter_mappings_old')
 documents = md.collection.find()
 inter_df = pd.DataFrame(documents)
 
-md.set_collection('reconstruction_baseline')
+md.set_collection('reconstruction_baseline_old')
 documents = md.collection.find()
 baseline_data = pd.DataFrame(documents)
 
@@ -72,11 +72,6 @@ for index, inter_row in inter_df.iterrows():
         max_last_timestep_id1 = inter_row["last_timestep"]
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
-    
-    dfs = {protocol: fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['protocol'] == protocol] for protocol in fetch_inter_mapping_timesteps}
-    
-    print(inter_id, inter_row["protocol"])
-    print(fetch_inter_mapping_timesteps)
     # print(inter_id, fetch_inter_mapping_timesteps)
     temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
     
@@ -140,6 +135,6 @@ multi_protocol_df['privacy_score'] = multi_protocol_df.apply(calculate_privacy_s
 
 multi_data = multi_protocol_df.to_dict(orient='records')
 # print(multi_protocol_df.to_string())
-multi_protocol_df.to_csv('csv/multi_protocol.csv', index=False)
-md.db['reconstruction_multiproto'].drop()
-md.db['reconstruction_multiproto'].insert_many(multi_data)
+multi_protocol_df.to_csv('csv/multi_protocol_old.csv', index=False)
+md.db['reconstruction_multiproto_old'].drop()
+md.db['reconstruction_multiproto_old'].insert_many(multi_data)

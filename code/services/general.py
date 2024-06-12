@@ -185,7 +185,7 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
     else:
         next_key, next_user_id = None, None
         
-    if next_user_id != user_id and next_user_id:
+    if next_user_id != user_id and next_user_id and next_key:
         current_chain.remove(current_key)
         
     if next_key and user_id==next_user_id:

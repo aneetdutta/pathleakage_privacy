@@ -7,7 +7,7 @@ import pandas as pd
 md = MongoDB()
 from modules.logger import MyLogger
 
-ml = MyLogger("reconstruction_baseline_512")
+ml = MyLogger("reconstruction_baseline_old")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -17,12 +17,12 @@ md.set_collection("aggregate_timesteps")
 documents = md.collection.find()
 timestep_data = pd.DataFrame(documents)
 
-md.set_collection('inter_mappings_500')
+md.set_collection('inter_mappings_old')
 documents = list(md.collection.find())
 inter_df = pd.DataFrame(documents)
 inter_data = {document['_id']: document['mapping'] for document in documents}
 
-md.set_collection('intra_mappings_500')
+md.set_collection('intra_mappings_old')
 documents = list(md.collection.find({"mapping": {"$size": 1}}))
 intra_data = {document['_id']: document['mapping'][0] for document in documents}
 intra_df = pd.DataFrame(documents)
@@ -69,7 +69,9 @@ baseline = []
 i=0
 for id in inter_data.keys():
     print(i)
+    ml.logger.info(f"{id} - i")
     i+=1
+    # try:
     baseline_ = {
         "id": id,
         "start_timestep": timestep_dict.get(id, {}).get("start_timestep", ""),
@@ -78,31 +80,39 @@ for id in inter_data.keys():
         "ideal_duration": user_info_dict.get(id, {}).get("ideal_duration", ""),
         "protocol": user_info_dict.get(id, {}).get("protocol", "")
     }
+    # except:
+    #     # print(id, "hello")
+    #     raise Exception
+
     baseline.append(baseline_)
 
 ml.logger.info("Baseline iteration completed")
 
 bl_df = pd.DataFrame(baseline)
+# print(bl_df.to_string())
+# non_numeric_rows = bl_df[bl_df['last_timestep'].isna()]
+
+# print("Rows with non-numeric values in 'last_timestep':")
+# print(non_numeric_rows)
 bl_df['last_timestep'] = bl_df['last_timestep'].astype(float)
 bl_df['start_timestep'] = bl_df['start_timestep'].astype(float)
 bl_df["duration"] = bl_df["last_timestep"] - bl_df["start_timestep"]
-bl_df["privacy_score"] = bl_df["duration"]/bl_df["ideal_duration"]
+bl_df['privacy_score'] = bl_df.apply(calculate_privacy_score, axis=1)
 ml.logger.info("Privacy score calculated")
 wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
 lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
+# print(wifi_df.to_string())
 idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
+# print(idx.to_string())
 wifi_df = wifi_df.loc[idx].reset_index(drop=True)
 
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
+
 lte_df = lte_df.loc[idx].reset_index(drop=True)
-ml.logger.info("Saving WIFI and LTE csv")
-wifi_df.to_csv('csv/baseline_wifi_500.csv', index=False)
-wifi_data = wifi_df.to_dict(orient='records')
-md.db['reconstruction_baseline'].insert_many(wifi_data)
-lte_df.to_csv('csv/baseline_lte_500.csv', index=False)
-# lte_data = lte_df.to_dict(orient='records')
-# md.db['reconstruction_baseline_500'].insert_many(lte_data)
+# ml.logger.info("Saving WIFI and LTE csv")
+# wifi_df.to_csv('csv/baseline_wifi_old.csv', index=False)
+# lte_df.to_csv('csv/baseline_lte_old.csv', index=False)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 
 merge_columns= ["id","start_timestep", "last_timestep", "duration", "user_id", "protocol", "ideal_duration"]
@@ -128,12 +138,12 @@ if not set(merge_columns).issubset(set(intra_df.keys())):
         how="left",
     ).drop(columns=["id"])
 
-    md.db['inter_mappings_500'].drop()
-    md.db['inter_mappings_500'].insert_many(inter_df.to_dict(orient='records'))
-    md.db['intra_mappings_500'].drop()
-    md.db['intra_mappings_500'].insert_many(intra_df.to_dict(orient='records'))
+    md.db['modified_inter_mappings_old'].drop()
+    md.db['modified_inter_mappings_old'].insert_many(inter_df.to_dict(orient='records'))
+    md.db['modified_intra_mappings_old'].drop()
+    md.db['modified_intra_mappings_old'].insert_many(intra_df.to_dict(orient='records'))
 
 bl_data = bl_df.to_dict(orient='records')
-md.db['reconstruction_baseline_500'].drop()
-md.db['reconstruction_baseline_500'].insert_many(bl_data)
+md.db['reconstruction_baseline_old'].drop()
+md.db['reconstruction_baseline_old'].insert_many(bl_data)
 ml.logger.info("Reconstruction baseline completed")

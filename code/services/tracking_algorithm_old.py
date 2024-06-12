@@ -5,7 +5,7 @@ from pprint import pprint
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 
 Output: Visited List, Potential Mapping'''
-def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_inter_list:defaultdict[set], visited_intra_list:defaultdict[set]):
+def tracking_algorithm_old(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_inter_list:defaultdict[set], visited_intra_list:defaultdict[set]):
     intra_potential_mapping: defaultdict[set]  = defaultdict(set,intra_potential_mapping)
     inter_potential_mapping: defaultdict[set] = defaultdict(set, inter_potential_mapping)
     visited_intra_list = defaultdict(set, visited_intra_list)
@@ -21,26 +21,29 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     
     ''' Performing Intra Mapping '''
     
-    ''' Step 1: Loop through all groups of Mapping 1 and Mapping 2 - Add same group mappings to potential list if not in visited list'''
+    ''' Step 1: Loop through all groups of Mapping 1 and Mapping 2 - Get all the visited list mappings'''
     
     '''Looping through mapping 1'''
     for m1 in mapping0:
-        ''' Fetching protocols and the identifiers in mapping 1 '''
-        for p1, ids1 in m1.items():
-            ''' Comparing with only same protocol types during intra mapping'''
-            for id1 in ids1:
-                if id1 not in intra_potential_mapping: intra_potential_mapping[id1] = set()
-                if id1 not in visited_intra_list: visited_intra_list[id1] = set()
-                ''' Remove id from mapping 1 set since it exists already '''
-                other_ids_from_same_group = set(ids1) - {id1}
-                # print(other_ids_from_same_group)
-                for id in other_ids_from_same_group:
-                    if id not in visited_intra_list[id1]:
-                        intra_potential_mapping[id1].update({id})
+        ''' Loop through mapping 0 and mapping 1 '''
+        for m2 in mapping1:
+            ''' Fetching protocols and the identifiers in mapping 1 '''
+            for p1, ids1 in m1.items():
+                ''' Comparing with only same protocol types during intra mapping'''
+                if p1 not in m2:
+                    continue
+                ids2 = m2[p1]
+                for id1 in ids1:
+                    if id1 not in intra_potential_mapping: intra_potential_mapping[id1] = set()
+                    ''' Remove id from mapping 1 set since it exists already '''
+                    visited_items = set(ids1) - {id1}
+                    ''' Remove id from mapping 2 set if it exists '''
+                    if id1 in ids2:
+                        visited_items.update(set(ids2) - {id1})
+                    ''' Store the id and visited list to dict '''
+                    visited_intra_list[id1] = set(visited_intra_list[id1])
+                    visited_intra_list[id1].update(visited_items)
 
-
-    # pprint(intra_potential_mapping)
-    # pprint(visited_intra_list)
     ''' Step 2: If id not in visited list, add it to the potential mapping '''
     for m1 in mapping0:
         ''' Loop through mapping 0 and mapping 1 '''
@@ -54,51 +57,46 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 for id1 in ids1:
                     ''' If id existing in mapping 2, then ignore, do not compute
                     Else check if id part of the visited list of mapping 2 and add it if it does not exists '''
+                    if id1 in ids2:
+                        continue
+                    potential = {id2 for id2 in ids2 if id2 not in visited_intra_list.get(id1, set())}
                     
-                    intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
-                    for id2 in ids2:
-                        if id1 == id2:
-                            continue
-                        if id2 in intra_potential_mapping[id1] and id1 in ids2:
-                            intra_potential_mapping[id1].remove(id2)
-                            visited_intra_list[id1].update({id2})
-                            
-                        if id2 not in visited_intra_list.get(id1, set()):
-                            intra_potential_mapping[id1].update({id2})
+                    if potential:
+                        intra_potential_mapping[id1] = set(intra_potential_mapping[id1])
+                        intra_potential_mapping[id1].update(potential)
                         
     # print("Intra potential mapping - Initial")
     # pprint(intra_potential_mapping)
-    # pprint(visited_intra_list)
     
     ''' Filtering Intra mapping based on device direction 
     We consider randomization in single direction in the algorithm W1-> W1`, W1`->W1``
     However, if any case where W1->W2, and W2->W1 '''
     
     
-    # removal = True
-    # while removal:
-    #     removal = False
-    #     for id, value_set in list(intra_potential_mapping.items()):
-    #         ''' if value is null; continue'''
-    #         if not value_set:
-    #             continue
+    removal = True
+    while removal:
+        removal = False
+        for id, value_set in list(intra_potential_mapping.items()):
+            ''' if value is null; continue'''
+            if not value_set:
+                continue
             
-    #         to_remove = set()
-    #         ''' Check if W1->{W2,W3}, W2->{W1, W3}
-    #         Remove '''
-    #         for element in value_set:
-    #             if element in intra_potential_mapping:
-    #                 if id in intra_potential_mapping[element]:
-    #                     to_remove.add(element)
-    #                     intra_potential_mapping[element].remove(id)
-    #                     removal = True
+            to_remove = set()
+            ''' Check if W1->{W2,W3}, W2->{W1, W3}
+            Remove '''
+            for element in value_set:
+                if element in intra_potential_mapping:
+                    if id in intra_potential_mapping[element]:
+                        to_remove.add(element)
+                        intra_potential_mapping[element].remove(id)
+                        removal = True
                 
-    #         if to_remove:
-    #             value_set -= to_remove
-    #             visited_intra_list[id].update(to_remove)
+            if to_remove:
+                value_set -= to_remove
+                visited_intra_list[id].update(to_remove)
             
-    #         if removal:
-    #             intra_potential_mapping[id] = value_set
+            if removal:
+                intra_potential_mapping[id] = value_set
                 
     # print("Intra potential mapping - After filtering")
     # pprint(intra_potential_mapping)   
