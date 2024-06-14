@@ -7,3 +7,6 @@ code/*.log
 code/*.pkl
 code/logs/*
 code/csv/*
+code/data/*.csv
+code/data/*
+code/*.lock

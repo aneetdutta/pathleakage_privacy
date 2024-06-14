@@ -1,7 +1,7 @@
 from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR
 import copy
 from services.general import remove_subsets_and_duplicates
-
+import sys
 def group_distances(sniffer_groups):
     
     protocol_to_id = {
@@ -15,9 +15,11 @@ def group_distances(sniffer_groups):
     '''iterate through sniffer_groups'''
     sniffer_groups: dict
     for sg in sniffer_groups:
-        # print(sg)
+        print(sg)
         # print(sg["protocol"], sg[protocol_to_id[sg["protocol"]]], sg['dist_S_U'], "sg_tup")
-        sg_tup = (sg["protocol"],sg[protocol_to_id[sg["protocol"]]],sg['dist_S_U'])
+        sg_tup = (sg["protocol"],sg["id"],sg['dist_S_U'], sg['timestep'])
+        print(sg_tup)
+        sys.exit()
         if not groups:
             first_group = set()
             first_group.add(tuple(sg_tup))
@@ -35,6 +37,7 @@ def group_distances(sniffer_groups):
             group: list
             for d in group:
                 abs_dist = abs(int(d[2]) - int(sg['dist_S_U']))
+                
                 # print(d, sg['WiFi_id'], abs_dist)
                 if d[0] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= 2*LTE_LOCALIZATION_ERROR:
                     compatible = True
@@ -56,7 +59,6 @@ def group_distances(sniffer_groups):
                     compatible = True
                 else: 
                     compatible = False
-                    # print(compatible, sg['lte_id'], sg['WiFi_id'])
                 
                 if compatible == True:
                     if d not in compatible_set:

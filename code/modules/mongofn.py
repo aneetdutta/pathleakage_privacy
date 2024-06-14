@@ -92,6 +92,50 @@ class MongoDB:
         
         return self.collection.aggregate(pipeline)
 
+
+    def aggregate_st_window(self):
+        pipeline = [
+                {
+                    '$group': {
+                        '_id': {
+                            'st_window': '$st_window',
+                            'sniffer_id': '$sniffer_id'
+                        },
+                        'data': {
+                            '$push': {
+                                "protocol": "$protocol",
+                                "id": "$id",
+                                "dist_S_U": "$dist_S_U",
+                                "timestep": "$timestep",
+                            }
+                        }
+                    }
+                },
+                {
+                    '$group': {
+                        '_id': '$_id.st_window',
+                        'sniffer_data': {
+                            '$push': {
+                                'k': { '$toString': '$_id.sniffer_id' },
+                                'v': '$data'
+                            }
+                        }
+                    }
+                },
+                {
+                    '$project': {
+                        '_id': 0,
+                        'st_window': '$_id',
+                        'sniffer_data': {
+                            '$arrayToObject': '$sniffer_data'
+                        }
+                    }
+                }
+            ]
+        
+        return self.collection.aggregate(pipeline)
+    
+    
     def aggregate_timestep(self):
         pipeline = [
             {

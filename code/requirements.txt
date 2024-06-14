@@ -1,9 +1,0 @@
-libsumo
-shapely
-orjson
-polars
-pandas
-numpy
-scipy
-pymongo
-loguru

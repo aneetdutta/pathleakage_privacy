@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "privacy_analysis"
+version = "0.1.0"
+description = ""
+authors = ["mihirraj dixit <dixitmn6@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+libsumo = "^1.20.0"
+shapely = "^2.0.4"
+orjson = "^3.10.4"
+polars = "^0.20.31"
+pandas = "^2.2.2"
+numpy = "^1.26.4"
+scipy = "^1.13.1"
+pymongo = "^4.7.3"
+loguru = "^0.7.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
