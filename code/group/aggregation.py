@@ -1,4 +1,6 @@
 
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from modules.mongofn import MongoDB
 import time
 md = MongoDB()
@@ -11,8 +13,8 @@ md.set_collection("sniffed_data")
 - Aggregation by sniffers and timesteps 
 - Aggregation by users
 - Aggregation by timesteps '''
-md.db['aggregated_results'].drop()
-md.db['aggregated_results'].insert_many(md.aggregate_save())
+# md.db['aggregated_results'].drop()
+# md.db['aggregated_results'].insert_many(md.aggregate_save())
 md.db['aggregate_users'].drop()
 md.db["aggregate_users"].insert_many(md.aggregate_users())
 md.db['aggregate_timesteps'].drop()

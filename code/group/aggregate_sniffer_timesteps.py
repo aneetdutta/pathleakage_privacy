@@ -8,9 +8,9 @@ from collections import deque
 from modules.mongofn import MongoDB
 md = MongoDB()
 # Path to the gzipped CSV file
-compressed_file_path = "data/sniffed_data.csv.gz"
+compressed_file_path = "data/sniffed_data.csv"
 # Decompress and read the CSV file
-df = pd.read_csv(compressed_file_path, compression="gzip")
+df = pd.read_csv(compressed_file_path)
 df["dist_S_U"] = (np.sqrt(((df["sl_x"] - df["ul_x"]) ** 2 + (df["sl_y"] - df["ul_y"]) ** 2))).astype(int)
 # Drop the specified columns
 df = df.drop(columns=['sl_x', 'sl_y', 'ul_x', 'ul_y', 'user_id'])

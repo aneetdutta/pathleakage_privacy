@@ -1,10 +1,12 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
 from modules.mongofn import MongoDB
 from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 from services.general import UnionFind
 import pandas as pd
-from env import TIMESTEPS
+from env import USER_TIMESTEPS
 import sys
 # import sys
 md = MongoDB()
@@ -76,10 +78,10 @@ for index, inter_row in inter_df.iterrows():
         # print(chain)
         id_df = inter_df[inter_df['_id'].isin(chain)]
         id_df = id_df.drop(columns=['mapping'])
-        count_timesteps = sum(id_df[id_df['_id'].isin(chain)]['last_timestep'] == TIMESTEPS)
+        count_timesteps = sum(id_df[id_df['_id'].isin(chain)]['last_timestep'] == USER_TIMESTEPS)
         # print(count_timesteps)
         for id in reversed(chain):
-            if count_timesteps > 1 and id_df[id_df['_id'] == id]['last_timestep'].values[0] == TIMESTEPS:
+            if count_timesteps > 1 and id_df[id_df['_id'] == id]['last_timestep'].values[0] == USER_TIMESTEPS:
                 chain.remove(id)
                 id_df = id_df[id_df['_id'] != id]
                 count_timesteps -= 1

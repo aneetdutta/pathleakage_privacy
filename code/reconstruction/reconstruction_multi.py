@@ -1,10 +1,12 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
 from modules.mongofn import MongoDB
 from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 from services.general import UnionFind
 import pandas as pd
-from env import TIMESTEPS
+# from env import USER_TIMESTEPS
 import sys
 # import sys
 md = MongoDB()
@@ -62,6 +64,8 @@ for index, inter_row in inter_df.iterrows():
     inter_id = inter_row["_id"]
     
     inter_mapping = inter_row["mapping"]
+    if not inter_mapping:
+        continue
     user_id = inter_row["user_id"]
     ml.logger.info(f'{index}, {inter_id}, {user_id}')
     
@@ -119,6 +123,7 @@ for index, inter_row in inter_df.iterrows():
         min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
         max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
     elif fetch_inter_mapping_timesteps.empty:
+        print(inter_mapping)
         intra_id1 = inter_mapping[0]
         visited_set.add(intra_id1)
         result = inter_df.loc[inter_df['_id'] == intra_id1]

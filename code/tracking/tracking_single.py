@@ -1,3 +1,5 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from modules.device import Device
 from modules.devicemanager import DeviceManager
 from services.general import *
@@ -29,14 +31,14 @@ visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
 
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
-    documents = md.collection.find({"timestep": {"$in": timestep_pair}})
+    documents = md.collection.find({"st_window": {"$in": timestep_pair}})
     # Process or print the documents as needed
     ''' Collected data of two timesteps - T0 and T1 which consists of multiple groups
     Storing the data in two_timestep_data'''
     
     two_timestep_data = []
     for document in documents:
-        two_timestep_data.append((document['timestep'], document['grouped_data']))
+        two_timestep_data.append((document['st_window'], document['grouped_data']))
     
     timestep = two_timestep_data[1][0]
     ml.logger.info(timestep)

@@ -7,7 +7,7 @@ DURATION_SIMULATION = 7200
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-USER_TIMESTEPS = 18200
+USER_TIMESTEPS = 18363
 
 #-------------------------#
 #   Movement Parameters   #
@@ -53,7 +53,7 @@ BLUETOOTH_MAX_TRANSMIT = 5
 
 # WifI ID transmit range uniform (in s)
 WIFI_MIN_TRANSMIT = 0.25
-WIFI_MAX_TRANSMIT = 5
+WIFI_MAX_TRANSMIT = 10
 
 # LTE transmit range uniform (in s)
 LTE_MIN_TRANSMIT =  0.25
