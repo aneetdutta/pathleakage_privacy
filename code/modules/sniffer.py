@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from modules.user import User
 from collections import deque
+from env import *
 from math import sqrt
 import uuid
 from bson.objectid import ObjectId
@@ -64,6 +65,7 @@ class Sniffer:
     #     return detected_users[:index]
     
     def detect_raw_users(self, user_id, timestep, user_location, user_lte_id = None, user_wifi_id=None, user_bluetooth_id = None, transmit_ble=None, transmit_wifi=None, transmit_lte=None):
+        
         distance = sqrt(
             (float(self.location[0]) - float(user_location[0])) ** 2
             + (float(self.location[1]) - float(user_location[1])) ** 2

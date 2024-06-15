@@ -53,6 +53,8 @@ for timestep_pair in timestep_pairs:
     visited_inter_mapping_list = convert_sets_to_lists(visited_inter_list)
     visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
     
+    
+    ''' Used only for debugging purpose '''
     check_full_document_database = False
     
     if check_full_document_database:

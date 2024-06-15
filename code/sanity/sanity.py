@@ -164,6 +164,7 @@ for index, row in user_data.iterrows():
     for inter_id, inter_ids in inter_data.items():
         inter_ids = set(inter_ids)
         if not inter_ids and inter_id not in visited_inter_ids:
+            print(inter_id)
             null_inter_counter +=1
             # print(user_id, inter_id)
             null_inter_users.add(user_id)

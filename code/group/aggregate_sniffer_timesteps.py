@@ -18,10 +18,13 @@ df = df.drop(columns=['sl_x', 'sl_y', 'ul_x', 'ul_y', 'user_id'])
 earliest_timestep = df['timestep'].min()
 last_timestep = df['timestep'].max()
 # print(earliest_timestep)
-timestep_bins = np.arange(earliest_timestep, last_timestep+SNIFFER_TIMESTEP, SNIFFER_TIMESTEP)
+timestep_bins = np.arange(earliest_timestep, last_timestep, SNIFFER_TIMESTEP)
 timestep_bin_list = np.arange(len(timestep_bins))
+print(timestep_bins)
 timestep_bin_list_trimmed = timestep_bin_list[:-1]
 df.loc[:, 'st_window'] = pd.cut(df['timestep'], bins=timestep_bins, labels=timestep_bin_list_trimmed, right=False)
+
+df = df.dropna(subset=['st_window'])
 
 # Aggregate the results into the desired format
 # df['timestep'] = df['timestep']
@@ -31,6 +34,7 @@ df['sniffer_id'] = df['sniffer_id'].astype(str)
 df['dist_S_U'] = df['dist_S_U'].astype(str)
 
 data_dict = df.to_dict(orient='records')
+md.db["temp_agg"].drop()
 md.db["temp_agg"].insert_many(data_dict)
 
 # print(df.dtypes)

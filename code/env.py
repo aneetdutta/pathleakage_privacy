@@ -4,11 +4,18 @@ AREA_SIZE = 500
 # Duration of the simulation (in seconds)
 DURATION_SIMULATION = 7200
 
+
+# Create only same set of users for different run
+
+TOTAL_NUMBER_OF_USERS = 100
+ENABLE_SAME_NUMBER_USERS = False
+
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
 USER_TIMESTEPS = 18363
 
+# FIRST_TIMESTEP = 18001.25
 #-------------------------#
 #   Movement Parameters   #
 #-------------------------#
@@ -43,8 +50,8 @@ WIFI_MIN_REFRESH = 2*60
 WIFI_MAX_REFRESH = 5*60
 
 # LTE refresh range uniform (in s)
-LTE_MIN_REFRESH =  10
-LTE_MAX_REFRESH =  60
+LTE_MIN_REFRESH =  6*60
+LTE_MAX_REFRESH =  7*60
 
 
 # Bluetooth IDs transmit range uniform (in s)
@@ -59,14 +66,6 @@ WIFI_MAX_TRANSMIT = 10
 LTE_MIN_TRANSMIT =  0.25
 LTE_MAX_TRANSMIT =  5
 
-
-# Sniffer timestep
-SNIFFER_TIMESTEP = max(LTE_MAX_TRANSMIT, WIFI_MAX_TRANSMIT, BLUETOOTH_MAX_TRANSMIT)
-
-SNIFFER_PROCESSING_BATCH_SIZE = 100
-
-
-ENABLE_BLUETOOTH = False
 #Range for communication protocols
 BLUETOOTH_RANGE=10
 WIFI_RANGE=30
@@ -78,6 +77,12 @@ LTE_LOCALIZATION_ERROR=10
 
 # Mobility factor in m/s
 MAX_MOBILITY_FACTOR = 1.66
+
+ENABLE_BLUETOOTH = False
+# Sniffer timestep
+SNIFFER_TIMESTEP = max(LTE_MAX_TRANSMIT, WIFI_MAX_TRANSMIT, BLUETOOTH_MAX_TRANSMIT)
+
+SNIFFER_PROCESSING_BATCH_SIZE = 100
 
 # Start SUMO as a subprocess
 SUMO_BIN_PATH = "/usr/bin/"
