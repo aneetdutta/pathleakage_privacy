@@ -15,8 +15,7 @@ def tracking_algorithm_old(two_timestep_data, intra_potential_mapping: defaultdi
     mapping0 = two_timestep_data[0][1]
     
     timestep1 = two_timestep_data[1][0]
-    mapping1 = two_timestep_data[1][1]
-    
+    mapping1 = two_timestep_data[1][1]    
     # print("Timestep", timestep0, timestep1)
     
     ''' Performing Intra Mapping '''

@@ -139,10 +139,12 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     for id in different_ids_0:
         inter_potential_mapping[id] = set(inter_potential_mapping[id])
         inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
+        inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
             
     for id in different_ids_1:
         inter_potential_mapping[id] = set(inter_potential_mapping[id])
         inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
+        inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
             
     # print("Inter potential Mapping: ", inter_potential_mapping)
     
@@ -230,6 +232,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 for i in uncommon_set:
                     if i not in inter_potential_mapping[id]:
                         visited_inter_list[id].update({i})
+                        
+        ''' Sanity cleaning step'''
+        inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
 
     # print("Intra potential mapping - After Inter")
     # pprint(intra_potential_mapping)

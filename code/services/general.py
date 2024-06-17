@@ -103,11 +103,13 @@ def combine_and_exclude_all(dicts, keys, result_dict=None):
     # Initialize a dictionary to hold combined sets for each key
     combined_dict = {key: set() for key in keys}
     
+    # print(dicts, keys)
     # Combine values for each key from all dictionaries
     for d in dicts:
-        print(dicts)
+        # print(d)
         for key in keys:
             combined_dict[key].update(d.get(key, []))
+        # print(combined_dict, key)
     
     # Initialize result_dict if not provided
     if result_dict is None:
