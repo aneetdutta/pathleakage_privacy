@@ -141,6 +141,6 @@ def grouper(sniffer_data):
         distance_groups = group_distances(data)
         grouped_list.extend(distance_groups)
     
-    # grouped_list = remove_subsets_and_duplicates(grouped_list)
+    grouped_list = remove_subsets_and_duplicates(grouped_list)
     
     return grouped_list

@@ -1,5 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from modules.mongofn import MongoDB
 from group.grouping_smart_algorithm import grouper
 from concurrent.futures import ProcessPoolExecutor
@@ -18,7 +19,7 @@ md.set_collection("aggregated_sniffer")
 '''grouped according to timestep and sniffer'''
 sniffer_data = md.collection.find()
 
-group_collection = md.db['groups']
+group_collection = md.db['groups_smart']
 ''' Processing every timestep - contains dict : {sniffer_id : [data]}
 Stores the processed group to mongodb collection '''
 

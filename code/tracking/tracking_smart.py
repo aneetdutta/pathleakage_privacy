@@ -13,7 +13,7 @@ md = MongoDB()
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
-md.set_collection("groups")
+md.set_collection("groups_smart")
 
 total_timesteps = md.get_all_timesteps()
 

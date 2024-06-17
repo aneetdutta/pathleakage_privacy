@@ -41,10 +41,8 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                 ''' Comparing with only same protocol types during intra mapping'''
                 if p1 not in m2:
                     continue
-                
                 ids1:set = set(ids1)
                 ids2:set = set(m2[p1])
-                
                 for id1 in ids1:
                     if id1 not in intra_potential_mapping: intra_potential_mapping[id1] = set()
                     ''' Add same group elements of mapping 0 to potential mapping '''
