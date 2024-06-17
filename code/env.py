@@ -13,7 +13,7 @@ ENABLE_SAME_NUMBER_USERS = False
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-USER_TIMESTEPS = 18363
+USER_TIMESTEPS = 19400
 
 # FIRST_TIMESTEP = 18001.25
 #-------------------------#
@@ -46,12 +46,12 @@ BLUETOOTH_MIN_REFRESH = 10*60
 BLUETOOTH_MAX_REFRESH = 45*60
 
 # WifI ID refresh range uniform (in s)
-WIFI_MIN_REFRESH = 2*60
-WIFI_MAX_REFRESH = 5*60
+WIFI_MIN_REFRESH = 5*60
+WIFI_MAX_REFRESH = 15*60
 
 # LTE refresh range uniform (in s)
-LTE_MIN_REFRESH =  6*60
-LTE_MAX_REFRESH =  7*60
+LTE_MIN_REFRESH =  10
+LTE_MAX_REFRESH =  60
 
 
 # Bluetooth IDs transmit range uniform (in s)

@@ -123,7 +123,7 @@ for index, inter_row in inter_df.iterrows():
         min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
         max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
     elif fetch_inter_mapping_timesteps.empty:
-        print(inter_mapping)
+        # print(inter_mapping)
         intra_id1 = inter_mapping[0]
         visited_set.add(intra_id1)
         result = inter_df.loc[inter_df['_id'] == intra_id1]

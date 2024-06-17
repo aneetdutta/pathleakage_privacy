@@ -2,7 +2,9 @@
 PYTHON = python3
 
 # Define the default target
-all: run_scripts
+all: sumo data_gen gtsr
+
+all_without_sumo: data_gen gtsr
 
 gts: group tracking sanity
 
@@ -17,7 +19,9 @@ sumo:
 	$(PYTHON) sumo/sumo_simulation.py
 	@echo "Generated raw user data"
 
-user_data: clean_db
+data_gen: clean_db user_data
+
+user_data:
 	python3 sumo/generate_user_data.py
 	echo "Generated user data"
 
@@ -70,4 +74,4 @@ clean:
 	rm -rf __pycache__
 
 # .PHONY targets tell make these are not files
-.PHONY: all run_scripts user_data group tracking sanity reconstruction clean
+.PHONY: all run_scripts user_data group tracking sanity reconstruction clean data_gen sumo gtsr gts clean_db all_without_sumo
