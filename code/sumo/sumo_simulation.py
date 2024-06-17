@@ -9,11 +9,17 @@ from services.general import is_point_inside_polygon
 from shapely.geometry import Polygon
 import polars as pd
 
+from modules.logger import MyLogger
+ml = MyLogger("sumo_simulation")
+
 # Create a polygon object
 polygon = Polygon(POLYGON_COORDS)
 
 """ If not person id , save the person id and discard if visited next time"""
 visited_person: set = set()
+
+same_userset: set = set()
+
 sumo_cmd = [os.path.join(SUMO_BIN_PATH, "sumo"), "-c", SUMO_CFG_FILE]
 
 """ Start TRACI """
@@ -46,7 +52,14 @@ try:
             if not is_point_inside_polygon(user_location[0], user_location[1], polygon):
                 visited_person.add(user_id)
                 continue
-
+            
+            if ENABLE_USER_THRESHOLD:
+                if user_id not in same_userset and len(same_userset) < TOTAL_NUMBER_OF_USERS:
+                    same_userset.add(user_id)
+                elif user_id not in same_userset:
+                    continue
+            
+            
             """ If user enters the polygon after some time, remove the user again from the user data"""
             if user_id in visited_person:
                 continue
@@ -73,15 +86,15 @@ except Exception as e:
     traci.close()
     sys.exit(1)
 
-print("Total time take to fetch user_data from sumo_simulation: ", time.time() - now)
+ml.logger.info("Total time take to fetch user_data from sumo_simulation: ", time.time() - now)
 user_file = "data/raw_user_data.csv"
-print("Saved file to the directory")
+ml.logger.info("Saved file to the directory")
 df = pd.DataFrame(user_data)
 total_unique_user_ids = df.select(pd.col('user_id').n_unique()).item()
-print(f"Total unique user_id: {total_unique_user_ids}")
+ml.logger.info(f"Total unique user_id: {total_unique_user_ids}")
 
 walking_user_ids = df.filter(pd.col('description') == 'walking')['user_id'].unique().to_list()
-print(f"user_ids having 'walking' as their description: {len(walking_user_ids)}")
+ml.logger.info(f"user_ids having 'walking' as their description: {len(walking_user_ids)}")
 
 
 max_value = df['mf'].max()
@@ -89,10 +102,9 @@ min_value = df['mf'].min()
 average_value = df['mf'].mean()
 median_value = df['mf'].median()
 
-print("Max:", max_value)
-print("Min:", min_value)
-print("Average:", average_value)
-print("Median:", median_value)
-
+ml.logger.info("Max Mobility:", max_value)
+ml.logger.info("Min Mobility:", min_value)
+ml.logger.info("Average Mobility:", average_value)
+ml.logger.info("Median Mobility:", median_value)
 
 df.write_csv(user_file)

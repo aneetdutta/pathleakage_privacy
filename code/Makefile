@@ -8,7 +8,7 @@ all_without_sumo: data_gen gtsr
 
 gts: group tracking sanity
 
-gtsr: group tracking sanity reconstruction
+gtsr: group tracking sanity reconstruction plot
 
 clean_db: 	
 	@mongosh --eval "db.getSiblingDB('code').dropDatabase()"
@@ -22,10 +22,10 @@ sumo:
 data_gen: clean_db user_data
 
 user_data:
-	python3 sumo/generate_user_data.py
+	time python3 sumo/generate_user_data.py
 	echo "Generated user data"
 
-	python3 sumo/generate_sniffer_data.py
+	time python3 sumo/generate_sniffer_data.py
 	echo "Generated sniffer data"
 
 	@mongoimport --host localhost --port 27017 --db code --collection sniffed_data --type csv --file data/sniffed_data.csv --headerline
@@ -34,44 +34,48 @@ user_data:
 # Define a target to run each script separately
 group:
 	@echo "Aggregating group"
-	$(PYTHON) group/aggregation.py
+	time $(PYTHON) group/aggregation.py
 	@echo "Running aggregation of sniffer timestep"
-	$(PYTHON) group/aggregate_sniffer_timesteps.py
+	time $(PYTHON) group/aggregate_sniffer_timesteps.py
 	@echo "Sniffer timestep aggregation completed"
 	@echo "Running grouping"
-	$(PYTHON) group/group_parallel.py
+	time $(PYTHON) group/group_parallel.py
 	@echo "Grouping completed"
 
 tracking:
 	@echo "Running tracking"
-	$(PYTHON) tracking/tracking.py
+	time $(PYTHON) tracking/tracking.py
 	@echo "Tracking completed"
 
 sanity:
 	@echo "Running sanity"
-	$(PYTHON) sanity/sanity.py
+	time $(PYTHON) sanity/sanity.py
 	@echo "Sanity completed"
 
 reconstruction:
-	$(PYTHON) reconstruction/reconstruction_user_data.py
+	time $(PYTHON) reconstruction/reconstruction_user_data.py
 	@echo "Performed Reconstruction User Data"
 
-	$(PYTHON) reconstruction/reconstruction_baseline.py
+	time $(PYTHON) reconstruction/reconstruction_baseline.py
 	@echo "Performed Baseline Reconstruction"
 
 	# $(PYTHON) reconstruction/reconstruction_baseline_random.py
 	# @echo "Performed Baseline Reconstruction"
 
-	$(PYTHON) reconstruction/reconstruction_multi.py
+	time $(PYTHON) reconstruction/reconstruction_multi.py
 	@echo "Performed Multi Reconstruction"
 
-	$(PYTHON) services/plot_reconstruction.py
+plot:
+	time $(PYTHON) services/plot_reconstruction.py
 	@echo "Performed Multi Reconstruction"
+
 
 # Define a target to clean up any generated files (if needed)
 clean:
 	rm -f *.pyc
 	rm -rf __pycache__
+	rm -rf csv/*.csv
+	rm -rf data/*.csv
 
 # .PHONY targets tell make these are not files
-.PHONY: all run_scripts user_data group tracking sanity reconstruction clean data_gen sumo gtsr gts clean_db all_without_sumo
+.PHONY: all run_scripts user_data group tracking sanity reconstruction clean data_gen sumo gtsr gts clean_db all_without_sumo plot

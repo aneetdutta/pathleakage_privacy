@@ -1,17 +1,15 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from modules.device import Device
-from modules.devicemanager import DeviceManager
 from services.general import *
-from services.tracking_algorithm_single import tracking_algorithm_single
+from services.tracking_algorithm_smart import tracking_algorithm_smart
 from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
 from modules.logger import MyLogger
+ml = MyLogger("tracking_single")
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
-ml = MyLogger("tracking_single")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -43,7 +41,7 @@ for timestep_pair in timestep_pairs:
     timestep = two_timestep_data[1][0]
     ml.logger.info(timestep)
         
-    intra_potential_mapping, visited_intra_list  =  tracking_algorithm_single(two_timestep_data, intra_potential_mapping=intra_potential_mapping, visited_intra_list=visited_intra_list)
+    intra_potential_mapping, visited_intra_list  =  tracking_algorithm_smart(two_timestep_data, intra_potential_mapping=intra_potential_mapping, visited_intra_list=visited_intra_list)
     
     # Convert sets to lists in intra_potential_mapping
     intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)

@@ -1,7 +1,7 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from group.grouping_algorithm import grouper
+from group.grouping_smart_algorithm import grouper
 from pprint import pprint
 # """Test Case 1:
 # Same protocol, same distance, different IDs
@@ -53,7 +53,7 @@ sniffer_group = {"1234":[
     {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "18", "timestep": 18001.5},
     {"protocol": "WiFi", "id": "WIFIID2", "dist_S_U": "10", "timestep": 18001.5},
     {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "49", "timestep": 18011.5},
-    {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "50", "timestep": 18011.5},
+    {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "50", "timestep": 18011.5},
 ]}
 
 

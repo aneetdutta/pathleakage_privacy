@@ -65,14 +65,15 @@ for index, inter_row in inter_df.iterrows():
     
     inter_mapping = inter_row["mapping"]
     if not inter_mapping:
+        ml.logger.info(f"No inter mapping found for {inter_id}")
         continue
     user_id = inter_row["user_id"]
     ml.logger.info(f'{index}, {inter_id}, {user_id}')
     
-    if inter_id in visited_set or user_id in visited_user:
-        continue
-    visited_set.add(inter_id)
-    visited_user.add(user_id)
+    # if inter_id in visited_set or user_id in visited_user:
+    #     continue
+    # visited_set.add(inter_id)
+    # visited_user.add(user_id)
     # id1=inter_id
     
     ''' Fetch chain for id1 - (inter id) intra mapping and calculating min/max timestep'''
@@ -105,7 +106,7 @@ for index, inter_row in inter_df.iterrows():
     if len(fetch_inter_mapping_timesteps) == 1 and user_id == str(fetch_inter_mapping_timesteps['user_id'].values[0]):
         ''' Fetch chain for its intra mapping and calculating min/max timestep'''
         intra_id1 = str(fetch_inter_mapping_timesteps['_id'].values[0])
-        visited_set.add(intra_id1)
+        # visited_set.add(intra_id1)
         # id2=intra_id1
         if intra_id1 in intra_data:
             chain = get_list_containing_value(chained_intra, intra_id1)
@@ -115,7 +116,7 @@ for index, inter_row in inter_df.iterrows():
             id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
             min_start_timestep_id2 = id2_df['start_timestep'].min()
             max_last_timestep_id2 = id2_df['last_timestep'].max()        
-            visited_set.update(set(chain))
+            # visited_set.update(set(chain))
         else:
             min_start_timestep_id2 = fetch_inter_mapping_timesteps['start_timestep'].values[0]
             max_last_timestep_id2 = fetch_inter_mapping_timesteps['last_timestep'].values[0]
@@ -125,7 +126,7 @@ for index, inter_row in inter_df.iterrows():
     elif fetch_inter_mapping_timesteps.empty:
         # print(inter_mapping)
         intra_id1 = inter_mapping[0]
-        visited_set.add(intra_id1)
+        # visited_set.add(intra_id1)
         result = inter_df.loc[inter_df['_id'] == intra_id1]
         if user_id == result["user_id"].values[0]:
             min_start_timestep_id2 = result['start_timestep'].values[0]
@@ -161,6 +162,8 @@ multi_protocol_df.rename(columns={'protocol': 'protocol_id2'}, inplace=True)
 # multi_protocol_df.rename(columns={'user_id1': 'user_id'}, inplace=True)
 
 multi_protocol_df['privacy_score'] = multi_protocol_df.apply(calculate_privacy_score, axis=1)
+idx = multi_protocol_df.groupby('user_id')['privacy_score'].idxmax()
+multi_protocol_df = multi_protocol_df.loc[idx].reset_index(drop=True)
 
 multi_data = multi_protocol_df.to_dict(orient='records')
 # print(multi_protocol_df.to_string())

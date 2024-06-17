@@ -4,16 +4,14 @@ AREA_SIZE = 500
 # Duration of the simulation (in seconds)
 DURATION_SIMULATION = 7200
 
-
 # Create only same set of users for different run
-
-TOTAL_NUMBER_OF_USERS = 100
-ENABLE_SAME_NUMBER_USERS = False
+TOTAL_NUMBER_OF_USERS = 256
+ENABLE_USER_THRESHOLD = False
 
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-USER_TIMESTEPS = 19400
+USER_TIMESTEPS = 18200
 
 # FIRST_TIMESTEP = 18001.25
 #-------------------------#

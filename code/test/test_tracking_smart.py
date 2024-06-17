@@ -1,4 +1,8 @@
-from services.tracking_algorithm_single import tracking_algorithm_single
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from services.tracking_algorithm_smart import tracking_algorithm_smart
 from collections import defaultdict
 from pprint import pprint
 
@@ -20,56 +24,65 @@ from pprint import pprint
 #             {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
 #         ],
 #     ),
-   
-# ]
 
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#         ],
-#     ),
-   
 # ]
 
 test_tuple = [
-    (
-        0,
-        [
-            # {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-            {"LTE": ["L2", "L3", "L1", "L5"], "WiFi": ["W2", "W3"]},
-            {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-        ],
-    ),
-    (
-        1,
-        [
-            {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-            {"LTE": ["L1", "L3"], "WiFi": ["W1'", "W3"]},
-            {"LTE": ["L1", "L2"], "WiFi": ["W1'", "W2"]},
-            {"LTE": ["L1", "L4"], "WiFi": ["W1'", "W4"]},
-        ],
-    ),
-   
+    (0, [{"LTE": ["L1", "L2"]}, {"WiFi": ["W1", "W2"]}]),
+    (1, [{"LTE": ["L1", "L2"]}, {"WiFi": ["W1", "W2"]}]),
+]
+
+
+test_tuple = [
+    (0, [{"WiFi": ["W1", "W2"]}, {"WiFi": ["W2", "W3"]}, {"WiFi": ["W3", "W4"]}]),
+    (1, [{"WiFi": ["W1", "W3"]}, {"WiFi": ["W2", "W5"]}, {"WiFi": ["W3", "W7"]}]),
 ]
 
 # test_tuple = [
 #     (
 #         0,
 #         [
+#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
+#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
+#         ],
+#     ),
+
+# ]
+
+# test_tuple = [
+#     (
+#         0,
+#         [
+#             # {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
+#             {"LTE": ["L2", "L3", "L1", "L5"], "WiFi": ["W2", "W3"]},
+#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
+#             {"LTE": ["L1", "L3"], "WiFi": ["W1'", "W3"]},
+#             {"LTE": ["L1", "L2"], "WiFi": ["W1'", "W2"]},
+#             {"LTE": ["L1", "L4"], "WiFi": ["W1'", "W4"]},
+#         ],
+#     ),
+
+# ]
+
+# test_tuple = [
+#     (
+#         0,
+#         [
 #             {"LTE": ["L1"], "WiFi": ["W1"]},
 #             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
 #             {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
@@ -102,7 +115,6 @@ test_tuple = [
 #         ],
 #     ),
 # ]
-
 
 
 # test_tuple = [
@@ -184,7 +196,7 @@ test_tuple = [
 #             {"LTE": ["L1", "L3", "L4"], "WiFi": ["W3"]},
 #         ],
 #     ),
-   
+
 # ]
 
 
@@ -201,7 +213,7 @@ test_tuple = [
 #             {"LTE": ["L1`", "L2"], "WiFi": ["W1`", "W2"], "Bluetooth": ["B2"]},
 #         ],
 #     ),
-   
+
 # ]
 
 
@@ -230,7 +242,7 @@ test_tuple = [
 #             {"LTE": ["L3", "L2", "L1`"], "WiFi": ["W3", "W2"]},
 #         ],
 #     ),
-   
+
 # ]
 
 # test_tuple = [
@@ -248,27 +260,33 @@ test_tuple = [
 #             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
 #         ],
 #     )
-   
+
 # ]
 
 
-timestep_pairs = [(test_tuple[i], test_tuple[i + 1]) for i in range(len(test_tuple) - 1)]
+timestep_pairs = [
+    (test_tuple[i], test_tuple[i + 1]) for i in range(len(test_tuple) - 1)
+]
 # print(timestep_pairs)
 intra_potential_mapping, visited_intra_list = defaultdict(set), defaultdict(set)
 
 i = 0
 for timestep_pair in timestep_pairs:
-    
-    # print(timestep_pair)  
+
+    # print(timestep_pair)
     # potential_mapping = tracking_algorithm(two_timestep_data)
-    intra_potential_mapping, visited_intra_list =  tracking_algorithm_single(timestep_pair, intra_potential_mapping=intra_potential_mapping, visited_intra_list=visited_intra_list)
+    intra_potential_mapping, visited_intra_list = tracking_algorithm_smart(
+        timestep_pair,
+        intra_potential_mapping=intra_potential_mapping,
+        visited_intra_list=visited_intra_list,
+    )
 
     print(f"for timestep - {i} - {i+1} \n")
-                                    
+
     print("\nIntra_potential_mapping\n")
     pprint(intra_potential_mapping)
 
     print("\nVisited Intra List\n")
     pprint(visited_intra_list)
     print("\n")
-    i+=1
+    i += 1

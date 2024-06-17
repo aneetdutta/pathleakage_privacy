@@ -49,7 +49,7 @@ plt.plot(baseline_lte_users, baseline_lte_scores_sorted, label='Naive Baseline (
 plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Multi-Protocol', alpha=0.7)
 # plt.plot(multi_protocol_users_old, multi_protocol_scores_sorted_old, label='Multi-Protocol (Old)', alpha=0.7)
 
-plt.xticks(np.arange(min(multi_protocol_users), max(multi_protocol_users)+1, math.floor(len(multi_protocol_users)/16)), fontsize=10)
+plt.xticks(np.arange(min(multi_protocol_users), max(multi_protocol_users)+1, math.floor(len(multi_protocol_users)/5)), fontsize=10)
 plt.yticks(fontsize=14)
 plt.xlabel('Number of Users', fontsize=16)
 plt.ylabel('Privacy Leakage', fontsize=14)

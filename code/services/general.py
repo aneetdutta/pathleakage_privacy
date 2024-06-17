@@ -105,6 +105,7 @@ def combine_and_exclude_all(dicts, keys, result_dict=None):
     
     # Combine values for each key from all dictionaries
     for d in dicts:
+        print(dicts)
         for key in keys:
             combined_dict[key].update(d.get(key, []))
     
@@ -170,6 +171,22 @@ def remove_subsets(chains):
         if not any(set(chain).issubset(set(other)) for other in subsets_removed):
             subsets_removed.append(chain)
     return subsets_removed
+
+def remove_subsets_group(sets):
+    # Sort the list of sets by length in descending order
+    sets = sorted(sets, key=len, reverse=True)
+    unique_sets = []
+
+    for current_set in sets:
+        is_subset = False
+        for unique_set in unique_sets:
+            if current_set.issubset(unique_set):
+                is_subset = True
+                break
+        if not is_subset:
+            unique_sets.append(current_set)
+
+    return unique_sets
 
 def build_chain_for_key(current_key, current_chain:list, visited: set, data: dict, all_chains, user_id):
     if current_key in visited:
