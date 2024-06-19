@@ -2,11 +2,13 @@
 PYTHON = python3
 
 # Define the default target
-all: sumo data_gen gtsr smart
+all: sumo data_gen gtsr
 
 all_without_sumo: data_gen gtsr
 
 gts: group tracking sanity
+
+all_without_reconstruction: clean sumo data_gen gts
 
 gtsr: group tracking sanity reconstruction plot
 

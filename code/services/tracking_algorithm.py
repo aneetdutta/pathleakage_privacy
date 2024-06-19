@@ -121,8 +121,6 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     t0_ids = set(list(timestep_0_potential_mapping))
     t1_ids = set(list(timestep_1_potential_mapping))
     
-    
-    
     # print(t0_ids, t1_ids)
     
     ''' Fetching common ids in both intermapping dicts '''
@@ -167,6 +165,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
         inter_potential_mapping[id] = set(inter_potential_mapping[id])
         inter_potential_mapping[id].update(common_mappings)
         
+        inter_potential_mapping[id] = inter_potential_mapping[id] - visited_inter_list[id]
+        
         # print("Updated common mappings to inter potential mapping")
         # print(inter_potential_mapping, "\n")
         
@@ -185,22 +185,27 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                         checker=True
                         break
                 if checker:
-                    inter_potential_mapping[id].update({i})
+                    if i not in visited_inter_list[id]:
+                        inter_potential_mapping[id].update({i})
                 else:
-                    visited_inter_list[id].update({i})
+                    if i not in inter_potential_mapping[id]:
+                        visited_inter_list[id].update({i})
                     
         elif t0_1 and not t1_0:
             for i in t0_1:
                 if not intra_potential_mapping[i].intersection(common_mappings):
-                    visited_inter_list[id].update({i})
+                    if i not in inter_potential_mapping[id]:
+                        visited_inter_list[id].update({i})
                 else:
-                    inter_potential_mapping[id].update({i})
+                    if i not in visited_inter_list[id]:
+                        inter_potential_mapping[id].update({i})
                     
         elif t0_1 and t1_0:
             for i in t1_0:
                 for j in common_mappings:
                     if i in intra_potential_mapping[j]:
-                        inter_potential_mapping[id].update({i})
+                        if i not in visited_inter_list[id]:
+                            inter_potential_mapping[id].update({i})
                         break
                       
             common_set_for_t1_0 = set()
@@ -213,7 +218,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 
                 ''' check if intra potential mapping of that id exists in the common mappings and add it if true '''
                 if intra_potential_mapping[i].intersection(common_mappings):
-                    inter_potential_mapping[id].update({i})
+                    if i not in visited_inter_list[id]:
+                        inter_potential_mapping[id].update({i})
                     
                 common_set_for_t1_0.update(id_in_t1_0_common)
                 ''' Find not common mappings of that id'''
@@ -222,7 +228,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 if id_in_t1_0_common:
                     ''' Update both id in t0_1 and id in t1_0'''
                     inter_potential_mapping[id].update(id_in_t1_0_common)
-                    inter_potential_mapping[id].update({i})
+                    if i not in visited_inter_list[id]:
+                        inter_potential_mapping[id].update({i})
                 else:
                     if i not in inter_potential_mapping[id]:
                         visited_inter_list[id].update({i})
@@ -233,8 +240,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                     if i not in inter_potential_mapping[id]:
                         visited_inter_list[id].update({i})
                         
-        ''' Sanity cleaning step'''
-        inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
+        # ''' Sanity cleaning step'''
+        # inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
 
     # print("Intra potential mapping - After Inter")
     # pprint(intra_potential_mapping)
