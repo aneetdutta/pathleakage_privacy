@@ -50,7 +50,7 @@ for id, mapping in intra_data.items():
     # if not mapping:
     #     continue
     for id_ in list(mapping):
-        print(id_)
+        # print(id_)
         if inter_data[id_] != user_id:
             checker = False
     if checker:
