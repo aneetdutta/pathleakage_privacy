@@ -144,6 +144,7 @@ class MongoDB:
                     "sniffer_data": {"$arrayToObject": "$sniffer_data"},
                 }
             },
+            {"$sort": {"st_window": 1}}
         ]
 
         return self.collection.aggregate(pipeline)

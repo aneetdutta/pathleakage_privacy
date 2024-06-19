@@ -102,9 +102,9 @@ min_value = df['mf'].min()
 average_value = df['mf'].mean()
 median_value = df['mf'].median()
 
-ml.logger.info("Max Mobility:", max_value)
-ml.logger.info("Min Mobility:", min_value)
-ml.logger.info("Average Mobility:", average_value)
-ml.logger.info("Median Mobility:", median_value)
+ml.logger.info(f"Max Mobility: {max_value}")
+ml.logger.info(f"Min Mobility: {min_value}")
+ml.logger.info(f"Average Mobility: {average_value}")
+ml.logger.info(f"Median Mobility: {median_value}")
 
 df.write_csv(user_file)

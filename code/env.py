@@ -44,12 +44,12 @@ BLUETOOTH_MIN_REFRESH = 10*60
 BLUETOOTH_MAX_REFRESH = 45*60
 
 # WifI ID refresh range uniform (in s)
-WIFI_MIN_REFRESH = 5*60
-WIFI_MAX_REFRESH = 15*60
+WIFI_MIN_REFRESH = 10
+WIFI_MAX_REFRESH = 15
 
 # LTE refresh range uniform (in s)
-LTE_MIN_REFRESH =  10
-LTE_MAX_REFRESH =  60
+LTE_MIN_REFRESH =  5*60
+LTE_MAX_REFRESH =  10*60
 
 
 # Bluetooth IDs transmit range uniform (in s)
@@ -58,7 +58,7 @@ BLUETOOTH_MAX_TRANSMIT = 5
 
 # WifI ID transmit range uniform (in s)
 WIFI_MIN_TRANSMIT = 0.25
-WIFI_MAX_TRANSMIT = 10
+WIFI_MAX_TRANSMIT = 15
 
 # LTE transmit range uniform (in s)
 LTE_MIN_TRANSMIT =  0.25

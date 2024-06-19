@@ -2,7 +2,7 @@
 PYTHON = python3
 
 # Define the default target
-all: sumo data_gen gtsr
+all: sumo data_gen gtsr smart
 
 all_without_sumo: data_gen gtsr
 
@@ -47,6 +47,13 @@ tracking:
 	time $(PYTHON) tracking/tracking.py
 	@echo "Tracking completed"
 
+smart:
+	@echo "Running Smart Grouping"
+	time $(PYTHON) group/group_smart_parallel.py
+	@echo "Grouping completed"
+	@echo "Running Smart tracking"
+	time $(PYTHON) tracking/tracking_smart.py
+	@echo "Tracking completed"
 sanity:
 	@echo "Running sanity"
 	time $(PYTHON) sanity/sanity.py
@@ -76,6 +83,8 @@ clean:
 	rm -rf __pycache__
 	rm -rf csv/*.csv
 	rm -rf data/*.csv
+	rm -rf logs/*.log
+	rm -rf images/*.pdf
 
 # .PHONY targets tell make these are not files
-.PHONY: all run_scripts user_data group tracking sanity reconstruction clean data_gen sumo gtsr gts clean_db all_without_sumo plot
+.PHONY: all run_scripts user_data group tracking sanity reconstruction clean data_gen sumo gtsr gts clean_db all_without_sumo plot smart

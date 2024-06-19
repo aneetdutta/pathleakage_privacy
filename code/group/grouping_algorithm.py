@@ -74,6 +74,7 @@ def group_distances(sniffer_groups):
             # print(group, "hello", sg_tup)
 
             if sg_tup in group and not compatible:
+                # print(sg_tup, )
                 group.remove(sg_tup)
                 
             i = i+1
