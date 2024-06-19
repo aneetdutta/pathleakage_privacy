@@ -6,7 +6,11 @@ from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 import pandas as pd
 import sys
+
+from modules.logger import MyLogger
+
 md = MongoDB()
+ml = MyLogger("sanity")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -30,7 +34,7 @@ for document in inter_docs:
 
 intra_length = len(list(intra_data))
 inter_length = len(list(inter_data))
-# print(intra_length, inter_length)
+# ml.logger.info(intra_length, inter_length)
 
 # sys.exit(0)
 intra_counter = 0
@@ -89,13 +93,13 @@ tracked_inter_wifi_users = set()
 
 
 for index, row in user_data.iterrows():
-    # print(f"Index: {index}")
+    # ml.logger.info(f"Index: {index}")
     lte_ids = set(row['lte_ids'])
     wifi_ids = set(row['wifi_ids'])
     user_id = row['user_id']
     ids = set(row['ids'])
     
-    # print(user_id, lte_ids, wifi_ids,ids)
+    # ml.logger.info(user_id, lte_ids, wifi_ids,ids)
     
     for intra_id, intra_ids in intra_data.items():
         intra_ids = set(intra_ids)
@@ -121,7 +125,7 @@ for index, row in user_data.iterrows():
             else:
                 if intra_id not in lte_intra__multiple_mapping:
                     lte_intra__multiple_mapping.add(intra_id)
-                # print(user_id, intra_ids, intra_id)
+                # ml.logger.info(user_id, intra_ids, intra_id)
                 lte_intra__multiple_users.add(user_id)
         else:
             untracked_intra_lte_users.add(user_id)
@@ -141,7 +145,7 @@ for index, row in user_data.iterrows():
                 if intra_id not in wifi_intra__multiple_mapping:
                     wifi_intra__multiple_mapping.add(intra_id)
                 wifi_intra__multiple_users.add(user_id)
-                #print(user_id, intra_ids, len(intra_ids))
+                #ml.logger.info(user_id, intra_ids, len(intra_ids))
             # tracked_intra_users_wifi[user_id].add(intra_id)
         else:
             untracked_intra_wifi_users.add(user_id)
@@ -154,7 +158,7 @@ untracked_intra_lte_users = untracked_intra_lte_users - tracked_intra_lte_users
 untracked_intra_wifi_users = untracked_intra_wifi_users - tracked_intra_wifi_users
 
 for index, row in user_data.iterrows():
-    # print(f"Index: {index}")
+    # ml.logger.info(f"Index: {index}")
     lte_ids = set(row['lte_ids'])
     wifi_ids = set(row['wifi_ids'])
     user_id = row['user_id']
@@ -164,9 +168,9 @@ for index, row in user_data.iterrows():
     for inter_id, inter_ids in inter_data.items():
         inter_ids = set(inter_ids)
         if not inter_ids and inter_id not in visited_inter_ids:
-            print(inter_id)
+            # ml.logger.info(inter_id)
             null_inter_counter +=1
-            # print(user_id, inter_id)
+            # ml.logger.info(user_id, inter_id)
             null_inter_users.add(user_id)
             visited_inter_ids.add(inter_id)
             continue
@@ -175,14 +179,14 @@ for index, row in user_data.iterrows():
         if key = Wifi, value = LTE """
         p1_lte, p1_wifi = {inter_id}.intersection(lte_ids), inter_ids.intersection(wifi_ids)
         p2_wifi, p2_lte = {inter_id}.intersection(wifi_ids), inter_ids.intersection(lte_ids)
-        # print(p2_wifi, p2_lte)
+        # ml.logger.info(p2_wifi, p2_lte)
         
         if p1_lte and p1_wifi:
             tracked_inter_users_lte_dict[user_id].update(inter_ids)
             ''' Atleast one mapping from LTE to Wifi present 
             Tracking inter from lte to wifi '''
             tracked_inter_lte_users.add(user_id)
-            # print(user_id, inter_id, inter_ids)
+            # ml.logger.info(user_id, inter_id, inter_ids)
         else:
             untracked_inter_lte_users.add(user_id)
             untracked_inter_lte_users = untracked_inter_lte_users - tracked_inter_lte_users
@@ -198,58 +202,58 @@ for index, row in user_data.iterrows():
             untracked_inter_wifi_users = untracked_inter_wifi_users - tracked_inter_wifi_users
         
 for index, row in user_data.iterrows():
-    # print(f"Index: {index}")
+    # ml.logger.info(f"Index: {index}")
     lte_ids = set(row['lte_ids'])
     wifi_ids = set(row['wifi_ids'])
     user_id = row['user_id']
     ids = set(row['ids'])     
     
     if tracked_inter_users_wifi_dict[user_id] == lte_ids:
-        # print(user_id, tracked_inter_users_wifi_dict[user_id])
+        # ml.logger.info(user_id, tracked_inter_users_wifi_dict[user_id])
         wifi_inter__single_users.add(user_id)
     else:
         wifi_inter__multiple_users.add(user_id)
     
     if tracked_inter_users_lte_dict[user_id] == wifi_ids:
-        # print(user_id, tracked_inter_users_lte_dict[user_id])
+        # ml.logger.info(user_id, tracked_inter_users_lte_dict[user_id])
         lte_inter__single_users.add(user_id)
     else:
         lte_inter__multiple_users.add(user_id)
         
-print("Total Users", total_users)
+ml.logger.info(f"Total Users: {total_users}")
 
-print("\nTotal Untracked (Not randomized) LTE Intra users", len(untracked_intra_lte_users))
-print("Total Untracked LTE Inter users", len(untracked_inter_lte_users))
+ml.logger.info(f"\nTotal Untracked (Not randomized) LTE Intra users {len(untracked_intra_lte_users)}")
+ml.logger.info(f"Total Untracked LTE Inter users {len(untracked_inter_lte_users)}")
 
-print("Total LTE Intra tracked users ", len(tracked_intra_lte_users))
-print("Total LTE Intra users with single mapping: ", len(lte_intra__single_users))
-print("Total LTE Intra users with multiple mapping: ", len(lte_intra__multiple_users))
+ml.logger.info(f"Total LTE Intra tracked users  {len(tracked_intra_lte_users)}")
+ml.logger.info(f"Total LTE Intra users with single mapping:  {len(lte_intra__single_users)}")
+ml.logger.info(f"Total LTE Intra users with multiple mapping:  {len(lte_intra__multiple_users)}")
 
-print("\nTotal LTE Intra mappings: ", len(lte_intra_total_mapping))
-print("Total LTE Intra single mappings: ", len(lte_intra__single_mapping))
-print("Total LTE Intra multiple mappings: ", len(lte_intra__multiple_mapping))
+ml.logger.info(f"\nTotal LTE Intra mappings:  {len(lte_intra_total_mapping)}")
+ml.logger.info(f"Total LTE Intra single mappings:  {len(lte_intra__single_mapping)}")
+ml.logger.info(f"Total LTE Intra multiple mappings:  {len(lte_intra__multiple_mapping)}")
 
-print("\nTotal Untracked (Not Randomized) WIFI Intra users", len(untracked_intra_wifi_users))
-print("Total Untracked WIFI Inter users", len(untracked_inter_wifi_users))
+ml.logger.info(f"\nTotal Untracked (Not Randomized) WIFI Intra users {len(untracked_intra_wifi_users)}")
+ml.logger.info(f"Total Untracked WIFI Inter users {len(untracked_inter_wifi_users)}")
 
-print("\nTotal Wifi Intra tracked users ", len(tracked_intra_wifi_users))
-print("Total Wifi Intra users with single mapping: ", len(wifi_intra__single_users))
-print("Total Wifi Intra users with multiple mapping: ", len(wifi_intra__multiple_users))
+ml.logger.info(f"\nTotal Wifi Intra tracked users  {len(tracked_intra_wifi_users)}")
+ml.logger.info(f"Total Wifi Intra users with single mapping:  {len(wifi_intra__single_users)}")
+ml.logger.info(f"Total Wifi Intra users with multiple mapping:  {len(wifi_intra__multiple_users)}")
 
-print("\nTotal Wifi Intra mappings: ", len(wifi_intra_total_mapping))
-print("Total Wifi Intra single mappings: ", len(wifi_intra__single_mapping))
-print("Total WIfi Intra multiple mappings: ", len(wifi_intra__multiple_mapping))
+ml.logger.info(f"\nTotal Wifi Intra mappings:  {len(wifi_intra_total_mapping)}")
+ml.logger.info(f"Total Wifi Intra single mappings:  {len(wifi_intra__single_mapping)}")
+ml.logger.info(f"Total WIfi Intra multiple mappings:  {len(wifi_intra__multiple_mapping)}")
 
-print("\nTotal LTE-Wifi Inter users with single mapping (set having same intra mappings): ", len(lte_inter__single_users))
-print("Total LTE-Wifi Inter users with multiple mapping  (set having different intra mappings): ", len(lte_inter__multiple_users))
-print("Total LTE-Wifi Inter tracked users: ", len(tracked_inter_lte_users))
+ml.logger.info(f"\nTotal LTE-Wifi Inter users with single mapping (set having same intra mappings):  {len(lte_inter__single_users)}")
+ml.logger.info(f"Total LTE-Wifi Inter users with multiple mapping  (set having different intra mappings):  {len(lte_inter__multiple_users)}")
+ml.logger.info(f"Total LTE-Wifi Inter tracked users: {len(tracked_inter_lte_users)}")
 
-print("\nTotal Wifi-LTE Inter users with single mapping: ", len(wifi_inter__single_users))
-print("Total Wifi-LTE Inter users with multiple mapping: ", len(wifi_inter__multiple_users))
-print("Total Wifi-LTE Inter tracked users: ", len(tracked_inter_wifi_users))
+ml.logger.info(f"\nTotal Wifi-LTE Inter users with single mapping: {len(wifi_inter__single_users)}")
+ml.logger.info(f"Total Wifi-LTE Inter users with multiple mapping: {len(wifi_inter__multiple_users)}")
+ml.logger.info(f"Total Wifi-LTE Inter tracked users: {len(tracked_inter_wifi_users)}")
 
-print("\nTotal Null (Wifi+LTE) Intra_ids: ", null_intra_counter)
-print("Total Null (Wifi+LTE) Inter_ids: ", null_inter_counter)
+ml.logger.info(f"\nTotal Null (Wifi+LTE) Intra_ids: {null_intra_counter}")
+ml.logger.info(f"Total Null (Wifi+LTE) Inter_ids:  {null_inter_counter}")
 
-# print(null_inter_users)
+ml.logger.info(f"Null inter users: {null_inter_users}")
 # print(visited_inter_ids)

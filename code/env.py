@@ -11,7 +11,7 @@ ENABLE_USER_THRESHOLD = False
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-USER_TIMESTEPS = 18300
+USER_TIMESTEPS = 18600
 
 # FIRST_TIMESTEP = 18001.25
 #-------------------------#
