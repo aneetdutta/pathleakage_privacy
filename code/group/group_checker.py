@@ -1,7 +1,7 @@
 from modules.device import Device
 from modules.devicemanager import DeviceManager
 from services.general import *
-from services.tracking_algorithm import tracking_algorithm
+from tracking.tracking_algorithm import tracking_algorithm
 from modules.mongofn import MongoDB
 import json
 from collections import defaultdict

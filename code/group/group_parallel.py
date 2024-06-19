@@ -48,7 +48,7 @@ batch_size, grouping_list = 2, []
 now = time.time()
 batches = list(batch_data(list(sniffer_data), batch_size))
 # 
-with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
+with ProcessPoolExecutor(max_workers=1) as executor:
     futures = [executor.submit(process_batch, batch) for batch in batches]
     results = [future.result() for future in futures]
 

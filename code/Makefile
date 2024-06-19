@@ -2,7 +2,7 @@
 PYTHON = python3
 
 # Define the default target
-all: sumo data_gen gtsr
+all: sumo data_gen gtsr smart plot
 
 all_without_sumo: data_gen gtsr
 
@@ -10,7 +10,7 @@ gts: group tracking sanity
 
 all_without_reconstruction: clean sumo data_gen gts
 
-gtsr: group tracking sanity reconstruction plot
+gtsr: group tracking sanity reconstruction
 
 clean_db: 	
 	@mongosh --eval "db.getSiblingDB('code').dropDatabase()"
@@ -41,21 +41,24 @@ group:
 	time $(PYTHON) group/aggregate_sniffer_timesteps.py
 	@echo "Sniffer timestep aggregation completed"
 	@echo "Running grouping"
-	time $(PYTHON) group/group_parallel.py
+	time $(PYTHON) group/group_seq.py
 	@echo "Grouping completed"
 
 tracking:
 	@echo "Running tracking"
-	time $(PYTHON) tracking/tracking.py
+	time $(PYTHON) tracking/tracking_multi.py
 	@echo "Tracking completed"
 
 smart:
 	@echo "Running Smart Grouping"
-	time $(PYTHON) group/group_smart_parallel.py
+	time $(PYTHON) group/group_smart_seq.py
 	@echo "Grouping completed"
 	@echo "Running Smart tracking"
 	time $(PYTHON) tracking/tracking_smart.py
 	@echo "Tracking completed"
+	time $(PYTHON) reconstruction/reconstruction_baseline_smart.py
+	@echo "Tracking completed"
+
 sanity:
 	@echo "Running sanity"
 	time $(PYTHON) sanity/sanity.py

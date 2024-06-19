@@ -13,7 +13,7 @@ compressed_file_path = "data/sniffed_data.csv"
 df = pd.read_csv(compressed_file_path)
 df["dist_S_U"] = (np.sqrt(((df["sl_x"] - df["ul_x"]) ** 2 + (df["sl_y"] - df["ul_y"]) ** 2))).astype(int)
 # Drop the specified columns
-df = df.drop(columns=['sl_x', 'sl_y', 'ul_x', 'ul_y', 'user_id'])
+df = df.drop(columns=['sl_x', 'sl_y', 'ul_x', 'ul_y'])
 # sys.exit()
 earliest_timestep = df['timestep'].min()
 last_timestep = df['timestep'].max()

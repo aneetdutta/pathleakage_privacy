@@ -1,7 +1,7 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
-from services.tracking_algorithm_smart import tracking_algorithm_smart
+from tracking.tracking_algorithm_smart import tracking_algorithm_smart
 from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint

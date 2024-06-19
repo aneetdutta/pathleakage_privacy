@@ -1,5 +1,7 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR
-import copy
 from services.general import remove_subsets_and_duplicates, remove_subsets_group
 from collections import defaultdict
 import sys
@@ -12,8 +14,7 @@ def group_distances(sniffer_groups):
     }
     
     groups = []  # Initialize list to store final groups
-    # print(sniffer_groups)
-    # sys.exit()
+
     '''iterate through sniffer_groups'''
     updated_timestep_dict = defaultdict()
     dist_dict = defaultdict()

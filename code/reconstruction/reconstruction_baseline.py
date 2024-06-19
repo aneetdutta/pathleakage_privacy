@@ -69,7 +69,7 @@ ml.logger.info("Preprocessed user data")
 baseline = []
 i=0
 for id in inter_data.keys():
-    print(i)
+    # print(i)
     ml.logger.info(f"{id} - i")
     i+=1
     # try:

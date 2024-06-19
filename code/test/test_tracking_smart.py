@@ -2,7 +2,7 @@ import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.tracking_algorithm_smart import tracking_algorithm_smart
+from tracking.tracking_algorithm_smart import tracking_algorithm_smart
 from collections import defaultdict
 from pprint import pprint
 

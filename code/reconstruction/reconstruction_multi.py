@@ -54,8 +54,8 @@ chained_intra = remove_subsets_and_merge(intra_data_user)
 # print(chained_intra)
 # sys.exit()
 multi_protocol = []
-visited_set = set()
-visited_user = set()
+# visited_set = set()
+# visited_user = set()
 # print(inter_df)
 for index, inter_row in inter_df.iterrows():
     # print(index)
@@ -84,21 +84,13 @@ for index, inter_row in inter_df.iterrows():
         id1_df = inter_df[inter_df['_id'].isin(chain)]
         min_start_timestep_id1 = id1_df['start_timestep'].min()
         max_last_timestep_id1 = id1_df['last_timestep'].max()        
-        visited_set.update(set(chain))
+        # visited_set.update(set(chain))
     else:
         min_start_timestep_id1 = inter_row["start_timestep"]
         max_last_timestep_id1 = inter_row["last_timestep"]
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
-    
-    # if inter_id == "W9VE0Y1YDXSL":
-    #     print(inter_id)
-    #     print(fetch_inter_mapping_timesteps.to_string())
-    # dfs = {protocol: fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['protocol'] == protocol] for protocol in fetch_inter_mapping_timesteps}
 
-    # print(inter_id, inter_row["protocol"])
-    # print(fetch_inter_mapping_timesteps)
-    # print(inter_id, fetch_inter_mapping_timesteps)
     temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
     
     # Filter the DataFrame to include only rows with the minimum start_timestep
