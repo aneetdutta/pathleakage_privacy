@@ -1,3 +1,5 @@
+import pathlib
+
 #Area of capture dimension (in meters)
 AREA_SIZE = 500
 
@@ -11,7 +13,7 @@ ENABLE_USER_THRESHOLD = False
 # Number of characters in identifier
 IDENTIFIER_LENGTH = 12
 
-USER_TIMESTEPS = 18800
+USER_TIMESTEPS = 18050
 
 # FIRST_TIMESTEP = 18001.25
 #-------------------------#
@@ -86,9 +88,9 @@ SNIFFER_PROCESSING_BATCH_SIZE = 100
 SUMO_BIN_PATH = "/usr/bin/"
 
 sumo_binary = "sumo"
-common_path = "/MoSTScenario/scenario/most.sumocfg"
+common_path = "../scenario/most.sumocfg"
 
-SUMO_CFG_FILE = f"/home/anonymous{common_path}"
+SUMO_CFG_FILE = f"{pathlib.Path().resolve()}/{common_path}"
 # SUMO_CFG_FILE = f"/home/aneet_wisec/privacy_cispa{common_path}"
 # SUMO_CFG_FILE = f"/home/wisec{common_path}"
 
