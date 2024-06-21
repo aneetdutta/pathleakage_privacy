@@ -1,12 +1,13 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from env import *
 from modules.user import User
 from collections import deque
 from services.general import random_identifier
 import polars as pd
 
-df = pd.read_csv("data/raw_user_data.csv")
+DB_NAME = os.getenv("DB_NAME")
+
+df = pd.read_csv(f"data/raw_user_data_{DB_NAME}.csv")
 raw_user_data = df.to_dicts()
 
 
@@ -32,7 +33,7 @@ for user_ in raw_user_data:
         bluetooth_id=random_identifier()
         wifi_id=random_identifier()
         lte_id=random_identifier()
-        user = User(user_id,[loc_x,loc_y],bluetooth_id=bluetooth_id, wifi_id=wifi_id, lte_id=lte_id, mf=mf, max_step_size=MAX_STEP_SIZE) 
+        user = User(user_id,[loc_x,loc_y],bluetooth_id=bluetooth_id, wifi_id=wifi_id, lte_id=lte_id, mf=mf) 
         user_dict[user_id] = user
     
     user_data.append({
@@ -52,7 +53,7 @@ for user_ in raw_user_data:
         "randomized_lte": user.randomized_lte,
     })
 
-user_file = "data/user_data.csv"
+user_file = f"data/user_data_{DB_NAME}.csv"
 print("Saved file to the directory")
 df = pd.DataFrame(list(user_data))
 columns_to_replace = ['randomized_ble', 'randomized_wifi', 'randomized_lte']

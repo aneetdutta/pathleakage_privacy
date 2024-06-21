@@ -1,8 +1,13 @@
-from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR
-import copy
+# from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR
+import copy, os
 from services.general import remove_subsets_and_duplicates, remove_subsets_group
 from collections import defaultdict
 import sys
+
+BLUETOOTH_LOCALIZATION_ERROR = os.getenv("BLUETOOTH_LOCALIZATION_ERROR")
+WIFI_LOCALIZATION_ERROR = os.getenv("WIFI_LOCALIZATION_ERROR")
+LTE_LOCALIZATION_ERROR = os.getenv("LTE_LOCALIZATION_ERROR")
+MAX_MOBILITY_FACTOR = os.getenv("MAX_MOBILITY_FACTOR")
 
 def group_distances(sniffer_groups):
     # sniffer_groups = list(set(sniffer_groups))

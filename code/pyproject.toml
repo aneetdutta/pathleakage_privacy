@@ -16,6 +16,8 @@ scipy = "^1.13.1"
 pymongo = "^4.7.3"
 loguru = "^0.7.2"
 matplotlib = "^3.9.0"
+PyYAML = "^6.0.1"
+invoke = "^2.2.0"
 
 [tool.poetry.dev-dependencies]
 

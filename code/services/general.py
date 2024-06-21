@@ -1,7 +1,7 @@
-from env import IDENTIFIER_LENGTH
-from random import uniform, randint, choices
+from random import choices
 from string import ascii_uppercase, digits
 from math import sqrt
+import os
 # import cython
 import numpy as np
 import copy
@@ -9,10 +9,27 @@ from collections import defaultdict
 from pprint import pprint
 import orjson
 import pandas as pd
+import yaml
 from shapely.geometry import Point, Polygon
 import concurrent.futures
 
+IDENTIFIER_LENGTH = os.getenv("IDENTIFIER_LENGTH")
 
+def str_to_bool(s):
+    return {'true': True, 'false': False}.get(s.strip().lower(), None)
+
+def load_yaml_config(file_path):
+    with open(file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
+
+def set_env_from_config(section, config):
+    for key, value in config.get(section, {}).items():
+        if isinstance(value, list):
+            # Convert list (e.g., list of lists) to a string representation
+            os.environ[key] = str(value)
+        else:
+            os.environ[key] = str(value)
 
 
 def remove_subsets_and_merge(data):
@@ -252,7 +269,7 @@ def is_point_inside_polygon(x, y, polygon: Polygon):
 Generates Random Device Identifier
 """
 def random_identifier():
-    return "".join(choices(ascii_uppercase + digits, k=IDENTIFIER_LENGTH))
+    return "".join(choices(ascii_uppercase + digits, k=int(IDENTIFIER_LENGTH)))
 
 
 def dict_to_tuple(dictionary):

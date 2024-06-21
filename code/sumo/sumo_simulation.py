@@ -1,18 +1,29 @@
 import os, sys, libsumo as traci
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import traceback
-from env import *
-from services.general import dump_orjson
+from services.general import dump_orjson, str_to_bool
 from collections import deque
 import time
 from services.general import is_point_inside_polygon
 from shapely.geometry import Polygon
 import polars as pd
+import pathlib
 
 from modules.logger import MyLogger
-ml = MyLogger("sumo_simulation")
+
+SUMO_BIN_PATH = "/usr/bin/"
+SUMO_CFG_FILE = f"{pathlib.Path().resolve()}/{'../scenario/most.sumocfg'}"
 
 # Create a polygon object
+POLYGON_COORDS = eval(os.getenv("POLYGON_COORDS"))
+USER_TIMESTEPS = int(os.getenv("USER_TIMESTEPS"))
+
+ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("USER_TIMESTEPS"))
+TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
+DB_NAME = os.getenv("DB_NAME")
+
+ml = MyLogger(f"sumo_simulation_{DB_NAME}")
+
 polygon = Polygon(POLYGON_COORDS)
 
 """ If not person id , save the person id and discard if visited next time"""
@@ -87,7 +98,7 @@ except Exception as e:
     sys.exit(1)
 
 ml.logger.info("Total time take to fetch user_data from sumo_simulation: ", time.time() - now)
-user_file = "data/raw_user_data.csv"
+user_file = f"data/raw_user_data_{DB_NAME}.csv"
 ml.logger.info("Saved file to the directory")
 df = pd.DataFrame(user_data)
 total_unique_user_ids = df.select(pd.col('user_id').n_unique()).item()

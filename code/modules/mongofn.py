@@ -1,12 +1,14 @@
 from pymongo import MongoClient
 from bson.son import SON
+import os
 
 
 class MongoDB:
 
     def __init__(self):
         self.client = MongoClient("localhost", 27017)
-        self.db = self.client.get_database("code")
+        self.db_name = os.getenv("DB_NAME")
+        self.db = self.client.get_database(self.db_name)
         # self.collection = self.db[collection_name]
         self.timesteps = []
 

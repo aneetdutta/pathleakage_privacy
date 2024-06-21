@@ -1,8 +1,12 @@
 from collections import defaultdict
 import itertools
 from pprint import pprint
-from env import ENABLE_BLUETOOTH
-from services.general import combine_and_exclude_all
+import os
+# from env import ENABLE_BLUETOOTH
+from services.general import combine_and_exclude_all, str_to_bool
+
+
+ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 

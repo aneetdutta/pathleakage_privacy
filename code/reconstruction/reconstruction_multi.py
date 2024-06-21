@@ -2,9 +2,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
 from modules.mongofn import MongoDB
-from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
-from services.general import UnionFind
 import pandas as pd
 # from env import USER_TIMESTEPS
 import sys
@@ -12,6 +10,8 @@ import sys
 md = MongoDB()
 from modules.logger import MyLogger
 ml = MyLogger("reconstruction_multiprotocol")
+
+DB_NAME = os.getenv("DB_NAME")
 
 md.set_collection('modified_intra_mappings')
 documents = list(md.collection.find())
@@ -159,6 +159,6 @@ multi_protocol_df = multi_protocol_df.loc[idx].reset_index(drop=True)
 
 multi_data = multi_protocol_df.to_dict(orient='records')
 # print(multi_protocol_df.to_string())
-multi_protocol_df.to_csv('csv/multi_protocol.csv', index=False)
+multi_protocol_df.to_csv(f'csv/multi_protocol_{DB_NAME}.csv', index=False)
 md.db['reconstruction_multiproto'].drop()
 md.db['reconstruction_multiproto'].insert_many(multi_data)

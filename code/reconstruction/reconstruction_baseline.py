@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
 from modules.mongofn import MongoDB
-from collections import defaultdict
+# from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 import pandas as pd
 # import sys
@@ -10,6 +10,8 @@ md = MongoDB()
 from modules.logger import MyLogger
 
 ml = MyLogger("reconstruction_baseline")
+DB_NAME = os.getenv("DB_NAME")
+
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -112,10 +114,10 @@ idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
 
 lte_df = lte_df.loc[idx].reset_index(drop=True)
 ml.logger.info("Saving WIFI and LTE csv")
-wifi_df.to_csv('csv/baseline_wifi.csv', index=False)
+wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}.csv', index=False)
 # wifi_data = wifi_df.to_dict(orient='records')
 # md.db['reconstruction_baseline'].insert_many(wifi_data)
-lte_df.to_csv('csv/baseline_lte.csv', index=False)
+lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}.csv', index=False)
 # lte_data = lte_df.to_dict(orient='records')
 # md.db['reconstruction_baseline'].insert_many(lte_data)
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")

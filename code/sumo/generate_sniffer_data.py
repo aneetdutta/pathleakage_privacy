@@ -3,8 +3,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.sniffer import Sniffer
 import traceback
-from env import *
-from services.general import extract_orjson
+from services.general import extract_orjson, str_to_bool
 from collections import deque
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
@@ -13,8 +12,20 @@ from typing import List, Dict, Any
 import polars as pl
 import pandas as pd
 
-sniffer_location = extract_orjson("data/new_sniffer_location.json")
-raw_user_data_df = pl.read_csv("data/user_data.csv")
+BLUETOOTH_RANGE = int(os.getenv("BLUETOOTH_RANGE"))
+WIFI_RANGE = int(os.getenv("WIFI_RANGE"))
+LTE_RANGE = int(os.getenv("LTE_RANGE"))
+SNIFFER_PROCESSING_BATCH_SIZE = int(os.getenv("SNIFFER_PROCESSING_BATCH_SIZE"))
+DB_NAME = os.getenv("DB_NAME")
+ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+
+
+if ENABLE_BLUETOOTH:
+    sniffer_location = extract_orjson("data/bluetooth_sniffer_location.json")
+else:
+    sniffer_location = extract_orjson("data/new_sniffer_location.json")
+    
+raw_user_data_df = pl.read_csv(f"data/user_data_{DB_NAME}.csv")
 raw_user_data = raw_user_data_df.to_dicts()
 
 def process_batch(batch: List[Dict[str, Any]], sniffers: List['Sniffer'], enable_bluetooth: bool=ENABLE_BLUETOOTH) -> deque:
@@ -64,6 +75,7 @@ def batch_data(data, batch_size):
 # Simulation loop
 detected_users, user_data, users, sniffers = deque(), deque(), dict(), deque()
 sniffer_locs = sniffer_location["sniffer_location"]
+
 sniffers = [
     Sniffer(i, sniffer_loc, BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE)
     for i, sniffer_loc in enumerate(sniffer_locs)
@@ -79,7 +91,7 @@ with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
 # Combine results from all batches
 detected_users = list(itertools.chain.from_iterable(results))
 
-sniffed_file = "data/sniffed_data.csv"
+sniffed_file = f"data/sniffed_data_{DB_NAME}.csv"
 df = pd.DataFrame(detected_users)
 # df.to_csv(sniffed_file, index=False)
 df.to_csv(sniffed_file, index=False)

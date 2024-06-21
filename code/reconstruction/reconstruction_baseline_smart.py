@@ -6,10 +6,11 @@ from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 from services.general import UnionFind
 import pandas as pd
-from env import USER_TIMESTEPS
 import sys
 # import sys
 md = MongoDB()
+
+DB_NAME = os.getenv("DB_NAME")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()
@@ -108,12 +109,5 @@ missing_user_in_df2 = unique_users_df2 - unique_users_df1
 
 print("Missing user in df2:", missing_user_in_df2)
 
-wifi_df.to_csv('csv/baseline_smart_wifi.csv', index=False)
-lte_df.to_csv('csv/baseline_smart_lte.csv', index=False)
-
-# bl_data = baseline_smart_df.to_dict(orient='records')
-# md.db['reconstruction_baseline'].drop()
-# md.db['reconstruction_baseline'].insert_many(bl_data)
-
-    
-# multi_protocol_df["privacy_score"] = multi_protocol_df["duration"]/multi_protocol_df["ideal_duration"]
+wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv', index=False)
+lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv', index=False)

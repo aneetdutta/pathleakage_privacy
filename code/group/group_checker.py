@@ -65,14 +65,12 @@ pipeline = [
 
 results = list(md.collection.aggregate(pipeline, allowDiskUse=True))
 
-user_location: defaultdict[set] = defaultdict(list)
 for result in results:
     timestep = result["timestep"]
     user_id, lte, wifi, bluetooth, location = result["user_id"],result["lte_ids"], result["wifi_ids"], result["bluetooth_ids"], result["location"]
     # print(user_id, lte, wifi, bluetooth)
     if lte and not wifi and not bluetooth:
         print(timestep, user_id, lte, wifi, bluetooth, location)
-        user_location[str(user_id)].append([timestep, location])
      
 if user_location:
     dump_orjson("user_location.json", user_location)

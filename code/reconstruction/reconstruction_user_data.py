@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.general import *
 from modules.mongofn import MongoDB
-from collections import defaultdict
+# from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 import pandas as pd
 # import sys
