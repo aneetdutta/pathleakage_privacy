@@ -24,6 +24,12 @@ movement_parameters:
   # PAUSE_DURATION_MIN: 1               # Minimum pause duration
   # PAUSE_DURATION_MAX: 5               # Maximum pause duration
 
+tracking_and_reconstruction_until:
+  TRACKING_UNTIL:
+    - 18256
+    - 18500
+    - 19400
+
 # Randomization Intervals
 randomization_intervals:
   # Bluetooth IDs refresh range uniform (in seconds)

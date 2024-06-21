@@ -231,9 +231,9 @@ ml.logger.info(f"Total LTE Intra tracked users  {len(tracked_intra_lte_users)}")
 ml.logger.info(f"Total LTE Intra users with single mapping:  {len(lte_intra__single_users)}")
 ml.logger.info(f"Total LTE Intra users with multiple mapping:  {len(lte_intra__multiple_users)}")
 
-ml.logger.info(f"Total LTE Intra mappings:  {len(lte_intra_total_mapping)}")
-ml.logger.info(f"Total LTE Intra single mappings:  {len(lte_intra__single_mapping)}")
-ml.logger.info(f"Total LTE Intra multiple mappings:  {len(lte_intra__multiple_mapping)}")
+ml.logger.info(f"Total LTE Intra mappings for tracked users:  {len(lte_intra_total_mapping)}")
+ml.logger.info(f"Total LTE Intra single mappings for tracked users:  {len(lte_intra__single_mapping)}")
+ml.logger.info(f"Total LTE Intra multiple mappings for tracked users:  {len(lte_intra__multiple_mapping)}")
 
 ml.logger.info(f"Total Untracked (Not Randomized) WIFI Intra users {len(untracked_intra_wifi_users)}")
 ml.logger.info(f"Total Untracked WIFI Inter users {len(untracked_inter_wifi_users)}")
@@ -242,9 +242,9 @@ ml.logger.info(f"Total Wifi Intra tracked users  {len(tracked_intra_wifi_users)}
 ml.logger.info(f"Total Wifi Intra users with single mapping:  {len(wifi_intra__single_users)}")
 ml.logger.info(f"Total Wifi Intra users with multiple mapping:  {len(wifi_intra__multiple_users)}")
 
-ml.logger.info(f"Total Wifi Intra mappings:  {len(wifi_intra_total_mapping)}")
-ml.logger.info(f"Total Wifi Intra single mappings:  {len(wifi_intra__single_mapping)}")
-ml.logger.info(f"Total WIfi Intra multiple mappings:  {len(wifi_intra__multiple_mapping)}")
+ml.logger.info(f"Total Wifi Intra mappings for tracked users:  {len(wifi_intra_total_mapping)}")
+ml.logger.info(f"Total Wifi Intra single mappings for tracked users:  {len(wifi_intra__single_mapping)}")
+ml.logger.info(f"Total WIfi Intra multiple mappings for tracked users:  {len(wifi_intra__multiple_mapping)}")
 
 ml.logger.info(f"Total LTE-Wifi Inter users with single mapping (set having same intra mappings):  {len(lte_inter__single_users)}")
 ml.logger.info(f"Total LTE-Wifi Inter users with multiple mapping  (set having different intra mappings):  {len(lte_inter__multiple_users)}")

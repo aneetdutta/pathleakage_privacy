@@ -49,13 +49,12 @@ def user_data():
     print("generate_sniffer_data.py finished.")
     
     print("Importing sniffed data to MongoDB...")
-    # run_command(f"mongo {DB_NAME} --eval db.sniffed_data.drop()")
+    run_command(f'mongosh --host localhost --port 27017 --eval "use {DB_NAME}; db.sniffed_data.drop()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection sniffed_data --type csv --file data/sniffed_data_{DB_NAME}.csv --headerline')
     print("sniffed data imported to MongoDB.")
     
     print("Importing user data to MongoDB...")
-    # run_command(f"mongo {DB_NAME} --eval db.user_data.drop()")
-    # run_command('mongosh --eval "db.getSiblingDB(\'code\').dropDatabase()"')
+    run_command(f'mongosh --host localhost --port 27017 --eval "use {DB_NAME}; db.user_data.drop()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
     print("user data imported to MongoDB.")
     
@@ -110,17 +109,25 @@ def sanity():
     run_command('python3 sanity/sanity.py')
     print("sanity service finished.")
 
+def reconstruction_baseline():
+    run_command('python3 reconstruction/reconstruction_baseline.py')
+    print("reconstruction_baseline.py finished.")
+    
+def reconstruction_baseline_smart():
+    run_command('python3 reconstruction/reconstruction_baseline_smart.py')
+    print("reconstruction_baseline_smart.py finished.")
+
+def reconstruction_multi():
+    run_command('python3 reconstruction/reconstruction_multi.py')
+    print("reconstruction_multi.py finished.")
+
 def reconstruction():
     """Run reconstruction service."""
     print("Starting reconstruction service...")
     run_command('python3 reconstruction/reconstruction_user_data.py')
     print("reconstruction_user_data.py finished.")
-    run_command('python3 reconstruction/reconstruction_baseline.py')
-    print("reconstruction_baseline.py finished.")
-    run_command('python3 reconstruction/reconstruction_baseline_smart.py')
-    print("reconstruction_baseline_smart.py finished.")
-    run_command('python3 reconstruction/reconstruction_multi.py')
-    print("reconstruction_multi.py finished.")
+    reconstruction_baseline()
+    run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
     print("Reconstruction service finished.")
 
 def plot():
