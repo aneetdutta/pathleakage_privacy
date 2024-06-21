@@ -127,8 +127,8 @@ def reconstruction():
     run_command('python3 reconstruction/reconstruction_user_data.py')
     print("reconstruction_user_data.py finished.")
     reconstruction_baseline()
-    reconstruction_multi()
-    # run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
+    # reconstruction_multi()
+    run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
     print("Reconstruction service finished.")
 
 def plot():
@@ -173,9 +173,9 @@ def multi():
 
 def smart():
     """ Running Smart Service """
-    # group_smart()
-    # tracking_smart()
-    pass
+    group_smart()
+    tracking_smart()
+    # pass
     
 def gtrp():
     run_in_parallel(multi, smart)
@@ -191,7 +191,7 @@ def all_tasks():
     run_in_parallel(multi, smart)
     sanity()
     reconstruction()
-    # plot()
+    plot()
 
 #task
 def all_without_sumo():

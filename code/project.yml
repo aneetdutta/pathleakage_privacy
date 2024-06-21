@@ -3,12 +3,12 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 19200               # Number of user timesteps
+  USER_TIMESTEPS: 18100               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
   TOTAL_NUMBER_OF_USERS: 64          # Create only same set of users for different run
-  ENABLE_USER_THRESHOLD: true        # Enable user threshold
+  ENABLE_USER_THRESHOLD: false        # Enable user threshold
 
 # Movement Parameters
 movement_parameters:
@@ -25,7 +25,7 @@ movement_parameters:
   # PAUSE_DURATION_MAX: 5               # Maximum pause duration
 
 tracking_and_reconstruction_until:
-  TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP: true
+  TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP: false
   TRACK_UNTIL: 18797
   FIRST_TIMESTEP: 18002
 
@@ -36,12 +36,12 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 2700
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 10
-  WIFI_MAX_REFRESH: 15
+  WIFI_MIN_REFRESH: 120
+  WIFI_MAX_REFRESH: 300
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 100
-  LTE_MAX_REFRESH: 300
+  LTE_MIN_REFRESH: 10
+  LTE_MAX_REFRESH: 60
 
 #Transmission Intervals
 transmission_intervals:
@@ -51,7 +51,7 @@ transmission_intervals:
 
   # WiFi ID transmit range uniform (in seconds)
   WIFI_MIN_TRANSMIT: 0.25
-  WIFI_MAX_TRANSMIT: 15
+  WIFI_MAX_TRANSMIT: 5
 
   # LTE transmit range uniform (in seconds)
   LTE_MIN_TRANSMIT: 0.25

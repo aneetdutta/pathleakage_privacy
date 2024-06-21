@@ -4,18 +4,30 @@ from services.general import *
 from tracking.tracking_algorithm_smart import tracking_algorithm_smart
 from modules.mongofn import MongoDB
 from collections import defaultdict
+import math
 from pprint import pprint
 from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
-ml = MyLogger(f"tracking_single_{DB_NAME}")
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
 
+BLUETOOTH_MAX_TRANSMIT = int(os.getenv("BLUETOOTH_MAX_TRANSMIT"))
+WIFI_MAX_TRANSMIT = int(os.getenv("WIFI_MAX_TRANSMIT"))
+LTE_MAX_TRANSMIT = int(os.getenv("LTE_MAX_TRANSMIT"))
+SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, WIFI_MAX_TRANSMIT, LTE_MAX_TRANSMIT)
+
 TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
 TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
 FIRST_TIMESTEP = int(os.getenv("FIRST_TIMESTEP"))
+
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    ml = MyLogger(f"tracking_single_{DB_NAME}_{TRACK_UNTIL}")
+    ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
+else:
+    ml = MyLogger(f"tracking_{DB_NAME}")
+    
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -54,7 +66,9 @@ for timestep_pair in timestep_pairs:
     visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
 
     if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
-        if int(timestep) > TRACK_UNTIL:
+        TS = math.floor((TRACK_UNTIL - FIRST_TIMESTEP)/SNIFFER_TIMESTEP)
+        if int(timestep) > TS:
+            ml.logger.info(f"Tracking break; {int(timestep)} step reached")
             break
 
 

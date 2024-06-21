@@ -80,6 +80,7 @@ class User:
         self.next_wifi_refresh = self.identifier_counter + duration
 
     def set_next_lte_refresh(self):
+        # print(self.LTE_MIN_REFRESH, self.LTE_MAX_REFRESH)
         duration = randint(self.LTE_MIN_REFRESH, self.LTE_MAX_REFRESH)
         self.next_lte_refresh = self.identifier_counter + duration
 
