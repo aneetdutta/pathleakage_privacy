@@ -30,8 +30,6 @@ for section in config:
 
 from pipeline import tasks
 
-
-
 # print(task_name)
 if task_name:
     if task_name in tasks:

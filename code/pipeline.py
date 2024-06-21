@@ -127,7 +127,8 @@ def reconstruction():
     run_command('python3 reconstruction/reconstruction_user_data.py')
     print("reconstruction_user_data.py finished.")
     reconstruction_baseline()
-    run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
+    reconstruction_multi()
+    # run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
     print("Reconstruction service finished.")
 
 def plot():
@@ -136,15 +137,14 @@ def plot():
     run_command('python3 services/plot_reconstruction.py')
     print("plotting service finished.")
 
-#task
 def clean():
     """Clean up generated files."""
     run_command('rm -f *.pyc')
     run_command('rm -rf __pycache__')
-    run_command('rm -rf csv/*.csv')
-    run_command('rm -rf data/*.csv')
+    # run_command('rm -rf csv/*.csv')
+    # run_command('rm -rf data/*.csv')
     run_command('rm -rf logs/*.log')
-    run_command('rm -rf images/*.pdf')
+    # run_command('rm -rf images/*.pdf')
 
 #task
 def clean_db():
@@ -159,6 +159,11 @@ def data_gen():
     sumo()
     clean_db()
     user_data()
+    
+def data_gen_without_sumo():
+    """Generate data."""
+    clean_db()
+    user_data()
 
 #task
 def multi():
@@ -168,8 +173,9 @@ def multi():
 
 def smart():
     """ Running Smart Service """
-    group_smart()
-    tracking_smart()
+    # group_smart()
+    # tracking_smart()
+    pass
     
 def gtrp():
     run_in_parallel(multi, smart)
@@ -185,14 +191,24 @@ def all_tasks():
     run_in_parallel(multi, smart)
     sanity()
     reconstruction()
-    plot()
+    # plot()
 
 #task
 def all_without_sumo():
     """Run all tasks except SUMO."""
-    data_gen()
+    data_gen_without_sumo()
+    aggregate()
     run_in_parallel(multi, smart)
-    
+    sanity()
+    reconstruction()
+    plot()
+
+def tracking_until():
+    """Run all tasks except SUMO."""
+    tracking_multi()
+    # sanity()
+    reconstruction()
+    # plot()
     
 tasks = {
     "sumo": sumo,
@@ -202,6 +218,7 @@ tasks = {
     "raw_user_data": raw_user_data,
     "group_smart": group_smart,
     "tracking_smart": tracking_smart,
+    "tracking_until": tracking_until,
     "aggregate": aggregate,
     "sanity": sanity,
     "reconstruction": reconstruction,
@@ -213,5 +230,6 @@ tasks = {
     "smart": smart,
     "gtrp": gtrp,
     "all_tasks": all_tasks,
-    "all_without_sumo": all_without_sumo
+    "all_without_sumo": all_without_sumo,
+    "data_gen_without_sumo": data_gen_without_sumo
 }

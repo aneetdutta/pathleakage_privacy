@@ -11,22 +11,46 @@ md = MongoDB()
 from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
-ml = MyLogger(f"reconstruction_multiprotocol_{DB_NAME}")
 
 
-md.set_collection('modified_intra_mappings')
-documents = list(md.collection.find())
-intra_data = {document['_id']: document['mapping'] for document in documents}
-intra_df = pd.DataFrame(documents)
+TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
+TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
 
-md.set_collection('modified_inter_mappings')
-documents = list(md.collection.find())
-inter_data = {document['_id']: document["user_id"] for document in documents}
-inter_df = pd.DataFrame(documents)
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    ml = MyLogger(f"reconstruction_multiprotocol_{DB_NAME}_{TRACK_UNTIL}")
+    ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
+else:
+    ml = MyLogger(f"reconstruction_multiprotocol_{DB_NAME}")
+    
+    
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    md.set_collection(f'modified_intra_mappings_{TRACK_UNTIL}')
+    documents = list(md.collection.find())
+    intra_data = {document['_id']: document['mapping'] for document in documents}
+    intra_df = pd.DataFrame(documents)
 
-md.set_collection('reconstruction_baseline')
-documents = md.collection.find()
-baseline_data = pd.DataFrame(documents)
+    md.set_collection(f'modified_inter_mappings_{TRACK_UNTIL}')
+    documents = list(md.collection.find())
+    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_df = pd.DataFrame(documents)
+
+    md.set_collection(f'reconstruction_baseline_{TRACK_UNTIL}')
+    documents = md.collection.find()
+    baseline_data = pd.DataFrame(documents)
+else:
+    md.set_collection('modified_intra_mappings')
+    documents = list(md.collection.find())
+    intra_data = {document['_id']: document['mapping'] for document in documents}
+    intra_df = pd.DataFrame(documents)
+
+    md.set_collection('modified_inter_mappings')
+    documents = list(md.collection.find())
+    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_df = pd.DataFrame(documents)
+
+    md.set_collection('reconstruction_baseline')
+    documents = md.collection.find()
+    baseline_data = pd.DataFrame(documents)
 
 ''' To create something like:
 user_id, linked_id, duration_of_linked_id_through_tracking, duration_of_linked_id_in_sniffed_data, privacy score
@@ -133,7 +157,11 @@ for index, inter_row in inter_df.iterrows():
         ''' stop  there as multiple inter mappings found, just check intra mappings of inter_id '''
         min_start_timestep = min_start_timestep_id1
         max_last_timestep = max_last_timestep_id1
-        
+    
+    if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+        if max_last_timestep > TRACK_UNTIL:
+            max_last_timestep = TRACK_UNTIL
+
     duration = max_last_timestep - min_start_timestep
     # print(inter_id, intra_id1)
     multi_protocol.append({"id1": inter_id, "id2": intra_id1, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": user_id})
@@ -160,6 +188,11 @@ multi_protocol_df = multi_protocol_df.loc[idx].reset_index(drop=True)
 
 multi_data = multi_protocol_df.to_dict(orient='records')
 # print(multi_protocol_df.to_string())
-multi_protocol_df.to_csv(f'csv/multi_protocol_{DB_NAME}.csv', index=False)
-md.db['reconstruction_multiproto'].drop()
-md.db['reconstruction_multiproto'].insert_many(multi_data)
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    multi_protocol_df.to_csv(f'csv/multi_protocol_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    md.db[f'reconstruction_multiproto_{TRACK_UNTIL}'].drop()
+    md.db[f'reconstruction_multiproto_{TRACK_UNTIL}'].insert_many(multi_data) 
+else:
+    multi_protocol_df.to_csv(f'csv/multi_protocol_{DB_NAME}.csv', index=False)
+    md.db['reconstruction_multiproto'].drop()
+    md.db['reconstruction_multiproto'].insert_many(multi_data)

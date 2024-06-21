@@ -6,35 +6,54 @@ from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 from services.general import UnionFind
 import pandas as pd
+from modules.logger import MyLogger
 import sys
 # import sys
 md = MongoDB()
 
 DB_NAME = os.getenv("DB_NAME")
+TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
+TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    ml = MyLogger(f"reconstruction_baseline_smart_{DB_NAME}_{TRACK_UNTIL}")
+    ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
+else:
+    ml = MyLogger(f"reconstruction_baseline_smart_{DB_NAME}")
 
-md.set_collection("aggregate_users")
-documents = md.collection.find()
-user_df = pd.DataFrame(documents)
 
-md.set_collection("aggregate_timesteps")
-documents = md.collection.find()
-timestep_data = pd.DataFrame(documents)
 
-md.set_collection('baseline_intra_mappings')
-documents = list(md.collection.find({"mapping": {"$size": 1}}))
-intra_data = {}
-for document in documents:
-    intra_data[document['_id']]= document['mapping']
-intra_df = pd.DataFrame(documents)
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    md.set_collection(f'baseline_intra_mappings_{TRACK_UNTIL}')
+    documents = list(md.collection.find({"mapping": {"$size": 1}}))
+    intra_data = {}
+    for document in documents:
+        intra_data[document['_id']]= document['mapping']
+    intra_df = pd.DataFrame(documents)
 
-md.set_collection('modified_inter_mappings')
-documents = list(md.collection.find())
-inter_data = {document['_id']: document["user_id"] for document in documents}
-inter_df = pd.DataFrame(documents)
+    md.set_collection(f'modified_inter_mappings_{TRACK_UNTIL}')
+    documents = list(md.collection.find())
+    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_df = pd.DataFrame(documents)
 
-md.set_collection('reconstruction_baseline')
-documents = md.collection.find()
-baseline_data = pd.DataFrame(documents)
+    md.set_collection(f'reconstruction_baseline_{TRACK_UNTIL}')
+    documents = md.collection.find()
+    baseline_data = pd.DataFrame(documents)
+else:
+    md.set_collection('baseline_intra_mappings')
+    documents = list(md.collection.find({"mapping": {"$size": 1}}))
+    intra_data = {}
+    for document in documents:
+        intra_data[document['_id']]= document['mapping']
+    intra_df = pd.DataFrame(documents)
+
+    md.set_collection('modified_inter_mappings')
+    documents = list(md.collection.find())
+    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_df = pd.DataFrame(documents)
+
+    md.set_collection('reconstruction_baseline')
+    documents = md.collection.find()
+    baseline_data = pd.DataFrame(documents)
 
 # inter_df = pd.merge(inter_df, baseline_data[['id', 'start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol']], left_on='_id', right_on='id', how='left')
 intra_df = pd.merge(intra_df, baseline_data[['id', 'start_timestep', 'last_timestep', 'duration', 'user_id', 'ideal_duration', 'protocol']], left_on='_id', right_on='id', how='left')
@@ -107,7 +126,11 @@ unique_users_df2 = set(lte_df['user_id'])
 # Find the missing user ID in df2
 missing_user_in_df2 = unique_users_df2 - unique_users_df1
 
-print("Missing user in df2:", missing_user_in_df2)
+# print("Missing user in df2:", missing_user_in_df2)
 
-wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv', index=False)
-lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv', index=False)
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+else:
+    wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv', index=False)
+    lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv', index=False)

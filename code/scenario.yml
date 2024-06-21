@@ -3,11 +3,11 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 19200               # Number of user timesteps
+  USER_TIMESTEPS: 18900               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
-  TOTAL_NUMBER_OF_USERS: 64          # Create only same set of users for different run
+  TOTAL_NUMBER_OF_USERS: 300          # Create only same set of users for different run
   ENABLE_USER_THRESHOLD: true        # Enable user threshold
 
 # Movement Parameters
@@ -25,9 +25,10 @@ movement_parameters:
   # PAUSE_DURATION_MAX: 5               # Maximum pause duration
 
 tracking_and_reconstruction_until:
-  TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP: true
-  TRACK_UNTIL: 18797
-  FIRST_TIMESTEP: 18002
+  TRACKING_UNTIL:
+    - 18256
+    - 18500
+    - 19400
 
 # Randomization Intervals
 randomization_intervals:

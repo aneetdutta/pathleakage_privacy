@@ -13,6 +13,10 @@ ml = MyLogger(f"tracking_single_{DB_NAME}")
 
 md = MongoDB()
 
+TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
+TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
+FIRST_TIMESTEP = int(os.getenv("FIRST_TIMESTEP"))
+
 '''The below code will fetch groups for every two timesteps and compare them'''
 
 md.set_collection("groups_smart")
@@ -49,19 +53,42 @@ for timestep_pair in timestep_pairs:
     intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
     visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
 
-md.db['baseline_intra_mappings'].drop()
-md.db['visited_baseline_intra_list'].drop()
+    if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+        if int(timestep) > TRACK_UNTIL:
+            break
 
-for i, j in intra_potential_mapping_list.items():
-    result = md.db['baseline_intra_mappings'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
 
-for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_baseline_intra_list'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    md.db[f'baseline_intra_mappings_{TRACK_UNTIL}'].drop()
+    md.db[f'visited_baseline_intra_list_{TRACK_UNTIL}'].drop()
+
+    for i, j in intra_potential_mapping_list.items():
+        result = md.db[f'baseline_intra_mappings_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+
+    for i, j in visited_intra_mapping_list.items():
+        result = md.db[f'visited_baseline_intra_list_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+else:
+    md.db['baseline_intra_mappings'].drop()
+    md.db['visited_baseline_intra_list'].drop()
+
+    for i, j in intra_potential_mapping_list.items():
+        result = md.db['baseline_intra_mappings'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+
+    for i, j in visited_intra_mapping_list.items():
+        result = md.db['visited_baseline_intra_list'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )

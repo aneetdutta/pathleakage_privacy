@@ -1,7 +1,6 @@
 import os, sys, libsumo as traci
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import traceback
-from services.general import dump_orjson, str_to_bool
 from collections import deque
 import time
 from services.general import is_point_inside_polygon
@@ -19,8 +18,6 @@ print(os.getenv("POLYGON_COORDS"))
 POLYGON_COORDS = eval(os.getenv("POLYGON_COORDS"))
 USER_TIMESTEPS = int(os.getenv("USER_TIMESTEPS"))
 
-ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("USER_TIMESTEPS"))
-TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
 DB_NAME = os.getenv("DB_NAME")
 
 ml = MyLogger(f"sumo_simulation_{DB_NAME}")
@@ -29,8 +26,6 @@ polygon = Polygon(POLYGON_COORDS)
 
 """ If not person id , save the person id and discard if visited next time"""
 visited_person: set = set()
-
-same_userset: set = set()
 
 sumo_cmd = [os.path.join(SUMO_BIN_PATH, "sumo"), "-c", SUMO_CFG_FILE]
 
@@ -64,13 +59,6 @@ try:
             if not is_point_inside_polygon(user_location[0], user_location[1], polygon):
                 visited_person.add(user_id)
                 continue
-            
-            if ENABLE_USER_THRESHOLD:
-                if user_id not in same_userset and len(same_userset) < TOTAL_NUMBER_OF_USERS:
-                    same_userset.add(user_id)
-                elif user_id not in same_userset:
-                    continue
-            
             
             """ If user enters the polygon after some time, remove the user again from the user data"""
             if user_id in visited_person:

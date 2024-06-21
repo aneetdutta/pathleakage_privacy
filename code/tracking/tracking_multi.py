@@ -6,11 +6,27 @@ from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
 from modules.logger import MyLogger
+import math
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
 DB_NAME = os.getenv("DB_NAME")
-ml = MyLogger(f"tracking_{DB_NAME}")
+
+
+BLUETOOTH_MAX_TRANSMIT = int(os.getenv("BLUETOOTH_MAX_TRANSMIT"))
+WIFI_MAX_TRANSMIT = int(os.getenv("WIFI_MAX_TRANSMIT"))
+LTE_MAX_TRANSMIT = int(os.getenv("LTE_MAX_TRANSMIT"))
+SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, WIFI_MAX_TRANSMIT, LTE_MAX_TRANSMIT)
+
+TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
+TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
+FIRST_TIMESTEP = int(os.getenv("FIRST_TIMESTEP"))
+
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    ml = MyLogger(f"tracking_{DB_NAME}_{TRACK_UNTIL}")
+    ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
+else:
+    ml = MyLogger(f"tracking_{DB_NAME}")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 
@@ -66,39 +82,75 @@ for timestep_pair in timestep_pairs:
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
-            
-    # if int(timestep) > 2:
-    #     break
     
+    if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+        TS = math.floor((TRACK_UNTIL - FIRST_TIMESTEP)/SNIFFER_TIMESTEP)
+        if int(timestep) > TS:
+            ml.logger.info(f"Tracking break; {int(timestep)} step reached")
+            break
     
-md.db['intra_mappings'].drop()
-md.db['inter_mappings'].drop()
-md.db['visited_inter_list'].drop()
-md.db['visited_intra_list'].drop()
 
-for i, j in intra_potential_mapping_list.items():
-    result = md.db['intra_mappings'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
+if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
+    md.db[f'intra_mappings_{TRACK_UNTIL}'].drop()
+    md.db[f'inter_mappings_{TRACK_UNTIL}'].drop()
+    md.db[f'visited_inter_list_{TRACK_UNTIL}'].drop()
+    md.db[f'visited_intra_list_{TRACK_UNTIL}'].drop()
 
-for i, j in inter_potential_mapping_list.items():
-    result = md.db['inter_mappings'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
-    
-for i, j in visited_inter_mapping_list.items():
-    result = md.db['visited_inter_list'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
-for i, j in visited_intra_mapping_list.items():
-    result = md.db['visited_intra_list'].update_one(
-            {"_id": str(i)},
-            {"$set": {"_id": str(i), "mapping": list(j)}},
-            upsert=True  # Create a new document if no document matches the filter
-        )
+    for i, j in intra_potential_mapping_list.items():
+        result = md.db[f'intra_mappings_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+
+    for i, j in inter_potential_mapping_list.items():
+        result = md.db[f'inter_mappings_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+        
+    for i, j in visited_inter_mapping_list.items():
+        result = md.db[f'visited_inter_list_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+    for i, j in visited_intra_mapping_list.items():
+        result = md.db[f'visited_intra_list_{TRACK_UNTIL}'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+else:
+    md.db['intra_mappings'].drop()
+    md.db['inter_mappings'].drop()
+    md.db['visited_inter_list'].drop()
+    md.db['visited_intra_list'].drop()
+
+    for i, j in intra_potential_mapping_list.items():
+        result = md.db['intra_mappings'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+
+    for i, j in inter_potential_mapping_list.items():
+        result = md.db['inter_mappings'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+        
+    for i, j in visited_inter_mapping_list.items():
+        result = md.db['visited_inter_list'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
+    for i, j in visited_intra_mapping_list.items():
+        result = md.db['visited_intra_list'].update_one(
+                {"_id": str(i)},
+                {"$set": {"_id": str(i), "mapping": list(j)}},
+                upsert=True  # Create a new document if no document matches the filter
+            )
