@@ -9,9 +9,8 @@ import pandas as pd
 md = MongoDB()
 from modules.logger import MyLogger
 
-ml = MyLogger("reconstruction_baseline")
 DB_NAME = os.getenv("DB_NAME")
-
+ml = MyLogger(f"reconstruction_baseline_{DB_NAME}")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()

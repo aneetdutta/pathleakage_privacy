@@ -24,24 +24,31 @@ def user_data():
     os.system(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection sniffed_data --type csv --file data/sniffed_data_{DB_NAME}.csv --headerline')
     os.system(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
 
-#task
+def smart():
+    """ Running Smart Service """
+    os.system("python3 group/group_smart_seq.py")
+    os.system("python3 tracking/tracking_smart.py")
+
 def group():
     """Run grouping service."""
-    os.system('python3 services/group_service.py')
+    os.system("python3 group/aggregation.py")
+    os.system("python3 group/aggregate_sniffer_timesteps.py")
+    os.system("python3 group/group_seq.py")
 
 #task
 def tracking():
     """Run tracking service."""
-    os.system('python3 services/tracking_service.py')
+    os.system('python3 tracking/tracking_multi.py')
 
 #task
 def sanity():
     """Run sanity service."""
-    os.system('python3 services/sanity_service.py')
+    os.system('python3 sanity/sanity.py')
 
 #task
 def reconstruction():
     """Run reconstruction service."""
+    os.system('python3 reconstruction/reconstruction_user_data.py')
     os.system('python3 reconstruction/reconstruction_baseline.py')
     os.system('python3 reconstruction/reconstruction_baseline_smart.py')
     os.system('python3 reconstruction/reconstruction_multi.py')
@@ -75,31 +82,32 @@ def data_gen():
     user_data()
 
 #task
-def gtsr():
+def normal():
     """Run group, tracking, sanity, and reconstruction."""
     group()
     tracking()
     sanity()
-    reconstruction()
-
+    
 #task
 def all_tasks():
     """Run all tasks."""
-    sumo()
     data_gen()
-    run_in_parallel(gtsr, plot)
+    run_in_parallel(normal, smart)
+    reconstruction()
+    plot()
 
 #task
 def all_without_sumo():
     """Run all tasks except SUMO."""
     data_gen()
-    run_in_parallel(gtsr, plot)
+    run_in_parallel(normal, smart)
     
     
 tasks = {
     "sumo": sumo,
     "user_data": user_data,
     "group": group,
+    "smart": smart,
     "tracking": tracking,
     "sanity": sanity,
     "reconstruction": reconstruction,
@@ -107,7 +115,7 @@ tasks = {
     "clean": clean,
     "clean_db": clean_db,
     "data_gen": data_gen,
-    "gtsr": gtsr,
+    "normal": normal,
     "all_tasks": all_tasks,
     "all_without_sumo": all_without_sumo
 }

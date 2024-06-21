@@ -9,7 +9,8 @@ from modules.logger import MyLogger
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()
-ml = MyLogger("tracking")
+DB_NAME = os.getenv("DB_NAME")
+ml = MyLogger(f"tracking_{DB_NAME}")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
 

@@ -6,7 +6,9 @@ from modules.mongofn import MongoDB
 from collections import defaultdict
 from pprint import pprint
 from modules.logger import MyLogger
-ml = MyLogger("tracking_single")
+
+DB_NAME = os.getenv("DB_NAME")
+ml = MyLogger(f"tracking_single_{DB_NAME}")
 ''' Load the sumo_simulation result from mongodb '''
 
 md = MongoDB()

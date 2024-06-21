@@ -9,9 +9,10 @@ import sys
 # import sys
 md = MongoDB()
 from modules.logger import MyLogger
-ml = MyLogger("reconstruction_multiprotocol")
 
 DB_NAME = os.getenv("DB_NAME")
+ml = MyLogger(f"reconstruction_multiprotocol_{DB_NAME}")
+
 
 md.set_collection('modified_intra_mappings')
 documents = list(md.collection.find())
@@ -139,7 +140,7 @@ for index, inter_row in inter_df.iterrows():
     # delete 
 
 multi_protocol_df = pd.DataFrame(multi_protocol)
-print(multi_protocol_df)
+ml.logger.info(multi_protocol_df)
 multi_protocol_df = pd.merge(multi_protocol_df, baseline_data[['id', 'ideal_duration', 'protocol']], left_on='id1', right_on='id', how='left')
 multi_protocol_df = multi_protocol_df.drop(columns=['id'])
 multi_protocol_df.rename(columns={'protocol': 'protocol_id1'}, inplace=True)

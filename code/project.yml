@@ -1,6 +1,6 @@
 # General simulation settings
 general:
-  USER_TIMESTEPS: 18050               # Number of user timesteps
+  USER_TIMESTEPS: 18200               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
