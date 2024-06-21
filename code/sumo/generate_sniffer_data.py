@@ -19,6 +19,8 @@ SNIFFER_PROCESSING_BATCH_SIZE = int(os.getenv("SNIFFER_PROCESSING_BATCH_SIZE"))
 DB_NAME = os.getenv("DB_NAME")
 ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 
+# print(BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE, SNIFFER_PROCESSING_BATCH_SIZE, ENABLE_BLUETOOTH)
+
 
 if ENABLE_BLUETOOTH:
     sniffer_location = extract_orjson("data/bluetooth_sniffer_location.json")

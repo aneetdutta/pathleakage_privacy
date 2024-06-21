@@ -24,6 +24,15 @@ def sumo():
     run_command('python3 sumo/sumo_simulation.py')
     print("SUMO simulation finished.")
 
+def raw_user_data():
+    print("Running generate_user_data.py...")
+    run_command('python3 sumo/generate_user_data.py')
+    print("generate_user_data.py finished.")
+    
+    print("Running generate_sniffer_data.py...")
+    run_command('python3 sumo/generate_sniffer_data.py')
+    print("generate_sniffer_data.py finished.")
+    
 
 def user_data():
     """Generate user data and import to MongoDB."""
@@ -40,10 +49,13 @@ def user_data():
     print("generate_sniffer_data.py finished.")
     
     print("Importing sniffed data to MongoDB...")
+    # run_command(f"mongo {DB_NAME} --eval db.sniffed_data.drop()")
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection sniffed_data --type csv --file data/sniffed_data_{DB_NAME}.csv --headerline')
     print("sniffed data imported to MongoDB.")
     
     print("Importing user data to MongoDB...")
+    # run_command(f"mongo {DB_NAME} --eval db.user_data.drop()")
+    # run_command('mongosh --eval "db.getSiblingDB(\'code\').dropDatabase()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
     print("user data imported to MongoDB.")
     
@@ -129,8 +141,9 @@ def clean():
 
 #task
 def clean_db():
+    DB_NAME = os.getenv("DB_NAME")
     """Clean the MongoDB database."""
-    run_command('mongosh --eval "db.getSiblingDB(\'code\').dropDatabase()"')
+    run_command(f'mongosh --eval "db.getSiblingDB(\'{DB_NAME}\').dropDatabase()"')
 
 #task
 def data_gen():
@@ -150,6 +163,12 @@ def smart():
     """ Running Smart Service """
     group_smart()
     tracking_smart()
+    
+def gtrp():
+    run_in_parallel(multi, smart)
+    sanity()
+    reconstruction()
+    plot()
     
 #task
 def all_tasks():
@@ -173,8 +192,10 @@ tasks = {
     "user_data": user_data,
     "group_multi": group_multi,
     "tracking_multi": tracking_multi,
+    "raw_user_data": raw_user_data,
     "group_smart": group_smart,
     "tracking_smart": tracking_smart,
+    "aggregate": aggregate,
     "sanity": sanity,
     "reconstruction": reconstruction,
     "plot": plot,
@@ -183,6 +204,7 @@ tasks = {
     "data_gen": data_gen,
     "multi": multi,
     "smart": smart,
+    "gtrp": gtrp,
     "all_tasks": all_tasks,
     "all_without_sumo": all_without_sumo
 }

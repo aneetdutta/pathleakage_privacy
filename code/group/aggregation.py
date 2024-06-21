@@ -7,10 +7,9 @@ md = MongoDB()
 
 now = time.time()
 
-md.set_collection("sniffed_data")
+md.set_collection("parsed_sniffed_data")
 
-''' The below code converts the sniffer data into 3 collections 
-- Aggregation by sniffers and timesteps 
+''' The below code converts the sniffer data into 2 collections 
 - Aggregation by users
 - Aggregation by timesteps '''
 # md.db['aggregated_results'].drop()

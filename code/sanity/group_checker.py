@@ -31,8 +31,12 @@ for document in all_groups:
             single_groups[str(st_window)].append(group)
 
 single_group_counter = 0
+len_single_group = dict()
 for i in single_groups:
+    len_single_group[i] = len(single_groups[i])
     single_group_counter += len(single_groups[i])
     
 ml.logger.info(f"Total Single groups for multiprotocol use-case: {single_group_counter}")
 ml.logger.info(f"Total groups for multiprotocol use-case: {total_groups}")
+ml.logger.info(len_single_group)
+ml.logger.info(single_groups)

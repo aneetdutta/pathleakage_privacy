@@ -12,7 +12,7 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
     LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR"))
     MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR"))
     
-    print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
+    # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
     groups = []  # Initialize list to store final groups
     incompatible_ids = defaultdict(set, incompatible_ids)
