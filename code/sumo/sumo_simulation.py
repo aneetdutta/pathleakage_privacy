@@ -15,6 +15,7 @@ SUMO_BIN_PATH = "/usr/bin/"
 SUMO_CFG_FILE = f"{pathlib.Path().resolve()}/{'../scenario/most.sumocfg'}"
 
 # Create a polygon object
+print(os.getenv("POLYGON_COORDS"))
 POLYGON_COORDS = eval(os.getenv("POLYGON_COORDS"))
 USER_TIMESTEPS = int(os.getenv("USER_TIMESTEPS"))
 

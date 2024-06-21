@@ -1,6 +1,6 @@
 # General simulation settings
 general:
-  USER_TIMESTEPS: 18200               # Number of user timesteps
+  USER_TIMESTEPS: 18010               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
@@ -28,12 +28,12 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 2700
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 10
-  WIFI_MAX_REFRESH: 15
+  WIFI_MIN_REFRESH: 60
+  WIFI_MAX_REFRESH: 90
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 300
-  LTE_MAX_REFRESH: 600
+  LTE_MIN_REFRESH: 10
+  LTE_MAX_REFRESH: 30
 
 #Transmission Intervals
 transmission_intervals:

@@ -9,8 +9,10 @@ import sys
 
 from modules.logger import MyLogger
 
+DB_NAME = os.getenv("DB_NAME")
+
 md = MongoDB()
-ml = MyLogger("sanity")
+ml = MyLogger(f"sanity_{DB_NAME}")
 
 md.set_collection("aggregate_users")
 documents = md.collection.find()

@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-from pipeline import tasks
+
 from services.general import load_yaml_config, set_env_from_config
 
 # Argument parser setup
@@ -27,6 +27,10 @@ os.environ["DB_NAME"] = str(args.config)[:-4]
 # Set environment variables from each section
 for section in config:
     set_env_from_config(section, config)
+
+from pipeline import tasks
+
+
 
 # print(task_name)
 if task_name:
