@@ -26,7 +26,7 @@ if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
     ml = MyLogger(f"tracking_single_{DB_NAME}_{TRACK_UNTIL}")
     ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
 else:
-    ml = MyLogger(f"tracking_{DB_NAME}")
+    ml = MyLogger(f"tracking_single_{DB_NAME}")
     
 
 '''The below code will fetch groups for every two timesteps and compare them'''
