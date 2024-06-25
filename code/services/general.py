@@ -13,6 +13,72 @@ import yaml
 from shapely.geometry import Point, Polygon
 import concurrent.futures
 
+class UnionFind:
+    def __init__(self):
+        self.parent = {}
+    
+    def find(self, item):
+        if self.parent[item] != item:
+            self.parent[item] = self.find(self.parent[item])
+        return self.parent[item]
+    
+    def union(self, item1, item2):
+        root1 = self.find(item1)
+        root2 = self.find(item2)
+        if root1 != root2:
+            self.parent[root2] = root1
+    
+    def add(self, item):
+        if item not in self.parent:
+            self.parent[item] = item
+
+def group_identifiers(tuples_list):
+    uf = UnionFind()
+    
+    for i, time_epoch, type_, identifiers, ta in tuples_list:
+        identifiers = list(identifiers)
+        for identifier in identifiers:
+            uf.add(identifier)
+        for i in range(1, len(identifiers)):
+            uf.union(identifiers[0], identifiers[i])
+    
+    groups = {}
+    for identifier in uf.parent:
+        root = uf.find(identifier)
+        if root not in groups:
+            groups[root] = set()
+        groups[root].add(identifier)
+    
+    return list(groups.values())
+
+# def group_identifiers(tuples_list):
+#     groups = []
+#     identifier_to_group = {}
+
+#     for i, time_epoch, type_, identifiers, ta in tuples_list:
+#         current_group = None
+        
+#         # Find the group for the current tuple
+#         for identifier in identifiers:
+#             if identifier in identifier_to_group:
+#                 current_group = identifier_to_group[identifier]
+#                 break
+        
+#         # If no existing group is found, create a new one
+#         if current_group is None:
+#             current_group = len(groups)
+#             groups.append(set())
+        
+#         # Add the identifiers to the found/created group
+#         groups[current_group].update(identifiers)
+        
+#         # Update the identifier to group mapping
+#         for identifier in identifiers:
+#             identifier_to_group[identifier] = current_group
+
+#     # Convert sets to lists for the final output
+#     return [set(group) for group in groups]
+
 IDENTIFIER_LENGTH = os.getenv("IDENTIFIER_LENGTH")
 
 def str_to_bool(s):
