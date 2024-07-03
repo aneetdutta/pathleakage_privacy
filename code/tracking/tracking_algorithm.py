@@ -52,9 +52,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                             intra_potential_mapping[id2].remove(id1)
                             visited_intra_list[id2].add(id1)
                         
-    # print("Intra potential mapping - Initial")
-    # pprint(intra_potential_mapping)
-    # # pprint(visited_intra_list)
+    print("Intra potential mapping - Initial")
+    pprint(intra_potential_mapping)
+    # pprint(visited_intra_list)
     
     ''' Performing Inter Mapping '''
     
@@ -72,7 +72,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
                 # print(ids1, ids2)
                 for id1 in ids1:
                     # print(p1, id1, ids1)
-                # id1 = ids1[0]
+                # id1 = id[0]
                     if id1 not in visited_inter_list:
                         timestep_0_potential_mapping[id1].update(ids2)
                 # id2 = ids2[0]
