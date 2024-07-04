@@ -29,6 +29,15 @@ tracking_and_reconstruction_until:
   TRACK_UNTIL: 18797
   FIRST_TIMESTEP: 18002
 
+countermeasure:
+  ENABLE_SAME_REFRESH: true
+  ENABLE_PROXIMITY_REFRESH: true
+
+multilateration:
+  ENABLE_MULTILATERATION: true
+
+
+
 # Randomization Intervals
 randomization_intervals:
   # Bluetooth IDs refresh range uniform (in seconds)
@@ -75,5 +84,7 @@ mobility:
 
 # Sniffer settings
 sniffer:
+  GENERATE_SNIFFER_DATA: false
+  ENABLE_PARTIAL_COVERAGE: false
   ENABLE_BLUETOOTH: false            # Enable Bluetooth
   SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size

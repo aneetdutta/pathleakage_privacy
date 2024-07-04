@@ -14,8 +14,9 @@ df = pd.read_csv(f"data/raw_user_data_{DB_NAME}.csv")
 raw_user_data = df.to_dicts()
 
 ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))
+ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE"))
+GENERATE_SNIFFER_DATA = str_to_bool(os.getenv("GENERATE_SNIFFER_DATA"))
 TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
-# print(ENABLE_USER_THRESHOLD)
 
 same_userset: set = set()
 
@@ -38,6 +39,9 @@ for user_ in raw_user_data:
             same_userset.add(user_id)
         elif user_id not in same_userset:
             continue
+        
+    if ENABLE_PARTIAL_COVERAGE:
+        
     
     if len(same_userset) >= TOTAL_NUMBER_OF_USERS and not check_users:
         ml.logger.info(f"Total number of users {len(same_userset)} capped at {timestep}")

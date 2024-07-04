@@ -6,10 +6,22 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 import json
 
+''' Function if required'''
+
+def remove_outliers(values):
+    Q1 = np.percentile(values, 25)
+    Q3 = np.percentile(values, 75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return [x for x in values if lower_bound <= x <= upper_bound]
+
+
+
 with open("data/ti.json") as f:
     json_data = json.load(f)
     
-total_devices = 3#len(list(json_data))
+total_devices = 2#len(list(json_data))
 total_items = 5
 # list_of_empty_lists = [[1] for _ in range(total_items)]
 data_by_device = [[1] * total_items for _ in range(len(json_data))]
@@ -57,7 +69,7 @@ for i, device_data in enumerate(data_by_device):
     offset = i * 5
     if not device_data:
         device_data = []
-    violin_parts = ax.violinplot(device_data, positions=positions[offset:offset+5], showmeans=False, showmedians=False, showextrema=False)
+    violin_parts = ax.violinplot(device_data, positions=positions[offset:offset+5], showmeans=False, showmedians=False, showextrema=False, showfliers=False)
     
     # Customize the violin plot colors
     for j, pc in enumerate(violin_parts['bodies']):
@@ -97,7 +109,7 @@ ax.set_title('Transmission Interval for each device', fontsize=16)
 devices = ['d'] * total_devices
 devices[0] = 'OnePlus Nord'
 devices[1] = 'Samsung Galaxy M11'
-xticks = [2.5, 7.5, 12.5]  # Centered positions for each device
+xticks = [2.5, 7.5]  # Centered positions for each device
 ax.set_xticks(xticks)
 ax.set_xticklabels(devices, fontsize=12)
 

@@ -37,7 +37,7 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
     if s[0] == "wifi":
         # pass
         if s[1] == "opn":
-            with pyshark.FileCapture(filename, display_filter="wlan.sa == b6:d6:16:f5:53:21", keep_packets=True) as cap:
+            with pyshark.FileCapture(filename, display_filter="", keep_packets=True) as cap:
                 for i, packet in enumerate(cap):
                     tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
     elif s[0] == "lte":
@@ -47,7 +47,7 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
                 # print(packet.frame_info.time_relative)
                 tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
                 # break
-        print(sorted(list(tranmission_times)))
+        # print(sorted(list(tranmission_times)))
     transmission_interval = np.diff(sorted(list(tranmission_times)))
     print(len(transmission_interval))
     max = int(np.max(transmission_interval))
