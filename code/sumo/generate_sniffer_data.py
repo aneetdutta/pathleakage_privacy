@@ -18,14 +18,17 @@ LTE_RANGE = int(os.getenv("LTE_RANGE"))
 SNIFFER_PROCESSING_BATCH_SIZE = int(os.getenv("SNIFFER_PROCESSING_BATCH_SIZE"))
 DB_NAME = os.getenv("DB_NAME")
 ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE"))
 
 # print(BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE, SNIFFER_PROCESSING_BATCH_SIZE, ENABLE_BLUETOOTH)
 
-
-if ENABLE_BLUETOOTH:
-    sniffer_location = extract_orjson("data/bluetooth_sniffer_location.json")
+if not ENABLE_PARTIAL_COVERAGE:
+    if ENABLE_BLUETOOTH:
+        sniffer_location = extract_orjson("data/full_coverage_ble_sniffer_location.json")
+    else:
+        sniffer_location = extract_orjson("data/full_coverage_wifi_sniffer_location.json")
 else:
-    sniffer_location = extract_orjson("data/new_sniffer_location.json")
+    sniffer_location = extract_orjson("data/partial_coverage_sniffer_location.json")
     
 raw_user_data_df = pl.read_csv(f"data/user_data_{DB_NAME}.csv")
 raw_user_data = raw_user_data_df.to_dicts()

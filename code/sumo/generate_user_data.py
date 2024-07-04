@@ -41,6 +41,7 @@ for user_ in raw_user_data:
             continue
         
     if ENABLE_PARTIAL_COVERAGE:
+        pass
         
     
     if len(same_userset) >= TOTAL_NUMBER_OF_USERS and not check_users:

@@ -3,12 +3,12 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 18100               # Number of user timesteps
+  USER_TIMESTEPS: 20000               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
-  TOTAL_NUMBER_OF_USERS: 64          # Create only same set of users for different run
-  ENABLE_USER_THRESHOLD: false        # Enable user threshold
+  TOTAL_NUMBER_OF_USERS: 100          # Create only same set of users for different run
+  ENABLE_USER_THRESHOLD: true        # Enable user threshold
 
 # Movement Parameters
 movement_parameters:
@@ -30,13 +30,11 @@ tracking_and_reconstruction_until:
   FIRST_TIMESTEP: 18002
 
 countermeasure:
-  ENABLE_SAME_REFRESH: true
-  ENABLE_PROXIMITY_REFRESH: true
+  ENABLE_SAME_REFRESH: false
+  ENABLE_PROXIMITY_REFRESH: false
 
 multilateration:
-  ENABLE_MULTILATERATION: true
-
-
+  ENABLE_MULTILATERATION: false
 
 # Randomization Intervals
 randomization_intervals:
@@ -45,12 +43,12 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 2700
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 120
-  WIFI_MAX_REFRESH: 300
+  WIFI_MIN_REFRESH: 30
+  WIFI_MAX_REFRESH: 60
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 10
-  LTE_MAX_REFRESH: 60
+  LTE_MIN_REFRESH: 600
+  LTE_MAX_REFRESH: 1200
 
 #Transmission Intervals
 transmission_intervals:
@@ -59,12 +57,12 @@ transmission_intervals:
   BLUETOOTH_MAX_TRANSMIT: 5
 
   # WiFi ID transmit range uniform (in seconds)
-  WIFI_MIN_TRANSMIT: 0.25
-  WIFI_MAX_TRANSMIT: 5
+  WIFI_MIN_TRANSMIT: 15
+  WIFI_MAX_TRANSMIT: 60
 
   # LTE transmit range uniform (in seconds)
-  LTE_MIN_TRANSMIT: 0.25
-  LTE_MAX_TRANSMIT: 5
+  LTE_MIN_TRANSMIT: 15
+  LTE_MAX_TRANSMIT: 60
 
 # Range for communication protocols
 communication_range:
@@ -78,6 +76,8 @@ localization_errors:
   WIFI_LOCALIZATION_ERROR: 5         # WiFi localization error (in meters)
   LTE_LOCALIZATION_ERROR: 10         # LTE localization error (in meters)
 
+smart:
+  ENABLE_SMART_TRACKING: false
 # Mobility settings
 mobility:
   MAX_MOBILITY_FACTOR: 1.66          # Mobility factor in m/s

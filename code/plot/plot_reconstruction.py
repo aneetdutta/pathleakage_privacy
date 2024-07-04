@@ -5,30 +5,36 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from services.general import str_to_bool
 
 DB_NAME = os.getenv("DB_NAME")
+ENABLE_SMART_TRACKING = str_to_bool(os.getenv("ENABLE_SMART_TRACKING"))
 
 # Load the CSV files
 baseline_wifi_df = pd.read_csv(f'csv/baseline_wifi_{DB_NAME}.csv')
 baseline_lte_df = pd.read_csv(f'csv/baseline_lte_{DB_NAME}.csv')
-baseline_smart_wifi_df = pd.read_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv')
-baseline_smart_lte_df = pd.read_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv')
+
+if ENABLE_SMART_TRACKING:
+    baseline_smart_wifi_df = pd.read_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv')
+    baseline_smart_lte_df = pd.read_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv')
 multi_protocol_df = pd.read_csv(f'csv/multi_protocol_{DB_NAME}.csv')
 multi_protocol_old_df = pd.read_csv('csv/multi_protocol_project_18797.csv')
 
 # Extract the privacy scores
 baseline_wifi_scores = baseline_wifi_df['privacy_score'].values
 baseline_lte_scores = baseline_lte_df['privacy_score'].values
-baseline_smart_wifi_scores = baseline_smart_wifi_df['privacy_score'].values
-baseline_smart_lte_scores = baseline_smart_lte_df['privacy_score'].values
+if ENABLE_SMART_TRACKING:
+    baseline_smart_wifi_scores = baseline_smart_wifi_df['privacy_score'].values
+    baseline_smart_lte_scores = baseline_smart_lte_df['privacy_score'].values
 multi_protocol_scores = multi_protocol_df['privacy_score'].values
 multi_protocol_scores_old = multi_protocol_old_df['privacy_score'].values
 
 # Sort the scores for consistent comparison
 baseline_wifi_scores_sorted = np.sort(baseline_wifi_scores)
 baseline_lte_scores_sorted = np.sort(baseline_lte_scores)
-baseline_smart_wifi_scores_sorted = np.sort(baseline_smart_wifi_scores)
-baseline_smart_lte_scores_sorted = np.sort(baseline_smart_lte_scores)
+if ENABLE_SMART_TRACKING:
+    baseline_smart_wifi_scores_sorted = np.sort(baseline_smart_wifi_scores)
+    baseline_smart_lte_scores_sorted = np.sort(baseline_smart_lte_scores)
 multi_protocol_scores_sorted = np.sort(multi_protocol_scores)
 multi_protocol_scores_sorted_old = np.sort(multi_protocol_scores_old)
 
@@ -36,8 +42,9 @@ multi_protocol_scores_sorted_old = np.sort(multi_protocol_scores_old)
 # Compute the cumulative number of users
 baseline_wifi_users = np.arange(1, len(baseline_wifi_scores_sorted) + 1)
 baseline_lte_users = np.arange(1, len(baseline_lte_scores_sorted) + 1)
-baseline_smart_wifi_users = np.arange(1, len(baseline_smart_wifi_scores_sorted) + 1)
-baseline_smart_lte_users = np.arange(1, len(baseline_smart_lte_scores_sorted) + 1)
+if ENABLE_SMART_TRACKING:
+    baseline_smart_wifi_users = np.arange(1, len(baseline_smart_wifi_scores_sorted) + 1)
+    baseline_smart_lte_users = np.arange(1, len(baseline_smart_lte_scores_sorted) + 1)
 multi_protocol_users = np.arange(1, len(multi_protocol_scores_sorted) + 1)
 multi_protocol_users_old = np.arange(1, len(multi_protocol_scores_sorted_old) + 1)
 
@@ -46,8 +53,9 @@ multi_protocol_users_old = np.arange(1, len(multi_protocol_scores_sorted_old) + 
 plt.figure(figsize=(10, 6))
 plt.plot(baseline_wifi_users, baseline_wifi_scores_sorted, label='Naive Baseline (Wifi)',alpha=0.7)
 plt.plot(baseline_lte_users, baseline_lte_scores_sorted, label='Naive Baseline (LTE)', alpha=0.7)
-plt.plot(baseline_smart_wifi_users, baseline_smart_wifi_scores_sorted, label='Baseline+Localization(Wifi)', alpha=0.7)
-plt.plot(baseline_smart_lte_users, baseline_smart_lte_scores_sorted, label='Baseline+Localization(LTE)', alpha=0.7)
+if ENABLE_SMART_TRACKING:
+    plt.plot(baseline_smart_wifi_users, baseline_smart_wifi_scores_sorted, label='Baseline+Localization(Wifi)', alpha=0.7)
+    plt.plot(baseline_smart_lte_users, baseline_smart_lte_scores_sorted, label='Baseline+Localization(LTE)', alpha=0.7)
 plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Multi-Protocol', alpha=0.7)
 # plt.plot(multi_protocol_users_old, multi_protocol_scores_sorted_old, label='Multi-Protocol (18797)', alpha=0.7)
 

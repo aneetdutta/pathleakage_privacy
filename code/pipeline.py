@@ -1,8 +1,6 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
-
-
 env_instance = os.environ.copy()
 
 def run_in_parallel(*tasks):
@@ -134,7 +132,7 @@ def reconstruction():
 def plot():
     """Run plotting service."""
     print("Starting plotting service...")
-    run_command('python3 services/plot_reconstruction.py')
+    run_command('python3 plot/plot_reconstruction.py')
     print("plotting service finished.")
 
 def clean():
@@ -193,6 +191,15 @@ def all_tasks():
     reconstruction()
     plot()
 
+def all_tasks_without_smart():
+    """Run all tasks."""
+    data_gen()
+    aggregate()
+    multi()
+    sanity()
+    reconstruction()
+    plot()
+    
 #task
 def all_without_sumo():
     """Run all tasks except SUMO."""
@@ -231,5 +238,6 @@ tasks = {
     "gtrp": gtrp,
     "all_tasks": all_tasks,
     "all_without_sumo": all_without_sumo,
-    "data_gen_without_sumo": data_gen_without_sumo
+    "data_gen_without_sumo": data_gen_without_sumo,
+    "all_tasks_without_smart": all_tasks_without_smart
 }

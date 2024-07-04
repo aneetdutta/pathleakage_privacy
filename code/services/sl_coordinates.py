@@ -5,17 +5,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon, Circle
 from shapely.geometry import Point, Polygon as ShapelyPolygon, LineString
-from services.general import dump_orjson
+from services.general import dump_orjson, extract_orjson
 from services.general import str_to_bool
+import random
 # Provided coordinates for the polygon
 from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
 ml = MyLogger(f"sl_coordinates_{DB_NAME}")
 
-ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
-WIFI_RANGE = str_to_bool(os.getenv("WIFI_RANGE"))
-BLUETOOTH_RANGE = str_to_bool(os.getenv("BLUETOOTH_RANGE"))
+ENABLE_BLUETOOTH = False #str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+WIFI_RANGE = int(os.getenv("WIFI_RANGE", 30))
+BLUETOOTH_RANGE = int(os.getenv("BLUETOOTH_RANGE", 10))
+
+def is_point_inside_polygon(x, y, polygon):
+    point = Point(x, y)
+    return polygon.contains(point)
 
 def circle_intersects_polygon(circle_center, radius, polygon):
     circle = Point(circle_center).buffer(radius)
@@ -60,7 +65,7 @@ def generate_sniffer_locations():
                 circle_center = (x, y)
             else:
                 circle_center = (x, y + vert_spacing / 2)
-            if polygon.contains(Point(circle_center)) or circle_intersects_polygon(circle_center):
+            if polygon.contains(Point(circle_center)) or circle_intersects_polygon(circle_center, radius, polygon):
                 circle_centers.append(circle_center)
 
     # Number of circles required
@@ -87,5 +92,37 @@ def generate_sniffer_locations():
     # # plt.show()
     # plt.savefig('monaco.png', transparent=True, dpi=600)
 
-    ml.logger.info(f"Total number of sniffers placed: ",num_circles)
-    dump_orjson('full_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
+    ml.logger.info(f"Total number of sniffers placed: {num_circles}")
+    dump_orjson('data/full_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
+    
+    
+# generate_sniffer_locations()
+
+
+def generate_partial_sniffer_coverage(num_sniffers = 200):
+    full_coverage_sniffer_data = extract_orjson('data/full_coverage_wifi_sniffer_location.json')
+    sniffer_locations = full_coverage_sniffer_data["sniffer_location"]
+    partial_coverage = []
+    
+    points = [
+        (4408.45,2262.60),
+        (4573.07,1705.79),
+        (5989.28,3308.41),
+        (5952.97,3625.55)
+    ]
+    polygon = ShapelyPolygon(points)
+    
+    partial_cov_temp = []
+    for loc in sniffer_locations:
+        if is_point_inside_polygon(loc[0], loc[1], polygon):
+            partial_cov_temp.append(loc)
+    
+    print(len(partial_cov_temp))
+    
+    partial_coverage = random.sample(partial_cov_temp, num_sniffers)
+    print(len(partial_coverage))
+    dump_orjson('data/partial_coverage_sniffer_location.json', {"sniffer_location": partial_coverage})
+    
+    
+    
+generate_partial_sniffer_coverage()
