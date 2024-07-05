@@ -174,73 +174,11 @@ def tracking_algorithm_tri(two_timestep_data, intra_potential_mapping: defaultdi
         t0_1 = timestep_0_potential_mapping[id] - timestep_1_potential_mapping[id]
         t1_0 = timestep_1_potential_mapping[id] - timestep_0_potential_mapping[id]
         
-        # print(t0_1, t1_0, "inside common mappings")
-        # print(inter_potential_mapping)
-        if not t0_1 and t1_0:
-            for i in t1_0:
-                checker = False
-                for j in common_mappings:
-                    if i in intra_potential_mapping[j]:
-                        checker=True
-                        break
-                if checker:
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                else:
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-                    
-        elif t0_1 and not t1_0:
-            for i in t0_1:
-                if not intra_potential_mapping[i].intersection(common_mappings):
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-                else:
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                    
-        elif t0_1 and t1_0:
-            for i in t1_0:
-                for j in common_mappings:
-                    if i in intra_potential_mapping[j]:
-                        if i not in visited_inter_list[id]:
-                            inter_potential_mapping[id].update({i})
-                        break
-                      
-            common_set_for_t1_0 = set()
-            not_common_set = set()
-            ''' Select id from t0_1 '''
-            for i in t0_1:
-                intra_potential_mapping[i] = set(intra_potential_mapping[i])
-                ''' check if intrapotential mapping of that id exists in the intersection '''
-                id_in_t1_0_common = intra_potential_mapping[i].intersection(t1_0)
-                
-                ''' check if intra potential mapping of that id exists in the common mappings and add it if true '''
-                if intra_potential_mapping[i].intersection(common_mappings):
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                    
-                common_set_for_t1_0.update(id_in_t1_0_common)
-                ''' Find not common mappings of that id'''
-                not_common_set.update(t1_0 - id_in_t1_0_common)
-                ''' Add i as well as common mappings to inter potential mappings '''
-                if id_in_t1_0_common:
-                    ''' Update both id in t0_1 and id in t1_0'''
-                    inter_potential_mapping[id].update(id_in_t1_0_common)
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                else:
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-                    # print(visited_inter_list[id])
-            if not_common_set:
-                uncommon_set = not_common_set - common_set_for_t1_0
-                for i in uncommon_set:
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-                        
+        inter_potential_mapping[id].update(t0_1)
+        inter_potential_mapping[id].update(t1_0)
+        
         # ''' Sanity cleaning step'''
-        # inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
+        visited_inter_list[id] =  visited_inter_list[id] - inter_potential_mapping[id]
 
     # print("Intra potential mapping - After Inter")
     # pprint(intra_potential_mapping)
@@ -254,36 +192,6 @@ def tracking_algorithm_tri(two_timestep_data, intra_potential_mapping: defaultdi
     # Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
     inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     inter_potential_mapping = defaultdict(set, inter_potential_mapping)
-    # print("Sorted Mapping", inter_potential_mapping)
-    # removal = True
-    # while removal:
-    #     removal = False
-    #     for key, value_set in list(inter_potential_mapping.items()):
-    #         value_set = set(value_set)
-    #         ''' Filter 1'''
-    #         to_remove = set()
-    #         for element in value_set:
-    #             inter_potential_mapping_elem = inter_potential_mapping[element]
-    #             ''' Filter 1 '''
-    #             ''' Check if element exists in the dictionary and key is not in its set '''
-    #             if element in inter_potential_mapping and key not in inter_potential_mapping_elem:
-    #                 to_remove.add(element)
-    #                 removal = True
-                
-    #         ''' Remove elements that are unnecessary '''
-    #         if to_remove:
-    #             value_set -= to_remove
-    #             # print(key, to_remove, "to_remove")
-    #             visited_inter_list[key].update(to_remove)
-    #         if removal:
-    #             inter_potential_mapping[key] = value_set
-    #     # Only re-sort the dictionary if changes were made
-    #     if removal:
-    #         inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
-    #         inter_potential_mapping = defaultdict(set, inter_potential_mapping)
-
-    # inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
-    # inter_potential_mapping = defaultdict(set, inter_potential_mapping)
     
     # print("intra_potential_mapping - before updation")
     # pprint(intra_potential_mapping)
