@@ -116,11 +116,14 @@ def reconstruction_multi():
     run_command('python3 reconstruction/reconstruction_multi.py')
     print("reconstruction_multi.py finished.")
 
-def reconstruction():
-    """Run reconstruction service."""
+def reconstruction_user_data():
     print("Starting reconstruction service...")
     run_command('python3 reconstruction/reconstruction_user_data.py')
     print("reconstruction_user_data.py finished.")
+    
+def reconstruction():
+    """Run reconstruction service."""
+    reconstruction_user_data()
     reconstruction_baseline()
     # reconstruction_multi()
     run_in_parallel(reconstruction_baseline_smart, reconstruction_multi)
@@ -221,6 +224,7 @@ tasks = {
     "generate_sniffer_data": generate_sniffer_data,
     "import_user_data_mongo": import_user_data_mongo,
     "import_sniffer_data_mongo": import_sniffer_data_mongo,
+    "reconstruction_user_data": reconstruction_user_data,
     "group_multi": group_multi,
     "tracking_multi": tracking_multi,
     "group_smart": group_smart,
@@ -229,6 +233,8 @@ tasks = {
     "aggregate": aggregate,
     "sanity": sanity,
     "reconstruction": reconstruction,
+    "reconstruction_baseline": reconstruction_baseline,
+    "reconstruction_multi": reconstruction_multi,
     "plot": plot,
     "clean": clean,
     "clean_db": clean_db,

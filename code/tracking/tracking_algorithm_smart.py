@@ -80,16 +80,12 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                 common_ids = ids1.intersection(ids2)
                 if common_ids:
                     t0_1 = ids1 - ids2
-                    t1_0 = ids2 - ids1
-                    not_common_set = set()   
-                    common_set_for_i = set()         
+                    t1_0 = ids2 - ids1         
                     if t0_1 and t1_0:
                         ''' Add the ids which are assymmetrically different as intra potential mapping T0->T1'''
                         for i in t0_1:
-                            common_set_for_i = visited_intra_list[i].intersection(t1_0)
-                            not_common_set.update(t1_0 - common_set_for_i)
                             intra_potential_mapping[i] = set(intra_potential_mapping[i])
-                            intra_potential_mapping[i].update(not_common_set)  
+                            intra_potential_mapping[i].update(t1_0 - visited_intra_list[i].intersection(t1_0))  
                             intra_potential_mapping[i] = intra_potential_mapping[i] - visited_intra_list[i]   
                 else:
                     for id1 in ids1:

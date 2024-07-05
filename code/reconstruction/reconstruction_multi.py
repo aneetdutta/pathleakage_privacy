@@ -22,7 +22,7 @@ if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
 else:
     ml = MyLogger(f"reconstruction_multiprotocol_{DB_NAME}")
     
-    
+
 if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
     md.set_collection(f'modified_intra_mappings_{TRACK_UNTIL}')
     documents = list(md.collection.find())
@@ -31,7 +31,7 @@ if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
 
     md.set_collection(f'modified_inter_mappings_{TRACK_UNTIL}')
     documents = list(md.collection.find())
-    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_df = pd.DataFrame(documents)
 
     md.set_collection(f'reconstruction_baseline_{TRACK_UNTIL}')
@@ -45,7 +45,7 @@ else:
 
     md.set_collection('modified_inter_mappings')
     documents = list(md.collection.find())
-    inter_data = {document['_id']: document["user_id"] for document in documents}
+    inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_df = pd.DataFrame(documents)
 
     md.set_collection('reconstruction_baseline')
@@ -62,19 +62,23 @@ c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_i
 
 intra_data_user = {}
 for id, mapping in intra_data.items():
-    user_id = inter_data[id]
+    ''' Tries to first clean the intra mappings based on user id, those which dont match are set to null '''
+    user_id = inter_user_data[id]
     checker = True
     # if not mapping:
     #     continue
     for id_ in mapping:
-        if inter_data[id_] != user_id:
+        if inter_user_data[id_] != user_id:
             checker = False
+            break
     if checker:
         intra_data_user[id] = mapping
     else:
         intra_data_user[id] = []
-
 # print(intra_data_user)
+# sys.exit()
+# print(intra_data_user)
+''' Now that all users are mapped correctly, removes all '''
 chained_intra = remove_subsets_and_merge(intra_data_user)
 # print(chained_intra)
 # sys.exit()
@@ -82,12 +86,25 @@ multi_protocol = []
 # visited_set = set()
 # visited_user = set()
 # print(inter_df)
+def check_user_id(row, id_to_user_id):
+    mapped_user_ids = [id_to_user_id[_id] for _id in row['mapping']]
+    return all(user_id == row['user_id'] for user_id in mapped_user_ids)
+
+inter_df['user_id_match'] = inter_df.apply(lambda row: check_user_id(row, inter_user_data), axis=1)
+
+# user_id_match = check_user_id_match(inter_df, inter_user_data)
+
+# print(user_id_match)
+# sys.exit()
+
+
 for index, inter_row in inter_df.iterrows():
     # print(index)
     min_start_timestep, max_last_timestep = None, None
     inter_id, intra_id1 = None, None
     inter_id = inter_row["_id"]
-    
+    user_id_match = inter_row["user_id_match"]
+        
     inter_mapping = inter_row["mapping"]
     if not inter_mapping:
         ml.logger.info(f"No inter mapping found for {inter_id}")
@@ -115,44 +132,53 @@ for index, inter_row in inter_df.iterrows():
         max_last_timestep_id1 = inter_row["last_timestep"]
     
     fetch_inter_mapping_timesteps = intra_df[intra_df['_id'].isin(inter_mapping)]
+    min_start_timesteps = fetch_inter_mapping_timesteps.groupby('protocol')['start_timestep'].min().reset_index()
+    result = pd.merge(min_start_timesteps, fetch_inter_mapping_timesteps, on=['protocol', 'start_timestep'], how='left')
 
-    temp_start = fetch_inter_mapping_timesteps['start_timestep'].min()
-    
+    print(result)
+    print(inter_id, inter_row)
+   
     # Filter the DataFrame to include only rows with the minimum start_timestep
-    fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps[fetch_inter_mapping_timesteps['start_timestep'] == temp_start]
-    if len(fetch_inter_mapping_timesteps) == 1 and user_id == str(fetch_inter_mapping_timesteps['user_id'].values[0]):
-        ''' Fetch chain for its intra mapping and calculating min/max timestep'''
-        intra_id1 = str(fetch_inter_mapping_timesteps['_id'].values[0])
-        # visited_set.add(intra_id1)
-        # id2=intra_id1
-        if intra_id1 in intra_data:
-            chain = get_list_containing_value(chained_intra, intra_id1)
-            # print(chain)
-            ml.logger.info(f"{intra_id1}, {chain}")
-            ''' considering inter for search as it contains all id mappings '''
-            id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
-            min_start_timestep_id2 = id2_df['start_timestep'].min()
-            max_last_timestep_id2 = id2_df['last_timestep'].max()        
-            # visited_set.update(set(chain))
-        else:
-            min_start_timestep_id2 = fetch_inter_mapping_timesteps['start_timestep'].values[0]
-            max_last_timestep_id2 = fetch_inter_mapping_timesteps['last_timestep'].values[0]
+    if user_id_match:
+        if len(result)>0:
+            min_start_timestep_id = []
+            max_last_timestep_id = []
+            for index, result_row in result.iterrows():
+                ''' Fetch chain for its intra mapping and calculating min/max timestep'''
+                intra_id = str(result_row['_id'])
+                # visited_set.add(intra_id1)
+                # id2=intra_id1
+                if intra_id in intra_data:
+                    chain = get_list_containing_value(chained_intra, intra_id)
+                    # print(chain)
+                    ml.logger.info(f"{intra_id}, {chain}")
+                    ''' considering inter for search as it contains all id mappings '''
+                    id2_df = inter_df[inter_df['_id'].isin(chain)].drop(columns=['mapping'])
+                    min_start_timestep_id2 = id2_df['start_timestep'].min()
+                    max_last_timestep_id2 = id2_df['last_timestep'].max()        
+                    # visited_set.update(set(chain))
+                else:
+                    min_start_timestep_id2 = result_row['start_timestep'].values[0]
+                    max_last_timestep_id2 = result_row['last_timestep'].values[0]
+                
+                min_start_timestep_id.append((intra_id, min_start_timestep_id2))
+                max_last_timestep_id.append((intra_id, max_last_timestep_id2))
 
-        min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
-        max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
-    elif fetch_inter_mapping_timesteps.empty:
-        # print(inter_mapping)
-        intra_id1 = inter_mapping[0]
-        # visited_set.add(intra_id1)
-        result = inter_df.loc[inter_df['_id'] == intra_id1]
-        if user_id == result["user_id"].values[0]:
-            min_start_timestep_id2 = result['start_timestep'].values[0]
-            max_last_timestep_id2 = result['last_timestep'].values[0]
             min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
             max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
-        else:
-            min_start_timestep = min_start_timestep_id1
-            max_last_timestep = max_last_timestep_id1
+        elif result.empty:
+            # print(inter_mapping)
+            intra_id1 = inter_mapping[0]
+            # visited_set.add(intra_id1)
+            result = inter_df.loc[inter_df['_id'] == intra_id1]
+            if user_id == result["user_id"].values[0]:
+                min_start_timestep_id2 = result['start_timestep'].values[0]
+                max_last_timestep_id2 = result['last_timestep'].values[0]
+                min_start_timestep = min(min_start_timestep_id2, min_start_timestep_id1)
+                max_last_timestep = max(max_last_timestep_id2, max_last_timestep_id1)
+            else:
+                min_start_timestep = min_start_timestep_id1
+                max_last_timestep = max_last_timestep_id1
     else:
         ''' stop  there as multiple inter mappings found, just check intra mappings of inter_id '''
         min_start_timestep = min_start_timestep_id1

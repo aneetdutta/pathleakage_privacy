@@ -12,6 +12,7 @@ from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
 ml = MyLogger(f"reconstruction_baseline_{DB_NAME}")
+ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 
 TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
 TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
@@ -142,23 +143,33 @@ ml.logger.info("Privacy score calculated")
 wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
 lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
-# print(wifi_df.to_string())
 idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
-# print(idx.to_string())
 wifi_df = wifi_df.loc[idx].reset_index(drop=True)
-
 idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
-
 lte_df = lte_df.loc[idx].reset_index(drop=True)
-ml.logger.info("Saving WIFI and LTE csv")
+
+if ENABLE_BLUETOOTH:
+    bluetooth_df = lte_df = bl_df[bl_df['protocol'] == 'bluetooth'].reset_index(drop=True)
+    idx = bluetooth_df.groupby('user_id')['privacy_score'].idxmax()
+    bluetooth_df = bluetooth_df.loc[idx].reset_index(drop=True)
+else:
+    bluetooth_df = None
+
+if not ENABLE_BLUETOOTH:
+    ml.logger.info("Saving WIFI and LTE csv")
+else:
+    ml.logger.info("Saving WIFI, LTE, BLE csv")
 
 if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
     wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
     lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_BLUETOOTH:
+        bluetooth_df.to_csv(f'csv/baseline_ble_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
 else:
     wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}.csv', index=False)
     lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}.csv', index=False)
-
+    if ENABLE_BLUETOOTH:
+        bluetooth_df.to_csv(f'csv/baseline_ble_{DB_NAME}.csv', index=False)
 
 ml.logger.info("Saving data to mongodb - collection reconstruction_baseline")
 
