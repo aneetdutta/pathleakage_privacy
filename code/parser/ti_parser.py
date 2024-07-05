@@ -35,11 +35,9 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
     print(new_filename)
     
     if s[0] == "wifi":
-        # pass
-        if s[1] == "opn":
-            with pyshark.FileCapture(filename, display_filter="", keep_packets=True) as cap:
-                for i, packet in enumerate(cap):
-                    tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
+        with pyshark.FileCapture(filename, display_filter="", keep_packets=True) as cap:
+            for i, packet in enumerate(cap):
+                tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
     elif s[0] == "lte":
         with pyshark.FileCapture(filename, display_filter="mac-lte.direction == 0", keep_packets=True, ) as cap:
             for i, packet in enumerate(cap):

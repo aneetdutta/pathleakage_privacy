@@ -21,7 +21,7 @@ def remove_outliers(values):
 with open("data/ti.json") as f:
     json_data = json.load(f)
     
-total_devices = 2#len(list(json_data))
+total_devices = 3#len(list(json_data))
 total_items = 5
 # list_of_empty_lists = [[1] for _ in range(total_items)]
 data_by_device = [[1] * total_items for _ in range(len(json_data))]
@@ -42,12 +42,12 @@ for device, data in json_data.items():
             data_by_device[i][3] = item_["transmission_interval"]       
         if d == "wifi_connected_active":
             data_by_device[i][4] = item_["transmission_interval"]  
-        print(i, d)
-        print(data_by_device)
+        # print(i, d)
+        # print(data_by_device)
     i=i+1
     # print(filename, list(data))
 # print(data_by_device)
-print("in")
+# print("in")
 # Sample data for 3 devices, each with 5 elements
 # Organize the data by device
 # data_by_device = [data[i*5:(i+1)*5] for i in range(total_devices)]
@@ -69,7 +69,7 @@ for i, device_data in enumerate(data_by_device):
     offset = i * 5
     if not device_data:
         device_data = []
-    violin_parts = ax.violinplot(device_data, positions=positions[offset:offset+5], showmeans=False, showmedians=False, showextrema=False, showfliers=False)
+    violin_parts = ax.violinplot(device_data, positions=positions[offset:offset+5], showmeans=False, showmedians=False, showextrema=False)
     
     # Customize the violin plot colors
     for j, pc in enumerate(violin_parts['bodies']):
@@ -78,7 +78,7 @@ for i, device_data in enumerate(data_by_device):
         pc.set_alpha(0.7)  # Add transparency
 
     # Create a box plot on top of the violin plot with smaller width
-    box_parts = ax.boxplot(device_data, positions=positions[offset:offset+5], patch_artist=True, widths=0.1, showfliers=False)
+    box_parts = ax.boxplot(device_data, positions=positions[offset:offset+5], patch_artist=True, widths=0.1, showfliers=True)
     
     # Customize the box plot colors
     for box, color in zip(box_parts['boxes'], box_colors):
@@ -108,8 +108,9 @@ ax.set_title('Transmission Interval for each device', fontsize=16)
 # Set xticks and xticklabels
 devices = ['d'] * total_devices
 devices[0] = 'OnePlus Nord'
-devices[1] = 'Samsung Galaxy M11'
-xticks = [2.5, 7.5]  # Centered positions for each device
+devices[1] = 'Xiaomi Redmi k50i'
+devices[2] = 'Samsung Galaxy M11'
+xticks = [2.5, 7.5, 12.5]  # Centered positions for each device
 ax.set_xticks(xticks)
 ax.set_xticklabels(devices, fontsize=12)
 
