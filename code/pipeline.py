@@ -22,40 +22,37 @@ def sumo():
     run_command('python3 sumo/sumo_simulation.py')
     print("SUMO simulation finished.")
 
-def raw_user_data():
+def generate_user_data():
     print("Running generate_user_data.py...")
     run_command('python3 sumo/generate_user_data.py')
     print("generate_user_data.py finished.")
     
+def generate_sniffer_data():
     print("Running generate_sniffer_data.py...")
     run_command('python3 sumo/generate_sniffer_data.py')
     print("generate_sniffer_data.py finished.")
     
-
-def user_data():
-    """Generate user data and import to MongoDB."""
+def import_sniffer_data_mongo():
     DB_NAME = os.getenv("DB_NAME")
-    
-    print("Starting user data generation...")
-    
-    print("Running generate_user_data.py...")
-    run_command('python3 sumo/generate_user_data.py')
-    print("generate_user_data.py finished.")
-    
-    print("Running generate_sniffer_data.py...")
-    run_command('python3 sumo/generate_sniffer_data.py')
-    print("generate_sniffer_data.py finished.")
-    
     print("Importing sniffed data to MongoDB...")
     run_command(f'mongosh --host localhost --port 27017 --eval "use {DB_NAME}; db.sniffed_data.drop()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection sniffed_data --type csv --file data/sniffed_data_{DB_NAME}.csv --headerline')
     print("sniffed data imported to MongoDB.")
     
+def import_user_data_mongo():
+    DB_NAME = os.getenv("DB_NAME")
     print("Importing user data to MongoDB...")
     run_command(f'mongosh --host localhost --port 27017 --eval "use {DB_NAME}; db.user_data.drop()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
     print("user data imported to MongoDB.")
     
+def user_data():
+    """Generate user data and import to MongoDB."""
+    print("Starting user data generation...")
+    generate_user_data()
+    generate_sniffer_data()
+    import_sniffer_data_mongo()
+    import_user_data_mongo()
     print("User data generation and import finished.")
 
 def aggregate():
@@ -220,9 +217,12 @@ def tracking_until():
 tasks = {
     "sumo": sumo,
     "user_data": user_data,
+    "generate_user_data": generate_user_data,
+    "generate_sniffer_data": generate_sniffer_data,
+    "import_user_data_mongo": import_user_data_mongo,
+    "import_sniffer_data_mongo": import_sniffer_data_mongo,
     "group_multi": group_multi,
     "tracking_multi": tracking_multi,
-    "raw_user_data": raw_user_data,
     "group_smart": group_smart,
     "tracking_smart": tracking_smart,
     "tracking_until": tracking_until,

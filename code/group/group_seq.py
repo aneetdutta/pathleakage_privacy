@@ -3,6 +3,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.mongofn import MongoDB
 from group.grouping_algorithm_seq import grouper
+from group.grouping_algorithm_tri_seq import grouper_tri
+from services.general import str_to_bool
 from collections import defaultdict
 import time
 md = MongoDB()
@@ -13,7 +15,7 @@ So, we have the dict as
 
 md.set_collection("aggregated_sniffer")
 '''grouped according to timestep and sniffer'''
-sniffer_data = md.collection.find()
+sniffer_data_ = md.collection.find()
 
 group_collection = md.db['groups']
 ''' Processing every timestep - contains dict : {sniffer_id : [data]}
@@ -24,13 +26,19 @@ now = time.time()
 grouping_list = []
 incompatible_ids: defaultdict[set] = defaultdict(set)
 
-for document in sniffer_data:
+ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION"))
+
+for document in sniffer_data_:
     id = document["_id"]
     st_window = document["st_window"]
     sniffer_data = document["sniffer_data"]
     # print(id, timestep)
-    incompatible_ids, group = grouper(sniffer_data, incompatible_ids)
-    grouping_list.append({"st_window": st_window, "grouped_data": group})
+    if ENABLE_MULTILATERATION:
+        incompatible_ids, group = grouper_tri(sniffer_data, incompatible_ids)
+        grouping_list.append({"st_window": st_window, "grouped_data": group})
+    else:
+        incompatible_ids, group = grouper(sniffer_data, incompatible_ids)
+        grouping_list.append({"st_window": st_window, "grouped_data": group})
 
 grouping_list.sort(key=lambda x: x['st_window'])
 group_collection.drop()

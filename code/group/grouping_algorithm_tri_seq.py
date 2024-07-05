@@ -1,26 +1,32 @@
-# from env import BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR
-import copy, os
-from services.general import remove_subsets_and_duplicates, remove_subsets_group
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from services.general import remove_subsets_and_duplicates, remove_subsets_group, calculate_distance_l
 from collections import defaultdict, deque
 from itertools import product
 import sys
 
 
-def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
-    BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR"))
-    WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR"))
-    LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR"))
+def group_distances_tri(sniffer_groups, incompatible_ids: defaultdict[set]):    
+    # BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR"))
+    # WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR"))
+    # LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR"))
     MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR"))
+    
+    # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
+    
     groups = []  # Initialize list to store final groups
+    incompatible_ids = defaultdict(set, incompatible_ids)
     '''iterate through sniffer_groups'''
     updated_timestep_dict = defaultdict()
-    dist_dict = defaultdict()
+    ul_dict = defaultdict()
     sniffer_groups: dict
     for sg in sniffer_groups:
+        if sg["id"] not in incompatible_ids: incompatible_ids[sg["id"]] = set()
         # print(sg)
         updated_timestep_dict[sg["id"]] = sg['timestep']
-        dist_dict[sg["id"]] = sg['dist_S_U']
         sg_tup = (sg["protocol"],sg["id"])
+        ul_dict[sg["id"]] = [sg["ul_x"], sg["ul_y"]]
         
         if not groups:
             first_group = set()
@@ -38,29 +44,34 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
             compatible = True  # Flag to check if distance is compatible with the group
             group: list
             for d in group:
-                abs_dist = abs(int(dist_dict[d[1]]) - int(sg['dist_S_U']))
+                abs_dist = calculate_distance_l(ul_dict[sg["id"]], ul_dict[d[1]])
                 mobility_error = abs(int(updated_timestep_dict[d[1]]) - int(sg['timestep']))*MAX_MOBILITY_FACTOR
                 
-                if d[0] == "LTE" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR+LTE_LOCALIZATION_ERROR+ mobility_error):
-                    compatible=True
-                elif d[0] == "WiFi" and sg["protocol"] == "WiFi" and abs_dist <= (WIFI_LOCALIZATION_ERROR+WIFI_LOCALIZATION_ERROR+ mobility_error):
-                    compatible=True
-                elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth" and abs_dist <= (BLUETOOTH_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR+ mobility_error):
-                    compatible=True
-                elif d[0] == "LTE" and sg["protocol"] == "WiFi":
+                if d[0] != sg["protocol"] and abs_dist <= (mobility_error):
+                    compatible = True
+                else:
                     compatible = False
-                elif d[0] == "LTE" and sg["protocol"] == "Bluetooth":
-                    compatible = False
-                elif d[0] == "WiFi" and sg["protocol"] == "LTE":
-                    compatible = False
-                elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth":
-                    compatible = False
-                elif d[0] == "Bluetooth" and sg["protocol"] == "LTE":
-                    compatible = False
-                elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi":
-                    compatible = False
-                else: 
-                    compatible = False
+                
+                # if d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= (mobility_error):
+                #     compatible = True
+                # elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= (mobility_error):
+                #     compatible = True
+                # elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= (mobility_error):
+                #     compatible = True
+                # elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                #     compatible = True
+                # elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                #     compatible = True
+                # elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                #     compatible = True
+                # elif d[0] == "LTE" and sg["protocol"] == "LTE":
+                #     compatible=False
+                # elif d[0] == "WiFi" and sg["protocol"] == "WiFi":
+                #     compatible=False
+                # elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth":
+                #     compatible=False
+                # else: 
+                #     compatible = False
                     
                 if compatible:
                     if not incompatible_ids[sg["id"]].intersection({d[1]}):
@@ -102,8 +113,9 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
     '''
     # print(groups)
     groups = remove_subsets_group(groups)
-    # print(groups)
     
+    # print(groups)
+
     group_list:list = []
     for element in groups:
         temp_dict = dict()
@@ -114,14 +126,14 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
                     temp_dict[devtup[0]] = [devtup[1]]
                 else:
                     temp_dict[devtup[0]].append(devtup[1])     
-        group_list.append(temp_dict)       
-    # defaultdict(list, ((k, list(v)) for k, v in temp_dict.items()))
+        group_list.append(temp_dict)  
     return incompatible_ids, group_list
 
-def grouper(sniffer_data, incompatible_ids: defaultdict[set]):
+
+def grouper_tri(sniffer_data, incompatible_ids: defaultdict[set]):
     grouped_list = deque()
     for sniffer_id, data in sniffer_data.items():
-        incompatible_ids, distance_groups = group_distances(data, incompatible_ids)
+        incompatible_ids, distance_groups = group_distances_tri(data, incompatible_ids)
         grouped_list.extend(distance_groups)
     grouped_list = remove_subsets_and_duplicates(grouped_list)
     return incompatible_ids, grouped_list

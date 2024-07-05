@@ -120,6 +120,8 @@ class MongoDB:
                             "id": "$id",
                             "dist_S_U": "$dist_S_U",
                             "timestep": "$timestep",
+                            "ul_x": "$ul_x",
+                            "ul_y": "$ul_y"
                         }
                     },
                 }

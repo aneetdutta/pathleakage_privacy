@@ -155,7 +155,6 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
             continue
             
-        
         ''' Find common mappings inside common ids'''
         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
         

@@ -59,18 +59,29 @@ Different protocols, different distance, different IDs, large timesteps
 #     {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "50", "timestep": 18011.5},
 # ]}
 
+# sniffer_group = {
+#     "1234": [
+#         {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "10", "timestep": 18001.25},
+#         {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "18", "timestep": 18001.5},
+#         {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "18", "timestep": 18001.5},
+#         {"protocol": "WiFi", "id": "WIFIID2", "dist_S_U": "10", "timestep": 18001.5},
+#         {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "49", "timestep": 18011.5},
+#         {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "10", "timestep": 18012.5},
+#         # {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "50", "timestep": 18011.5},
+#     ]
+# }
+
 sniffer_group = {
     "1234": [
-        {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "10", "timestep": 18001.25},
-        {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "18", "timestep": 18001.5},
-        {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "18", "timestep": 18001.5},
-        {"protocol": "WiFi", "id": "WIFIID2", "dist_S_U": "10", "timestep": 18001.5},
-        {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "49", "timestep": 18011.5},
-        {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "10", "timestep": 18012.5},
-        # {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "50", "timestep": 18011.5},
-    ]
+            {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "10", "timestep": 18001.25},
+            {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "30", "timestep": 18001.5},
+            {"protocol": "WiFi", "id": "WIFIID1", "dist_S_U": "30", "timestep": 18001.5},
+            {"protocol": "WiFi", "id": "WIFIID2", "dist_S_U": "10", "timestep": 18001.5},
+            {"protocol": "Bluetooth", "id": "BLE1", "dist_S_U": "30", "timestep": 18001.5},
+            {"protocol": "LTE", "id": "LTEID1", "dist_S_U": "40", "timestep": 18011.5},
+            {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "20", "timestep": 18011.5},
+        ]
 }
-
 incompatible_ids = defaultdict(set)
 incompatible_ids, groups = grouper(sniffer_group, incompatible_ids)
 pprint(groups)
