@@ -12,6 +12,7 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
     WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR", 5))
     LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR", 10))
     MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR", 1.66))
+    ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH", "false"))
     
     # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
@@ -104,7 +105,14 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
     '''
     # print(groups)
     groups = remove_subsets_group(groups)
-    
+
+    # print(groups)
+    if ENABLE_BLUETOOTH:
+        to_remove = []
+        for g in groups:
+            if len(g) < 3:
+                to_remove.append(g)
+        groups = [item for item in groups if item not in to_remove]
     # print(groups)
 
     group_list:list = []
@@ -122,6 +130,7 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
 
 
 def grouper(sniffer_data, incompatible_ids: defaultdict[set]):
+    
     grouped_list = deque()
     for sniffer_id, data in sniffer_data.items():
         # print(sniffer_id, data)
@@ -132,4 +141,5 @@ def grouper(sniffer_data, incompatible_ids: defaultdict[set]):
         incompatible_ids, distance_groups = group_distances(data, incompatible_ids)
         grouped_list.extend(distance_groups)
     grouped_list = remove_subsets_and_duplicates(grouped_list)
+    # print(grouped_list)
     return incompatible_ids, grouped_list

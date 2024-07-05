@@ -7,7 +7,7 @@ from pprint import pprint
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 
 Output: Visited List, Potential Mapping'''
-def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_inter_list:defaultdict[set], visited_intra_list:defaultdict[set]):
+def tracking_algorithm_tri(two_timestep_data, intra_potential_mapping: defaultdict[set], inter_potential_mapping: defaultdict[set], visited_inter_list:defaultdict[set], visited_intra_list:defaultdict[set]):
     intra_potential_mapping: defaultdict[set]  = defaultdict(set,intra_potential_mapping)
     inter_potential_mapping: defaultdict[set] = defaultdict(set, inter_potential_mapping)
     visited_intra_list = defaultdict(set, visited_intra_list)
@@ -250,40 +250,40 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     # print("Visited Inter List without filtering")
     # pprint(visited_inter_list)
 
-    ''' Update the inter potential mappings and intra potential mappings 
-    Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
+    # ''' Update the inter potential mappings and intra potential mappings 
+    # Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
     inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
     inter_potential_mapping = defaultdict(set, inter_potential_mapping)
     # print("Sorted Mapping", inter_potential_mapping)
-    removal = True
-    while removal:
-        removal = False
-        for key, value_set in list(inter_potential_mapping.items()):
-            value_set = set(value_set)
-            ''' Filter 1'''
-            to_remove = set()
-            for element in value_set:
-                inter_potential_mapping_elem = inter_potential_mapping[element]
-                ''' Filter 1 '''
-                ''' Check if element exists in the dictionary and key is not in its set '''
-                if element in inter_potential_mapping and key not in inter_potential_mapping_elem:
-                    to_remove.add(element)
-                    removal = True
+    # removal = True
+    # while removal:
+    #     removal = False
+    #     for key, value_set in list(inter_potential_mapping.items()):
+    #         value_set = set(value_set)
+    #         ''' Filter 1'''
+    #         to_remove = set()
+    #         for element in value_set:
+    #             inter_potential_mapping_elem = inter_potential_mapping[element]
+    #             ''' Filter 1 '''
+    #             ''' Check if element exists in the dictionary and key is not in its set '''
+    #             if element in inter_potential_mapping and key not in inter_potential_mapping_elem:
+    #                 to_remove.add(element)
+    #                 removal = True
                 
-            ''' Remove elements that are unnecessary '''
-            if to_remove:
-                value_set -= to_remove
-                # print(key, to_remove, "to_remove")
-                visited_inter_list[key].update(to_remove)
-            if removal:
-                inter_potential_mapping[key] = value_set
-        # Only re-sort the dictionary if changes were made
-        if removal:
-            inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
-            inter_potential_mapping = defaultdict(set, inter_potential_mapping)
+    #         ''' Remove elements that are unnecessary '''
+    #         if to_remove:
+    #             value_set -= to_remove
+    #             # print(key, to_remove, "to_remove")
+    #             visited_inter_list[key].update(to_remove)
+    #         if removal:
+    #             inter_potential_mapping[key] = value_set
+    #     # Only re-sort the dictionary if changes were made
+    #     if removal:
+    #         inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
+    #         inter_potential_mapping = defaultdict(set, inter_potential_mapping)
 
-    inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
-    inter_potential_mapping = defaultdict(set, inter_potential_mapping)
+    # inter_potential_mapping = dict(sorted(inter_potential_mapping.items(), key=lambda item: len(item[1]), reverse=True))
+    # inter_potential_mapping = defaultdict(set, inter_potential_mapping)
     
     # print("intra_potential_mapping - before updation")
     # pprint(intra_potential_mapping)
@@ -302,6 +302,9 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
             for id2 in value_set_:
                 set_id1: set = set(inter_potential_mapping[id1])
                 set_id2: set = set(inter_potential_mapping[id2])
+                ''' Added null inter mapping condition for multilateration'''
+                if set_id1 or set_id2:
+                    continue
                 common_set = set_id1.intersection(set_id2)
                 # print(id1, id2, common_set, set_id1, set_id2)
                 if not common_set and set_id1 and set_id2:
