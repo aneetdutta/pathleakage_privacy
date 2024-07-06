@@ -160,203 +160,84 @@ def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_m
                         inter_potential_mapping[id].update({i})
                     
         elif t0_1 and t1_0:
+            total_ids = t0_1.union(t1_0)
+            added_ids = set()
+            for i in t0_1:
+                for j in common_mappings:
+                    if j in intra_potential_mapping[i]:
+                        if i not in visited_inter_list[id]:
+                            inter_potential_mapping[id].add(i)
+                            added_ids.add(i)
+
+                if intra_potential_mapping[i].intersection(t1_0):
+                    if i not in visited_inter_list[id]:
+                        inter_potential_mapping[id].add(i)
+                        inter_potential_mapping[id].update(intra_potential_mapping[i].intersection(t1_0))
+                        added_ids.add(i)
+                        added_ids.update(intra_potential_mapping[i].intersection(t1_0))
+                # else:
+                #     visited_inter_list[id].add(i)
+                    # if i in inter_potential_mapping[id]:
+                    #     inter_potential_mapping[id].remove(i)
+                        
             for i in t1_0:
                 for j in common_mappings:
                     if i in intra_potential_mapping[j]:
                         if i not in visited_inter_list[id]:
-                            inter_potential_mapping[id].update({i})
-                        break
-                      
-            common_set_for_t1_0 = set()
-            not_common_set = set()
-            ''' Select id from t0_1 '''
-            for i in t0_1:
-                intra_potential_mapping[i] = set(intra_potential_mapping[i])
-                ''' check if intrapotential mapping of that id exists in the intersection '''
-                id_in_t1_0_common = intra_potential_mapping[i].intersection(t1_0)
-                
-                ''' check if intra potential mapping of that id exists in the common mappings and add it if true '''
-                if intra_potential_mapping[i].intersection(common_mappings):
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                    
-                common_set_for_t1_0.update(id_in_t1_0_common)
-                ''' Find not common mappings of that id'''
-                not_common_set.update(t1_0 - id_in_t1_0_common)
-                ''' Add i as well as common mappings to inter potential mappings '''
-                if id_in_t1_0_common:
-                    ''' Update both id in t0_1 and id in t1_0'''
-                    inter_potential_mapping[id].update(id_in_t1_0_common)
-                    if i not in visited_inter_list[id]:
-                        inter_potential_mapping[id].update({i})
-                else:
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-                    # print(visited_inter_list[id])
-            if not_common_set:
-                uncommon_set = not_common_set - common_set_for_t1_0
-                for i in uncommon_set:
-                    if i not in inter_potential_mapping[id]:
-                        visited_inter_list[id].update({i})
-
-#     ''' Step 2: Cleaning intermapping based on intra mapping '''
-#     t0_ids = set(list(timestep_0_potential_mapping))
-#     t1_ids = set(list(timestep_1_potential_mapping))
-    
-#     # print(t0_ids, t1_ids)
-#     # print(inter_potential_mapping)
-#    # inter_potential_mapping = defaultdict(set)
-    
-#     ''' Fetching common ids in both intermapping dicts '''
-#     common_ids = t0_ids.intersection(t1_ids)
-    
-#     ''' IDs whose either T0 or T1 does not exists'''
-#     different_ids_0 = t0_ids - t1_ids
-#     different_ids_1 = t1_ids - t0_ids
-    
-#     # print(different_ids_0, different_ids_1, common_ids)
-#     # print("\n")
-    
-#     ''' Adding these ids to interpotential mapping directly 
-#     Keeping this as useful for first timestep, else can add condition'''
-#     if not inter_potential_mapping:
-#         for id in different_ids_0:
-#             inter_potential_mapping[id] = set(inter_potential_mapping[id])
-#             inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
-#             inter_potential_mapping[id] =  inter_potential_mapping[id] - visited_inter_list[id]
+                            inter_potential_mapping[id].add(i)
+                            added_ids.add(i)
+                # if i not in inter_potential_mapping[id]:
+                #     visited_inter_list[id].add(i)
+                #     if i in inter_potential_mapping[id]:
+                #         inter_potential_mapping[id].remove(i)
             
-#     for id in different_ids_1:
-#         inter_potential_mapping[id] = set(inter_potential_mapping[id])
-#         inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
-#         inter_potential_mapping[id] =  inter_potential_mapping[id] - set(visited_inter_list[id])
+            s = total_ids - added_ids
             
-#     # print("Inter potential Mapping: ", inter_potential_mapping)
-    
-#     for id in common_ids:
-#         # ''' Sanity check if above different id check does not follow'''
-#         # if not timestep_0_potential_mapping[id]:
-#         #     inter_potential_mapping[id].update(timestep_1_potential_mapping[id])
-#         #     continue
-#         # if not timestep_1_potential_mapping[id]:
-#         #     inter_potential_mapping[id].update(timestep_0_potential_mapping[id])
-#         #     continue
-#         # inter_potential_mapping[id]=set()
-#         ''' Find common mappings inside common ids'''
-#         common_mappings = timestep_0_potential_mapping[id].intersection(timestep_1_potential_mapping[id])
-        
-#         # print("Common_mappings for ", id, ": ", common_mappingsvisited_intra_list[id1] = set(visited_intra_list[id1]), "\n")
-        
-#         ''' Adding the common mappings directly to the interpotential mappings'''
-#         inter_potential_mapping[id] = set(inter_potential_mapping[id])
-#         inter_potential_mapping[id].update(common_mappings)
-#         # for c in common_mappings:
-#         #     if c not in visited_inter_list[id]:    
-#         #         inter_potential_mapping[id].add(c)
-#         #     else:
-#         #         if c in inter_potential_mapping[id]:
-#         #             inter_potential_mapping[id].remove(c)
-        
-#         ''' Using this to ensure if any common mapping exists in the visited inter list, its removed'''
-#         inter_potential_mapping[id] = inter_potential_mapping[id] - set(visited_inter_list[id])
-        
-#         # print("Updated common mappings to inter potential mapping")
-#         # print(inter_potential_mapping, "\n")
-        
-#         ''' Calculating non common mappings (T0_1) AND (T1_0) in the common ids (having T0 and T1)'''
-
-#         t0_1 = timestep_0_potential_mapping[id] - timestep_1_potential_mapping[id]
-#         t1_0 = timestep_1_potential_mapping[id] - timestep_0_potential_mapping[id]
-        
-        
-#         # if t0_1:
-#         #     for i in t0_1:
-#         #         if intra_potential_mapping[i].intersection(common_mappings) or intra_potential_mapping[i].intersection(t1_0):
-#         #             if i not in visited_inter_list[id]:
-#         #                 inter_potential_mapping[id].add(i)
-#         #         else:
-#         #             visited_inter_list[id].add(i)
-#         #             if i in inter_potential_mapping[id]:
-#         #                 inter_potential_mapping[id].remove(i)
+            for i in s:
+                if i in inter_potential_mapping[id]:
+                    inter_potential_mapping[id].remove(i)
+                if i not in visited_inter_list[id]:
+                    visited_inter_list[id].add(i)
                     
-#         # if t1_0:
-#         #     for i in t1_0:
-#         #         for j in common_mappings:
-#         #             if i in intra_potential_mapping[j]:
-#         #                 if i not in visited_inter_list[id]:
-#         #                     inter_potential_mapping[id].add(i)
-#         #         if i not in inter_potential_mapping[id]:
-#         #             visited_inter_list[id].add(i)
-#         #             if i in inter_potential_mapping[id]:
-#         #                 inter_potential_mapping[id].remove(i)
-        
-#         if not t0_1 and t1_0:
-#             for i in t1_0:
-#                 checker = False
-#                 for j in common_mappings:
-#                     if i in intra_potential_mapping[j]:
-#                         checker=True
-#                         break
-#                 if checker:
-#                     if i not in visited_inter_list[id]:
-#                         inter_potential_mapping[id].update({i})
-#                 else:
-#                     if i not in inter_potential_mapping[id]:
-#                         visited_inter_list[id].update({i})
-                    
-#         elif t0_1 and not t1_0:
-#             for i in t0_1:
-#                 if not intra_potential_mapping[i].intersection(common_mappings):
-#                     if i not in inter_potential_mapping[id]:
-#                         visited_inter_list[id].update({i})
-#                 else:
-#                     if i not in visited_inter_list[id]:
-#                         inter_potential_mapping[id].update({i})
-                    
-#         elif t0_1 and t1_0:
-#             for i in t1_0:
-#                 for j in common_mappings:
-#                     if i in intra_potential_mapping[j]:
-#                         if i not in visited_inter_list[id]:
-#                             inter_potential_mapping[id].update({i})
-#                         break
+            # for i in t1_0:
+            #     for j in common_mappings:
+            #         if i in intra_potential_mapping[j]:
+            #             if i not in visited_inter_list[id]:
+            #                 inter_potential_mapping[id].update({i})
+            #             break
                       
-#             common_set_for_t1_0 = set()
-#             not_common_set = set()
-#             ''' Select id from t0_1 '''
-#             for i in t0_1:
-#                 intra_potential_mapping[i] = set(intra_potential_mapping[i])
-#                 ''' check if intrapotential mapping of that id exists in the intersection '''
-#                 id_in_t1_0_common = intra_potential_mapping[i].intersection(t1_0)
+            # common_set_for_t1_0 = set()
+            # not_common_set = set()
+            # ''' Select id from t0_1 '''
+            # for i in t0_1:
+            #     intra_potential_mapping[i] = set(intra_potential_mapping[i])
+            #     ''' check if intrapotential mapping of that id exists in the intersection '''
+            #     id_in_t1_0_common = intra_potential_mapping[i].intersection(t1_0)
                 
-#                 ''' check if intra potential mapping of that id exists in the common mappings and add it if true '''
-#                 if intra_potential_mapping[i].intersection(common_mappings):
-#                     if i not in visited_inter_list[id]:
-#                         inter_potential_mapping[id].update({i})
+            #     ''' check if intra potential mapping of that id exists in the common mappings and add it if true '''
+            #     if intra_potential_mapping[i].intersection(common_mappings):
+            #         if i not in visited_inter_list[id]:
+            #             inter_potential_mapping[id].update({i})
                     
-#                 common_set_for_t1_0.update(id_in_t1_0_common)
-#                 ''' Find not common mappings of that id'''
-#                 not_common_set.update(t1_0 - id_in_t1_0_common)
-#                 ''' Add i as well as common mappings to inter potential mappings '''
-#                 if id_in_t1_0_common:
-#                     ''' Update both id in t0_1 and id in t1_0'''
-#                     inter_potential_mapping[id].update(id_in_t1_0_common)
-#                     if i not in visited_inter_list[id]:
-#                         inter_potential_mapping[id].update({i})
-#                 else:
-#                     if i not in inter_potential_mapping[id]:
-#                         visited_inter_list[id].update({i})
-#                     # print(visited_inter_list[id])
-#             if not_common_set:
-#                 uncommon_set = not_common_set - common_set_for_t1_0
-#                 for i in uncommon_set:
-#                     if i not in inter_potential_mapping[id]:
-#                         visited_inter_list[id].update({i})
+            #     common_set_for_t1_0.update(id_in_t1_0_common)
+            #     ''' Find not common mappings of that id'''
+            #     not_common_set.update(t1_0 - id_in_t1_0_common)
+            #     ''' Add i as well as common mappings to inter potential mappings '''
+            #     if id_in_t1_0_common:
+            #         ''' Update both id in t0_1 and id in t1_0'''
+            #         inter_potential_mapping[id].update(id_in_t1_0_common)
+            #         if i not in visited_inter_list[id]:
+            #             inter_potential_mapping[id].update({i})
+            #     else:
+            #         if i not in inter_potential_mapping[id]:
+            #             visited_inter_list[id].update({i})
+            #         # print(visited_inter_list[id])
+            # if not_common_set:
+            #     uncommon_set = not_common_set - common_set_for_t1_0
+            #     for i in uncommon_set:
+            #         if i not in inter_potential_mapping[id]:
+            #             visited_inter_list[id].update({i})
 
-                        
-
-                    
-#        # inter_potential_mapping[id] = inter_potential_mapping[id] - visited_inter_list[id]
-                        
     return inter_potential_mapping, visited_inter_list
     
 def tracking_phase_2_part_3(inter_potential_mapping, visited_inter_list):
