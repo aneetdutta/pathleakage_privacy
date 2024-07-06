@@ -182,17 +182,18 @@ def combine_values(dicts, keys):
 def create_exclusion_set(combined_set, element):
     return {item for item in combined_set if item != element}
 
-def combine_and_exclude_all(dicts, keys, result_dict=None):
+def combine_and_exclude_all(dicts, result_dict=None):
+    # Fetch all unique keys from the provided dictionaries
+    keys = {key for d in dicts for key in d.keys()}
+    
     # Initialize a dictionary to hold combined sets for each key
     combined_dict = {key: set() for key in keys}
     
-    # print(dicts, keys)
     # Combine values for each key from all dictionaries
     for d in dicts:
-        # print(d)
         for key in keys:
-            combined_dict[key].update(d.get(key, []))
-        # print(combined_dict, key)
+            values = d.get(key, [])
+            combined_dict[key].update(values)
     
     # Initialize result_dict if not provided
     if result_dict is None:
@@ -203,19 +204,15 @@ def combine_and_exclude_all(dicts, keys, result_dict=None):
             result_dict[key] = set(result_dict[key])
     
     # Create the final dictionary with each element as key and the set without that element as value
-    for key in keys:
-        combined_list = list(combined_dict[key])
-        for element in combined_list:
-            exclusion_set = {item for item in combined_list if item != element}
+    for key, combined_set in combined_dict.items():
+        for element in combined_set:
             if element not in result_dict:
-                result_dict[element] = exclusion_set
+                result_dict[element] = combined_set - {element}
             else:
-                result_dict[element].update(exclusion_set)
+                result_dict[element].update(combined_set - {element})
     
     # Convert sets back to lists for the final result
-    # result_dict = {key: list(value) for key, value in result_dict.items()}
-    
-    return result_dict
+    return {key: set(value) for key, value in result_dict.items()}
 
 # def combine_and_exclude_all(dicts, keys, result_dict=None):
 #     combined_dict = combine_values(dicts, keys)

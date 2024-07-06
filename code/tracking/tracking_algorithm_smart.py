@@ -6,7 +6,7 @@ import os
 from services.general import combine_and_exclude_all, str_to_bool
 
 
-ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+# ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 
 ''' Tracking Algorithm: 
 Input: Data of Two timesteps along with existing potential mapping and visited list 
@@ -29,12 +29,12 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
     
     ''' Loop through mapping 0 and then loop through mapping 1'''
     ''' Picking id from one group and adding other groups to visited list of id'''
-    if ENABLE_BLUETOOTH:
-        keys = ["LTE", "WiFi", "Bluetooth"]
-    else:
-        keys = ["LTE", "WiFi"]
+    # if ENABLE_BLUETOOTH:
+    #     keys = ["LTE", "WiFi", "Bluetooth"]
+    # else:
+    #     keys = ["LTE", "WiFi"]
 
-    visited_intra_list = combine_and_exclude_all(mapping0, keys, visited_intra_list)
+    visited_intra_list = combine_and_exclude_all(mapping0, visited_intra_list)
     # print(mapping0)
     ''' Then loop through mapping 1'''
     for m1 in mapping0:
@@ -50,7 +50,7 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                 for id1 in ids1:
                     if id1 not in intra_potential_mapping: intra_potential_mapping[id1] = set()
                     ''' Add same group elements of mapping 0 to potential mapping '''
-                    visited_intra_list[id1] = visited_intra_list[id1] - ids1
+                    visited_intra_list[id1] = set(visited_intra_list[id1]) - ids1
                     intra_potential_mapping[id1].update(ids1 - {id1})
                     ''' Add same group elements of mapping 1 to potential mapping if id from mapping 0 exists in mapping 1 '''
                     if id1 in ids2:
@@ -71,7 +71,10 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                 ''' Comparing with only same protocol types during intra mapping'''
                 if p1 not in m2:
                     continue
-                
+                    # if ENABLE_BLUETOOTH:
+    #     keys = ["LTE", "WiFi", "Bluetooth"]
+    # else:
+    #     keys = ["LTE", "WiFi"]
                 ids1:set = set(ids1)
                 ids2:set = set(m2[p1])
                 
@@ -86,7 +89,7 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                         for i in t0_1:
                             intra_potential_mapping[i] = set(intra_potential_mapping[i])
                             intra_potential_mapping[i].update(t1_0 - visited_intra_list[i].intersection(t1_0))  
-                            intra_potential_mapping[i] = intra_potential_mapping[i] - visited_intra_list[i]   
+                            intra_potential_mapping[i] -= visited_intra_list[i]   
                 else:
                     for id1 in ids1:
                         visited_intra_list[id1].update(ids2)
@@ -100,12 +103,12 @@ def tracking_algorithm_smart(two_timestep_data, intra_potential_mapping: default
                                 visited_intra_list[i].add(id)
                                 to_remove.add(i)
                                 # print(to_remove, "hello", id)
-                        intra_potential_mapping[id] = intra_potential_mapping[id] - to_remove
+                        intra_potential_mapping[id] -= to_remove
                         visited_intra_list[id].update(to_remove)  
     
     ''' Remove any redundant mappings from visited intra list '''       
     for id1 in visited_intra_list:
-        visited_intra_list[id1] = visited_intra_list[id1] - intra_potential_mapping[id1] 
+        visited_intra_list[id1] -= intra_potential_mapping[id1] 
 
     return intra_potential_mapping, visited_intra_list
 
