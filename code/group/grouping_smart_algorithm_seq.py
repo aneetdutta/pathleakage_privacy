@@ -7,10 +7,10 @@ import sys
 
 
 def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
-    BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR"))
-    WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR"))
-    LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR"))
-    MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR"))
+    BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR", 1))
+    WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR", 5))
+    LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR", 10))
+    MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR", 1.66))
     groups = []  # Initialize list to store final groups
     '''iterate through sniffer_groups'''
     updated_timestep_dict = defaultdict()
@@ -81,14 +81,16 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
             groups.append(set({tuple(sg_tup)}))
         else:
             compatible_set.add(sg_tup)
-            protocol_dict = {}
-            for protocol, id in compatible_set:
-                if protocol not in protocol_dict:
-                    protocol_dict[protocol] = []
-                protocol_dict[protocol].append((protocol, id))
-            # Generate all combinations of distinct protocols
-            combinations = [set(combo) for combo in product(*protocol_dict.values())]
-            groups.extend(combinations)
+            # print(compatible_set, sg_tup)
+            groups.append(compatible_set)
+            # protocol_dict = {}
+            # for protocol, id in compatible_set:
+            #     if protocol not in protocol_dict:
+            #         protocol_dict[protocol] = []
+            #     protocol_dict[protocol].append((protocol, id))
+            # # Generate all combinations of distinct protocols
+            # combinations = [set(combo) for combo in product(*protocol_dict.values())]
+            # groups.extend(combinations)
 
     '''
     [

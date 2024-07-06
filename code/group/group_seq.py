@@ -6,8 +6,11 @@ from group.grouping_algorithm_seq import grouper
 from group.grouping_algorithm_tri_seq import grouper_tri
 from services.general import str_to_bool
 from collections import defaultdict
+from modules.logger import MyLogger
 import time
 md = MongoDB()
+DB_NAME = os.getenv("DB_NAME")
+ml = MyLogger(f"grouping_seq_{DB_NAME}")
 '''The below code converts the aggregated results into groups using the grouping distance algorithm
 The groups of every sniffer are first calculated and then they are appended to single timestep.
 So, we have the dict as 
@@ -15,7 +18,7 @@ So, we have the dict as
 
 md.set_collection("aggregated_sniffer")
 '''grouped according to timestep and sniffer'''
-sniffer_data_ = md.collection.find()
+sniffer_data_ =list(md.collection.find(no_cursor_timeout=True))
 
 group_collection = md.db['groups']
 ''' Processing every timestep - contains dict : {sniffer_id : [data]}
@@ -31,6 +34,8 @@ ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION"))
 for document in sniffer_data_:
     id = document["_id"]
     st_window = document["st_window"]
+    ml.logger.info(f"Time window: {st_window}")
+    
     sniffer_data = document["sniffer_data"]
     # print(id, timestep)
     if ENABLE_MULTILATERATION:
@@ -43,4 +48,4 @@ for document in sniffer_data_:
 grouping_list.sort(key=lambda x: x['st_window'])
 group_collection.drop()
 group_collection.insert_many(grouping_list)
-print("Total time taken: ", time.time() - now)
+ml.logger.info("Total time taken: ", time.time() - now)

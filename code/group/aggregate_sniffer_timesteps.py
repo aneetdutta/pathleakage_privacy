@@ -82,5 +82,3 @@ md.db["parsed_sniffed_data"].insert_many(data_dict)
 # print(df.dtypes)
 
 md.set_collection("parsed_sniffed_data")
-md.db['aggregated_sniffer'].drop()
-md.db['aggregated_sniffer'].insert_many(md.aggregate_st_window())

@@ -46,6 +46,10 @@ def import_user_data_mongo():
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
     print("user data imported to MongoDB.")
     
+def import_data_mongo():
+    import_sniffer_data_mongo()
+    import_user_data_mongo()
+    
 def user_data():
     """Generate user data and import to MongoDB."""
     print("Starting user data generation...")
@@ -69,6 +73,10 @@ def aggregate():
     
     print("Aggregation process finished.")
 
+def aggregate_timesteps():
+    print("Running aggregation.py...")
+    run_command("python3 group/aggregation.py")
+    print("aggregation.py finished.")
 
 def group_multi():
     """Run grouping service."""
@@ -271,5 +279,7 @@ tasks = {
     "all_without_sumo": all_without_sumo,
     "data_gen_without_sumo": data_gen_without_sumo,
     "all_tasks_without_smart": all_tasks_without_smart,
-    "after_aggregate_without_smart": after_aggregate_without_smart
+    "after_aggregate_without_smart": after_aggregate_without_smart,
+    "import_data_mongo": import_data_mongo,
+    "aggregate_timesteps": aggregate_timesteps
 }
