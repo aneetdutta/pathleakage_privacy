@@ -1,237 +1,10 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tracking.tracking_algorithm import tracking_algorithm
+from tracking.tracking_algorithm import tracking_algorithm, tracking_phase1, tracking_phase_2_part_1, tracking_phase_2_part_2, tracking_phase_2_part_3, tracking_phase_3
 from collections import defaultdict
 from pprint import pprint
 
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3", "L4"], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L1", "L4"], "WiFi": ["W1"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1", "L2", "L3", "L4"], "WiFi": ["W1`", "W2"]},
-#             {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
-#             {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
-#         ],
-#     ),
-
-# ]
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#         ],
-#     ),
-
-# ]
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1", "W3"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1'", "W3"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1'", "W2"]},
-#         ],
-#     ),
-
-# ]
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
-#             {"LTE": ["L2"], "WiFi": ["W2"]},
-#         ],
-#     ),
-# ]
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2"], "WiFi": ["W2"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L1"], "WiFi": ["W1"]},
-#             {"LTE": ["L2"], "WiFi": ["W2"]},
-#         ],
-#     ),
-# ]
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": [], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3", "L4"], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L1", "L4"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2"], "WiFi": []},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1", "L2", "L3", "L4"], "WiFi": ["W1`", "W2"]},
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
-#             {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
-#         ],
-#     )
-# ]
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": [], "WiFi": ["W1", "W2"]},
-#             {"LTE": ["L2", "L3", "L4"], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L1", "L4"], "WiFi": []},
-#             {"LTE": ["L1", "L2"], "WiFi": []},
-#             {"LTE": [], "WiFi": ["W1"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1", "L2", "L3", "L4"], "WiFi": []},
-#             {"LTE": [], "WiFi": ["W1", "W2"]},
-#             {"LTE": [], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
-#             {"LTE": [], "WiFi": ["W3"]},
-#             {"LTE": [], "WiFi": ["W3"]},
-#             {"LTE": ["L3", "L4"], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
-#             {"LTE": ["L1", "L4"], "WiFi": ["W4"]},
-#         ],
-#     ),
-#     (
-#         2,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": []},
-#             {"LTE": ["L2"], "WiFi": ["W1", "W2"]},
-#             {"LTE": [], "WiFi": ["W3", "W4"]},
-#             {"LTE": ["L3", "L4"], "WiFi": ["W3"]},
-#             {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
-#             {"LTE": [], "WiFi": ["W3"]},
-#             {"LTE": ["L3", "L4"], "WiFi": ["W4"]},
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W3"]},
-#             {"LTE": [], "WiFi": ["W4"]},
-#         ],
-#     )
-# ]
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": []},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W1", "W2"]},
-#         ],
-#     ),
-#     (
-#         2,
-#         [
-#             {"LTE": ["L1", "L3", "L4"], "WiFi": ["W3"]},
-#         ],
-#     ),
-
-# ]
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"], "Bluetooth": ["B1"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1`", "L2"], "WiFi": ["W1`", "W2"], "Bluetooth": ["B2"]},
-#         ],
-#     ),
-
-# ]
-
-
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1"]},
-#             {"LTE": ["L1", "L2", "L3"], "WiFi": ["W2", "W3"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W3"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L2", "L3"], "WiFi": ["W2"]},
-#             {"LTE": ["L1", "L3"], "WiFi": ["W1"]},
-#             {"LTE": ["L3", "L2"], "WiFi": ["W3"]},
-#         ],
-#     ),
-#     (
-#         2,
-#         [
-#             {"LTE": ["L1`","L2", "L3"], "WiFi": ["W1", "W3"]},
-#             {"LTE": ["L1`", "L3"], "WiFi": ["W1"]},
-#             {"LTE": ["L3", "L2", "L1`"], "WiFi": ["W3", "W2"]},
-#         ],
-#     ),
-
-# ]
 
 # test_tuple = [
 #     (
@@ -308,16 +81,19 @@ test_tuple = [
         0,
         [
             # {"LTE": ["L1"], "WiFi": ["W1"]},
-            {"LTE": ["L1`"], "WiFi": ["W1"]},
-            {"LTE": ["L2"], "WiFi": ["W2"]}
+            {"LTE": ["L1"], "WiFi": ["W1"]},
+            {"LTE": ["L2"], "WiFi": ["W2"]},
+            {"LTE": ["L3"], "WiFi": ["W3"]},
+            {"LTE": ["L3"], "WiFi": ["W1"]},
         ],
     ),
     (
         1,
         [
             {"LTE": ["L1`"], "WiFi": ["W1"]},
-            {"LTE": ["L2"], "WiFi": ["W1"]},
-            # {"LTE": ["L2"], "WiFi": ["W2"]}
+            {"LTE": ["L2"], "WiFi": ["W2"]},
+            {"LTE": ["L2"], "WiFi": ["W2`"]},
+            {"LTE": ["L4"], "WiFi": ["W4"]}
         ],
     )
 ]
@@ -335,49 +111,36 @@ test_tuple = [
 #             {"LTE": ["L1"], "WiFi": ["W1"]},
 #             {"LTE": ["L1`"], "WiFi": ["W1"]},
 #         ],
+#     ),
+#     (
+#         2,
+#         [
+#             {"LTE": ["L1`"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#         ],
 #     )
 # ]
-# test_tuple = [
-#     (
-#         0,
-#         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#             # {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
-#         ],
-#     ),
-#     (
-#         1,
-#         [
-#             {"LTE": ["L1"], "WiFi": ["W1","W1`"]},
-#             {"LTE": ["L2"], "WiFi": ["W2"]},
-#         ],
-#     ),
-#     # (
-#     #     2,
-#     #     [
-#     #         {"LTE": ["L1"], "WiFi": ["W1`","W1``", "W1```"]},
-#     #         {"LTE": ["L2"], "WiFi": ["W2"]},
-#     #     ],
-#     # )
-# ]
-
 
 # test_tuple = [
 #     (
 #         0,
 #         [
-#             {"LTE": ["L1", "L2"], "WiFi": ["W1", "W2"]},
-#             # {"LTE": ["L2", "L3"], "WiFi": ["W3"]},
+#             {"LTE": ["L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#             {"LTE": ["L2"], "WiFi": ["W1"]},
 #         ],
 #     ),
 #     (
 #         1,
 #         [
-#             {"LTE": ["L1"], "WiFi": ["W1","W1`"]},
+#             {"LTE": ["L1`"], "WiFi": ["W1"]},
 #             {"LTE": ["L2"], "WiFi": ["W2"]},
+#             {"LTE": ["L2"], "WiFi": ["W1"]},
 #         ],
-#     ),
+#     )
 # ]
+
+
 
 
 timestep_pairs = [

@@ -27,8 +27,9 @@ Stores the processed group to mongodb collection '''
 group_collection.drop()
 now = time.time()
 grouping_list = []
-incompatible_ids: defaultdict[set] = defaultdict(set)
-
+incompatible_intra_ids: defaultdict[set] = defaultdict(set)
+incompatible_inter_ids: defaultdict[set] = defaultdict(set)
+# incompatible_list = []
 ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION"))
 
 for document in sniffer_data_:
@@ -39,13 +40,32 @@ for document in sniffer_data_:
     sniffer_data = document["sniffer_data"]
     # print(id, timestep)
     if ENABLE_MULTILATERATION:
-        incompatible_ids, group = grouper_tri(sniffer_data, incompatible_ids)
+        incompatible_intra_ids, incompatible_inter_ids, group = grouper_tri(sniffer_data, incompatible_intra_ids, incompatible_inter_ids)
         grouping_list.append({"st_window": st_window, "grouped_data": group})
     else:
-        incompatible_ids, group = grouper(sniffer_data, incompatible_ids)
+        incompatible_intra_ids, incompatible_inter_ids, group = grouper(sniffer_data, incompatible_intra_ids, incompatible_inter_ids)
         grouping_list.append({"st_window": st_window, "grouped_data": group})
 
 grouping_list.sort(key=lambda x: x['st_window'])
 group_collection.drop()
-group_collection.insert_many(grouping_list)
+group_collection.insert_many(grouping_list
+                             )
+incompatible_intra_collection = md.db['incompatible_intra']
+incompatible_intra_collection.drop()
+for i, j in incompatible_intra_ids.items():
+    result = incompatible_intra_collection.update_one(
+        {"_id": str(i)},
+        {"$set": {"_id": str(i), "mapping": list(j)}},
+        upsert=True  # Create a new document if no document matches the filter
+    )
+    
+incompatible_inter_collection = md.db['incompatible_inter']
+incompatible_inter_collection.drop()
+for i, j in incompatible_inter_ids.items():
+    result = incompatible_inter_collection.update_one(
+        {"_id": str(i)},
+        {"$set": {"_id": str(i), "mapping": list(j)}},
+        upsert=True  # Create a new document if no document matches the filter
+    )
+# incompatible_collection.insert_many(grouping_list)
 ml.logger.info("Total time taken: ", time.time() - now)

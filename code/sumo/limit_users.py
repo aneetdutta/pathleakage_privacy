@@ -9,37 +9,26 @@ from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
 
-ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))
-TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
+LIMIT_USER_AFTER_USER_DATA = str_to_bool(os.getenv("LIMIT_USER_AFTER_USER_DATA"))
+LIMIT_USER_NUM_USERS = int(os.getenv("LIMIT_USER_NUM_USERS"))
+
+if not LIMIT_USER_AFTER_USER_DATA:
+    print(f"LIMIT_USER_AFTER_USER_DATA: {LIMIT_USER_AFTER_USER_DATA}")
+    sys.exit()
+    
 ml = MyLogger(f"generate_user_data_{DB_NAME}")
-
 df = pd.read_csv(f"data/raw_user_data_{DB_NAME}.csv")
-raw_user_data = df.to_dicts()
 
-# print(ENABLE_USER_THRESHOLD)
+# Step 1: Identify the first 50 unique users
+unique_users = df['user_id'].unique()[:LIMIT_USER_NUM_USERS]
+
+# Step 2: Filter the DataFrame to keep only the rows corresponding to these users
+filtered_df = df[df['user_id'].isin(unique_users)]
+
+print(filtered_df)
+
 
 same_userset: set = set()
 
 user_dict = dict()
 user_data = deque()
-
-check_users = False
-
-for user_ in raw_user_data:
-    # print(user_)
-    user_id = user_["user_id"]
-    timestep = user_["timestep"]
-    mf = user_["mf"]
-    loc_x = user_["loc_x"]
-    loc_y = user_["loc_y"]
-    
-    if ENABLE_USER_THRESHOLD:
-        # print(ENABLE_USER_THRESHOLD)
-        if user_id not in same_userset and len(same_userset) < TOTAL_NUMBER_OF_USERS:
-            same_userset.add(user_id)
-        elif user_id not in same_userset:
-            continue
-    
-    if len(same_userset) >= TOTAL_NUMBER_OF_USERS and not check_users:
-        ml.logger.info(f"Total number of users {len(same_userset)} capped at {timestep}")
-        check_users = True

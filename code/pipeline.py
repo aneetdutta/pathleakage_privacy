@@ -248,6 +248,11 @@ def tracking_until():
     reconstruction()
     # plot()
     
+def limit_users_after_user_data():    
+    print("Running limit_users.py...")
+    run_command('python3 sumo/limit_users.py')
+    print("limit_users.py finished.")
+    
 tasks = {
     "sumo": sumo,
     "user_data": user_data,
@@ -281,5 +286,6 @@ tasks = {
     "all_tasks_without_smart": all_tasks_without_smart,
     "after_aggregate_without_smart": after_aggregate_without_smart,
     "import_data_mongo": import_data_mongo,
-    "aggregate_timesteps": aggregate_timesteps
+    "aggregate_timesteps": aggregate_timesteps,
+    "limit_users_after_user_data": limit_users_after_user_data
 }

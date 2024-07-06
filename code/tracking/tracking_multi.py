@@ -48,6 +48,13 @@ inter_potential_mapping_list = convert_sets_to_lists(inter_potential_mapping)
 visited_inter_mapping_list = convert_sets_to_lists(visited_inter_list)
 visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
 
+md.set_collection(f'incompatible_inter')
+documents = list(md.collection.find())
+visited_inter_list = {document['_id']: set(document['mapping']) for document in documents}
+
+md.set_collection("groups")
+
+print(timestep_pairs)
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
     documents = md.collection.find({"st_window": {"$in": timestep_pair}})

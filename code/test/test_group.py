@@ -82,7 +82,8 @@ sniffer_group = {
             {"protocol": "LTE", "id": "LTEID2", "dist_S_U": "20", "timestep": 18011.5},
         ]
 }
-incompatible_ids = defaultdict(set)
-incompatible_ids, groups = grouper(sniffer_group, incompatible_ids)
+incompatible_intra_ids, incompatible_inter_ids = defaultdict(set), defaultdict(set)
+incompatible_intra_ids, incompatible_inter_ids, groups = grouper(sniffer_group, incompatible_intra_ids, incompatible_inter_ids,)
 pprint(groups)
-pprint(incompatible_ids)
+pprint(incompatible_intra_ids)
+pprint(incompatible_inter_ids)

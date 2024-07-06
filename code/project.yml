@@ -3,12 +3,14 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 20000               # Number of user timesteps
+  USER_TIMESTEPS: 18200               # Number of user timesteps
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
-  TOTAL_NUMBER_OF_USERS: 100          # Create only same set of users for different run
+  TOTAL_NUMBER_OF_USERS: 50          # Create only same set of users for different run
   ENABLE_USER_THRESHOLD: true        # Enable user threshold
+  LIMIT_USER_NUM_USERS: 50
+  LIMIT_USER_AFTER_USER_DATA: true
 
 # Movement Parameters
 movement_parameters:
@@ -47,8 +49,8 @@ randomization_intervals:
   WIFI_MAX_REFRESH: 60
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 720
-  LTE_MAX_REFRESH: 1800
+  LTE_MIN_REFRESH: 10
+  LTE_MAX_REFRESH: 60
 
 #Transmission Intervals
 transmission_intervals:
@@ -58,11 +60,11 @@ transmission_intervals:
 
   # WiFi ID transmit range uniform (in seconds)
   WIFI_MIN_TRANSMIT: 0
-  WIFI_MAX_TRANSMIT: 300
+  WIFI_MAX_TRANSMIT: 49
 
   # LTE transmit range uniform (in seconds)
   LTE_MIN_TRANSMIT: 0
-  LTE_MAX_TRANSMIT: 60
+  LTE_MAX_TRANSMIT: 49
 
 # Range for communication protocols
 communication_range:
@@ -86,5 +88,6 @@ mobility:
 sniffer:
   GENERATE_SNIFFER_DATA: false
   ENABLE_PARTIAL_COVERAGE: false
+  ENABLE_MULTILATERATION: false
   ENABLE_BLUETOOTH: false            # Enable Bluetooth
   SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size
