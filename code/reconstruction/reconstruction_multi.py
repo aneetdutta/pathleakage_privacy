@@ -161,10 +161,10 @@ for index, inter_row in inter_df.iterrows():
     fetch_inter_mapping_timesteps = inter_df[inter_df['_id'].isin(inter_mapping)]
     fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps[
         ~(
-            ((fetch_inter_mapping_timesteps['start_timestep'] <= min_start_timestep) &
-            (fetch_inter_mapping_timesteps['last_timestep'] <= min_start_timestep)) |
-            ((fetch_inter_mapping_timesteps['start_timestep'] >= max_last_timestep) &
-            (fetch_inter_mapping_timesteps['last_timestep'] <= max_last_timestep))
+            ((fetch_inter_mapping_timesteps['start_timestep'] < min_start_timestep) &
+            (fetch_inter_mapping_timesteps['last_timestep'] < min_start_timestep)) |
+            ((fetch_inter_mapping_timesteps['start_timestep'] > max_last_timestep) &
+            (fetch_inter_mapping_timesteps['last_timestep'] > max_last_timestep))
         )
     ]
     

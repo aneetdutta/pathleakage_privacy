@@ -121,6 +121,13 @@ def reconstruction_user_data():
     run_command('python3 reconstruction/reconstruction_user_data.py')
     print("reconstruction_user_data.py finished.")
     
+def reconstruction_without_smart():
+    """Run reconstruction service."""
+    reconstruction_user_data()
+    reconstruction_baseline()
+    reconstruction_multi()
+    print("Reconstruction service finished.")
+    
 def reconstruction():
     """Run reconstruction service."""
     reconstruction_user_data()
@@ -150,6 +157,11 @@ def clean_db():
     """Clean the MongoDB database."""
     run_command(f'mongosh --eval "db.getSiblingDB(\'{DB_NAME}\').dropDatabase()"')
 
+def after_aggregate_without_smart():
+    multi()
+    sanity()
+    reconstruction_without_smart()
+    plot()	
 #task
 def data_gen():
     """Generate data."""
@@ -191,13 +203,24 @@ def all_tasks():
     reconstruction()
     plot()
 
+def all_tasks_without_smart_without_sumo():
+    """Run all tasks."""
+    clean_db()
+    user_data()
+    # data_gen()
+    aggregate()
+    multi()
+    sanity()
+    reconstruction_without_smart()
+    plot()
+    
 def all_tasks_without_smart():
     """Run all tasks."""
     data_gen()
     aggregate()
     multi()
     sanity()
-    reconstruction()
+    reconstruction_without_smart()
     plot()
     
 #task
@@ -225,6 +248,8 @@ tasks = {
     "import_user_data_mongo": import_user_data_mongo,
     "import_sniffer_data_mongo": import_sniffer_data_mongo,
     "reconstruction_user_data": reconstruction_user_data,
+    "reconstruction_without_smart": reconstruction_without_smart,
+    "all_tasks_without_smart_without_sumo": all_tasks_without_smart_without_sumo,
     "group_multi": group_multi,
     "tracking_multi": tracking_multi,
     "group_smart": group_smart,
@@ -245,5 +270,6 @@ tasks = {
     "all_tasks": all_tasks,
     "all_without_sumo": all_without_sumo,
     "data_gen_without_sumo": data_gen_without_sumo,
-    "all_tasks_without_smart": all_tasks_without_smart
+    "all_tasks_without_smart": all_tasks_without_smart,
+    "after_aggregate_without_smart": after_aggregate_without_smart
 }

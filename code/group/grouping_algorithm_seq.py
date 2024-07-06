@@ -113,6 +113,12 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
             if len(g) < 3:
                 to_remove.append(g)
         groups = [item for item in groups if item not in to_remove]
+    else:
+        to_remove = []
+        for g in groups:
+            if len(g) < 2:
+                to_remove.append(g)
+        groups = [item for item in groups if item not in to_remove]
     # print(groups)
 
     group_list:list = []
