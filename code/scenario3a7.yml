@@ -40,8 +40,8 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 500
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 900
-  WIFI_MAX_REFRESH: 1800
+  WIFI_MIN_REFRESH: 600
+  WIFI_MAX_REFRESH: 900
 
   # LTE refresh range uniform (in seconds)
   LTE_MIN_REFRESH: 900

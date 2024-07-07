@@ -78,7 +78,7 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.66          # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 1.8          # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:

@@ -156,7 +156,7 @@ def clean():
     run_command('rm -rf __pycache__')
     # run_command('rm -rf csv/*.csv')
     # run_command('rm -rf data/*.csv')
-    run_command('rm -rf logs/*.log')
+    # run_command('rm -rf logs/*.log')
     # run_command('rm -rf images/*.pdf')
 
 #task
@@ -240,6 +240,12 @@ def all_without_sumo():
     sanity()
     reconstruction()
     plot()
+    
+def after_group_without_smart():
+    tracking_multi()
+    sanity()
+    reconstruction_without_smart()
+    plot()   
 
 def tracking_until():
     """Run all tasks except SUMO."""
@@ -287,5 +293,6 @@ tasks = {
     "after_aggregate_without_smart": after_aggregate_without_smart,
     "import_data_mongo": import_data_mongo,
     "aggregate_timesteps": aggregate_timesteps,
-    "limit_users_after_user_data": limit_users_after_user_data
+    "limit_users_after_user_data": limit_users_after_user_data,
+    "after_group_without_smart": after_group_without_smart
 }

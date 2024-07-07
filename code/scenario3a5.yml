@@ -40,8 +40,8 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 500
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 900
-  WIFI_MAX_REFRESH: 1800
+  WIFI_MIN_REFRESH: 120
+  WIFI_MAX_REFRESH: 300
 
   # LTE refresh range uniform (in seconds)
   LTE_MIN_REFRESH: 900
@@ -78,7 +78,7 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.66          # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 1.8          # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:

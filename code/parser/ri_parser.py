@@ -51,27 +51,18 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
             ri.add(i)
         t=True
         
-    transmission_interval = np.diff(sorted(list(ri)))
-    print(len(transmission_interval))
-    max = int(np.max(transmission_interval))
-    min = int(np.min(transmission_interval))
-    avg = float(np.average(transmission_interval))
+    randomization_interval_ = np.diff(sorted(list(ri)))
+    print(len(randomization_interval_))
+    max = int(np.max(randomization_interval_))
+    min = int(np.min(randomization_interval_))
+    avg = float(np.average(randomization_interval_))
     print(min, max, avg)
-    if t:
-        break
-
     print(new_filename)
-    # break
-    # transmission_interval = np.diff(sorted(list(tranmission_times)))
-    # print(len(transmission_interval))
-    # max = int(np.max(transmission_interval))
-    # min = int(np.min(transmission_interval))
-    # avg = float(np.average(transmission_interval))
-    # stats = {"min": min, "max": max, "avg": avg}
-    # temp_dict[new_filename.replace(f"_{s[1]}", "")] = {"stats": stats, "transmission_interval": list(transmission_interval)}
-    # file_dict[s[1]].update(temp_dict)
+    stats = {"min": min, "max": max, "avg": avg}
+    temp_dict[new_filename.replace(f"_{s[1]}", "")] = {"stats": stats, "randomization_interval": list(randomization_interval_)}
+    file_dict[s[1]].update(temp_dict)
 
 
-# j = json.dumps(file_dict, indent=4,  cls=NumpyEncoder)
-# with open(f'data/ri.json', 'w') as f:
-#     print(j, file=f)
+j = json.dumps(file_dict, indent=4,  cls=NumpyEncoder)
+with open(f'data/ri.json', 'w') as f:
+    print(j, file=f)

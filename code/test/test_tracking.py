@@ -76,27 +76,27 @@ from pprint import pprint
 #     )
 # ]
 
-test_tuple = [
-    (
-        0,
-        [
-            # {"LTE": ["L1"], "WiFi": ["W1"]},
-            {"LTE": ["L1"], "WiFi": ["W1"]},
-            {"LTE": ["L2"], "WiFi": ["W2"]},
-            {"LTE": ["L3"], "WiFi": ["W3"]},
-            {"LTE": ["L3"], "WiFi": ["W1"]},
-        ],
-    ),
-    (
-        1,
-        [
-            {"LTE": ["L1`"], "WiFi": ["W1"]},
-            {"LTE": ["L2"], "WiFi": ["W2"]},
-            {"LTE": ["L2"], "WiFi": ["W2`"]},
-            {"LTE": ["L4"], "WiFi": ["W4"]}
-        ],
-    )
-]
+# test_tuple = [
+#     (
+#         0,
+#         [
+#             # {"LTE": ["L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L1"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#             {"LTE": ["L3"], "WiFi": ["W3"]},
+#             {"LTE": ["L3"], "WiFi": ["W1"]},
+#         ],
+#     ),
+#     (
+#         1,
+#         [
+#             {"LTE": ["L1`"], "WiFi": ["W1"]},
+#             {"LTE": ["L2"], "WiFi": ["W2"]},
+#             {"LTE": ["L2"], "WiFi": ["W2`"]},
+#             {"LTE": ["L4"], "WiFi": ["W4"]}
+#         ],
+#     )
+# ]
 # test_tuple = [
 #     (
 #         0,
@@ -141,7 +141,45 @@ test_tuple = [
 # ]
 
 
-
+test_tuple = [
+    # (
+    #     0,
+    #     [
+    #         {"LTE": ["L1"], "WiFi": ["W1"]},
+    #         {"LTE": ["L1"], "WiFi": ["W1`"]},
+    #         {"LTE": ["L2"], "WiFi": ["W1`"]},
+    #         {"LTE": ["L2"], "WiFi": ["W2"]},
+    #         {"LTE": ["L3"], "WiFi": ["W3"]},
+    #     ],
+    # ),
+    (
+        1,
+        [
+            {"LTE": ["L1"], "WiFi": ["W1`"]},
+            {"LTE": ["L2"], "WiFi": ["W2`"]},
+            {"LTE": ["L1"], "WiFi": ["W1``"]},
+            # {"LTE": ["L1"], "WiFi": ["W1```"]},
+        ],
+    ),
+    (
+        2,
+        [
+            # {"LTE": ["L1"], "WiFi": ["W1`"]},
+            {"LTE": ["L2"], "WiFi": ["W2`"]},
+            {"LTE": ["L1"], "WiFi": ["W1``"]},
+            {"LTE": ["L1`"], "WiFi": ["W1``"]},
+            {"LTE": ["L1`"], "WiFi": ["W1```"]},
+            {"LTE": ["L2"], "WiFi": ["W1```"]},
+        ],
+    ),
+    (
+        3,
+        [
+            # {"LTE": ["L1"], "WiFi": ["W1`"]},
+            {"LTE": ["L1`"], "WiFi": ["W1```"]},
+        ],
+    )
+]
 
 timestep_pairs = [
     (test_tuple[i], test_tuple[i + 1]) for i in range(len(test_tuple) - 1)

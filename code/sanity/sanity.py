@@ -386,5 +386,5 @@ else:
 ml.logger.info(f"Total Null Intra_ids: {null_intra_counter}")
 ml.logger.info(f"Total Null Inter_ids:  {null_inter_counter}")
 
-ml.logger.info(f"Null inter users: {null_inter_users}")
+# ml.logger.info(f"Null inter users: {null_inter_users}")
 # print(visited_inter_ids)

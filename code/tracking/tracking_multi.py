@@ -29,6 +29,7 @@ else:
     ml = MyLogger(f"tracking_{DB_NAME}")
 
 '''The below code will fetch groups for every two timesteps and compare them'''
+md.db['database_mappings'].drop()
 
 md.set_collection("groups")
 
@@ -71,6 +72,9 @@ for timestep_pair in timestep_pairs:
         
     intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list  =  tracking_algorithm(two_timestep_data, intra_potential_mapping=intra_potential_mapping, inter_potential_mapping=inter_potential_mapping, visited_inter_list=visited_inter_list, visited_intra_list=visited_intra_list)
     
+    empty_keys = [key for key, value in inter_potential_mapping.items() if not value]
+    for key in empty_keys:
+        ml.logger.info(f"The value for '{key}' is empty at {timestep}")
     # Convert sets to lists in intra_potential_mapping
     intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
     inter_potential_mapping_list = convert_sets_to_lists(inter_potential_mapping)
@@ -89,6 +93,7 @@ for timestep_pair in timestep_pairs:
                 {"$set": database_dict},
                 upsert=True  # Create a new document if no document matches the filter
             )
+        print("Added to db")
     
     if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
         TS = math.floor((TRACK_UNTIL - FIRST_TIMESTEP)/SNIFFER_TIMESTEP)
