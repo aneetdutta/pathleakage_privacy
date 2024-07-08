@@ -92,8 +92,8 @@ def generate_sniffer_locations():
     # # plt.show()
     # plt.savefig('monaco.png', transparent=True, dpi=600)
 
-    ml.logger.info(f"Total number of sniffers placed: {num_circles}")
-    dump_orjson('data/full_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
+    # ml.logger.info(f"Total number of sniffers placed: {num_circles}")
+    # dump_orjson('data/full_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
     
     
 # generate_sniffer_locations()
