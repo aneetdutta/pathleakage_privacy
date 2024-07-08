@@ -11,8 +11,10 @@ from modules.logger import MyLogger
 
 
 DB_NAME = os.getenv("DB_NAME")
-ml = MyLogger(f"reconstruction_baseline_{DB_NAME}")
+# ml = MyLogger(f"reconstruction_baseline_{DB_NAME}")
 ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI"))
+ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE"))
 
 TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
 TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
@@ -140,13 +142,20 @@ else:
 bl_df["duration"] = bl_df["last_timestep"] - bl_df["start_timestep"]
 bl_df['privacy_score'] = bl_df.apply(calculate_privacy_score, axis=1)
 ml.logger.info("Privacy score calculated")
-wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
-lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
 
-idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
-wifi_df = wifi_df.loc[idx].reset_index(drop=True)
-idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
-lte_df = lte_df.loc[idx].reset_index(drop=True)
+if ENABLE_WIFI:
+    wifi_df = bl_df[bl_df['protocol'] == 'wifi'].reset_index(drop=True)
+    idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
+    wifi_df = wifi_df.loc[idx].reset_index(drop=True)
+else:
+    wifi_df = None
+
+if ENABLE_LTE:
+    lte_df = bl_df[bl_df['protocol'] == 'lte'].reset_index(drop=True)
+    idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
+    lte_df = lte_df.loc[idx].reset_index(drop=True)
+else:
+    lte_df = None
 
 if ENABLE_BLUETOOTH:
     bluetooth_df = lte_df = bl_df[bl_df['protocol'] == 'bluetooth'].reset_index(drop=True)
@@ -155,19 +164,20 @@ if ENABLE_BLUETOOTH:
 else:
     bluetooth_df = None
 
-if not ENABLE_BLUETOOTH:
-    ml.logger.info("Saving WIFI and LTE csv")
-else:
-    ml.logger.info("Saving WIFI, LTE, BLE csv")
+ml.logger.info(f"Saving csv of WIFI:{ENABLE_WIFI}, LTE: {ENABLE_LTE}, BLE: {ENABLE_BLUETOOTH}")
 
 if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
-    wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
-    lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_WIFI:
+        wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_LTE:
+        lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
     if ENABLE_BLUETOOTH:
         bluetooth_df.to_csv(f'csv/baseline_ble_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
 else:
-    wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}.csv', index=False)
-    lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}.csv', index=False)
+    if ENABLE_WIFI:
+        wifi_df.to_csv(f'csv/baseline_wifi_{DB_NAME}.csv', index=False)
+    if ENABLE_LTE:
+        lte_df.to_csv(f'csv/baseline_lte_{DB_NAME}.csv', index=False)
     if ENABLE_BLUETOOTH:
         bluetooth_df.to_csv(f'csv/baseline_ble_{DB_NAME}.csv', index=False)
 

@@ -111,6 +111,8 @@ def sanity():
     print("Starting sanity service...")
     run_command('python3 sanity/sanity.py')
     print("sanity service finished.")
+    run_command('python3 sanity/sanity_incompatible.py')
+    print("sanity service finished.")
 
 def reconstruction_baseline():
     run_command('python3 reconstruction/reconstruction_baseline.py')
@@ -167,8 +169,8 @@ def clean_db():
 
 def after_aggregate_without_smart():
     multi()
-    sanity()
     reconstruction_without_smart()
+    sanity()
     plot()	
 #task
 def data_gen():

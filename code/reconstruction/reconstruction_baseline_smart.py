@@ -14,6 +14,10 @@ md = MongoDB()
 DB_NAME = os.getenv("DB_NAME")
 TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP = str_to_bool(os.getenv("TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP"))
 TRACK_UNTIL = int(os.getenv("TRACK_UNTIL"))
+ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI"))
+ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE"))
+
 if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
     ml = MyLogger(f"reconstruction_baseline_smart_{DB_NAME}_{TRACK_UNTIL}")
     ml.logger.info(f"Env set: TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP - {TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP}, TRACK_UNTIL - {TRACK_UNTIL}")
@@ -107,30 +111,48 @@ baseline_smart_df = pd.DataFrame(baseline_smart)
 
 baseline_smart_df['privacy_score'] = baseline_smart_df.apply(calculate_privacy_score, axis=1)
 
-wifi_df = baseline_smart_df[baseline_smart_df['protocol'] == 'wifi'].reset_index(drop=True)
+if ENABLE_WIFI:
+    wifi_df = baseline_smart_df[baseline_smart_df['protocol'] == 'wifi'].reset_index(drop=True)
+    idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
+    wifi_df = wifi_df.loc[idx].reset_index(drop=True)
+else:
+    wifi_df = None
 # print(list(wifi_df["user_id"]))
-lte_df = baseline_smart_df[baseline_smart_df['protocol'] == 'lte'].reset_index(drop=True)
+if ENABLE_LTE:
+    lte_df = baseline_smart_df[baseline_smart_df['protocol'] == 'lte'].reset_index(drop=True)
+    idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
+    lte_df = lte_df.loc[idx].reset_index(drop=True)
+else:
+    lte_df = None
 
-idx = wifi_df.groupby('user_id')['privacy_score'].idxmax()
-wifi_df = wifi_df.loc[idx].reset_index(drop=True)
-
-idx = lte_df.groupby('user_id')['privacy_score'].idxmax()
-lte_df = lte_df.loc[idx].reset_index(drop=True)
-
-unique_users_df1 = set(wifi_df['user_id'])
-unique_users_df2 = set(lte_df['user_id'])
+if ENABLE_BLUETOOTH:
+    ble_df = baseline_smart_df[baseline_smart_df['protocol'] == 'bluetooth'].reset_index(drop=True)
+    idx = ble_df.groupby('user_id')['privacy_score'].idxmax()
+    ble_df = ble_df.loc[idx].reset_index(drop=True)
+else:
+    ble_df = None
+# unique_users_df1 = set(wifi_df['user_id'])
+# unique_users_df2 = set(lte_df['user_id'])
 
 # print(unique_users_df1)
 # print(unique_users_df1)
 # print(unique_users_df2)
 # Find the missing user ID in df2
-missing_user_in_df2 = unique_users_df2 - unique_users_df1
+# missing_user_in_df2 = unique_users_df2 - unique_users_df1
 
 # print("Missing user in df2:", missing_user_in_df2)
 
 if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
-    wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
-    lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_WIFI:
+        wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_BLUETOOTH:
+        ble_df.to_csv(f'csv/baseline_smart_ble_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
+    if ENABLE_LTE:
+        lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}_{TRACK_UNTIL}.csv', index=False)
 else:
-    wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv', index=False)
-    lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv', index=False)
+    if ENABLE_WIFI:
+        wifi_df.to_csv(f'csv/baseline_smart_wifi_{DB_NAME}.csv', index=False)
+    if ENABLE_BLUETOOTH:
+        ble_df.to_csv(f'csv/baseline_smart_ble_{DB_NAME}.csv', index=False)
+    if ENABLE_LTE:
+        lte_df.to_csv(f'csv/baseline_smart_lte_{DB_NAME}.csv', index=False)

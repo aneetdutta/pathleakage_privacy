@@ -4,8 +4,11 @@ from modules.user import User
 from collections import deque
 from services.general import str_to_bool
 from services.general import random_identifier
+from services.general import calculate_distance_l
 import polars as pd
 from modules.logger import MyLogger
+from collections import defaultdict
+import json
 
 DB_NAME = os.getenv("DB_NAME")
 DATA_USECASE = os.getenv("DATA_USECASE")
@@ -15,6 +18,7 @@ ml = MyLogger(f"generate_user_data_{DB_NAME}")
 df = pd.read_csv(f"data/raw_user_data_{DATA_USECASE}.csv")
 print(df)
 raw_user_data = df.to_dicts()
+
 
 ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))
 # GENERATE_SNIFFER_DATA = str_to_bool(os.getenv("GENERATE_SNIFFER_DATA"))
@@ -26,6 +30,8 @@ user_dict = dict()
 user_data = deque()
 
 check_users = False
+user_mobility = defaultdict()
+max_mobility_checker = defaultdict(tuple)
 
 for user_ in raw_user_data:
     # print(user_)
@@ -41,7 +47,17 @@ for user_ in raw_user_data:
             same_userset.add(user_id)
         elif user_id not in same_userset:
             continue
+    
+    if user_id in max_mobility_checker:
+        dis = calculate_distance_l(max_mobility_checker[user_id][0], [loc_x, loc_y])
+        tim = (timestep - max_mobility_checker[user_id][1])
+        user_mobility[user_id] = max(float(dis / tim), user_mobility[user_id])
+    else:
+        user_mobility[user_id] = 0
         
+    max_mobility_checker[user_id][0] = [loc_x, loc_y]
+    max_mobility_checker[user_id][1] = float(timestep)
+    
     if len(same_userset) >= TOTAL_NUMBER_OF_USERS and not check_users:
         ml.logger.info(f"Total number of users {len(same_userset)} capped at {timestep}")
         check_users = True
@@ -91,3 +107,10 @@ for col_name in columns_to_replace:
     )
 # print(df['randomized_ble'])
 df.write_csv(user_file)
+
+with open("data/user_mobility_{DB_NAME}.json", "w") as f:
+    json.dump(user_mobility, f)
+
+max_key= max(user_mobility, key=user_mobility.get)
+
+ml.logger.info(f"Max mobility achieved per user: {max_key}, value: {user_mobility[max_key]}")

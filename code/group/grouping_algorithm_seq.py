@@ -13,6 +13,8 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
     LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR", 10))
     MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR", 1.66))
     ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH", "false"))
+    ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI", "false"))
+    ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE", "false"))
     
     # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
@@ -71,8 +73,8 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
                         if not incompatible_inter_ids[sg["id"]].intersection({d[1]}) or incompatible_intra_ids[sg["id"]].intersection({d[1]}):
                             compatible_set.add(d)
                     else:
-                        if sg["id"] == "AOF6DG1FNM4J" or sg["id"]  == 'ZTX6SG8HWMY0':
-                            print(sg, d, dist_dict[d[1]], updated_timestep_dict[d[1]])
+                        # if sg["id"] == "AOF6DG1FNM4J" or sg["id"]  == 'ZTX6SG8HWMY0':
+                        #     print(sg, d, dist_dict[d[1]], updated_timestep_dict[d[1]])
                             
                         if sg["id"] != d[1]:
                             if sg["protocol"] != d[0]:
@@ -116,7 +118,7 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
     groups = remove_subsets_group(groups)
 
     # print(groups)
-    if ENABLE_BLUETOOTH:
+    if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
         to_remove = []
         for g in groups:
             if len(g) < 3:
@@ -144,15 +146,9 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
     return incompatible_intra_ids, incompatible_inter_ids, group_list
 
 
-def grouper(sniffer_data, incompatible_intra_ids: defaultdict[set], incompatible_inter_ids: defaultdict[set]):
-    
+def grouper(sniffer_data, incompatible_intra_ids: defaultdict[set], incompatible_inter_ids: defaultdict[set]): 
     grouped_list = deque()
     for sniffer_id, data in sniffer_data.items():
-        # print(sniffer_id, data)
-        # for i in data:
-        #     if i["protocol"] == "Bluetooth":
-        #         print(data)
-        #         sys.exit()
         incompatible_intra_ids, incompatible_inter_ids, distance_groups = group_distances(data, incompatible_intra_ids, incompatible_inter_ids,)
         grouped_list.extend(distance_groups)
     grouped_list = remove_subsets_and_duplicates(grouped_list)

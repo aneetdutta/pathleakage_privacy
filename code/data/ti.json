@@ -1,5 +1,5 @@
 {
-    "ble_opn": [
+    "ble_opn_disconnected": [
         1,
         1,
         1,
@@ -1062,7 +1062,7 @@
         11,
         9
     ],
-    "ble_sm11": [
+    "ble_sm11_disconnected": [
         1,
         9,
         3,

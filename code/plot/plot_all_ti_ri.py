@@ -43,8 +43,14 @@ def remove_outliers(values):
 with open(f"data/ti.json", 'r') as f:
     data = json.load(f)
 
+
 data["ble_sm11_randomization"] = [662, 897, 817]
 data["ble_opn_randomization"] = [723, 795, 546, 431]
+
+data["wifi_opn_connected"] = data["wifi_opn_connected_inactive"]+data["wifi_opn_connected_active"]
+data["wifi_rk50_connected"] = data["wifi_rk50_connected_inactive"]+data["wifi_rk50_connected_active"]
+data["wifi_sm11_connected"] = data["wifi_sm11_connected_inactive"]+data["wifi_sm11_connected_active"]
+
 # Prepare a list to collect the relevant data
 records = []
 
@@ -54,6 +60,7 @@ for key, values in data.items():
     
     protocol, device, *mode = key.split('_')
     mode = '_'.join(mode) if mode else None
+    
     
     if (protocol == "ble") or (protocol == "wifi" and device == "opn" and mode == "connected_active") or (protocol == "wifi" and device == "sm11" and mode == "connected_active"):
         pass
@@ -97,9 +104,10 @@ conditions = [
     {'protocol': 'lte', 'mode': 'active'},
     {'protocol': 'wifi', 'mode': 'connected_inactive'},
     {'protocol': 'wifi', 'mode': 'connected_active'},
+    {'protocol': 'wifi', 'mode': 'connected'},
     {'protocol': 'wifi', 'mode': 'disconnected'},
-    {'protocol': 'ble', 'mode': None},
-    {'protocol': 'ble', 'mode': 'randomization'}
+    {'protocol': 'ble', 'mode': 'randomization'},
+    {'protocol': 'ble', 'mode': 'disconnected'},
 ]
 
 # Set font sizes for a 12pt research paper
@@ -121,13 +129,14 @@ for condition in conditions:
     if mode:
         subset = df[(df['protocol'] == protocol) & (df['mode'] == mode)]
         title = f'{protocol.upper()} - {mode.replace("_", " ").capitalize()}'
-        filename = f'{protocol}_{mode}.pdf'
+        filename = f'images_plot/{protocol}_{mode}.pdf'
     else:
         subset = df[df['protocol'] == protocol]
         title = f'{protocol.upper()}'
-        filename = f'{protocol}.pdf'
+        filename = f'images_plot/{protocol}.pdf'
     
     plt.figure(figsize=(12, 6))
+    # if condition
     sns.violinplot(x='device_label', y='transmission_time', data=subset, inner='box', scale='width', palette=device_palette, cut=0)
     # plt.title(title)
     plt.xlabel('Device')

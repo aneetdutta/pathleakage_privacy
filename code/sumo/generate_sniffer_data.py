@@ -18,16 +18,20 @@ LTE_RANGE = int(os.getenv("LTE_RANGE"))
 SNIFFER_PROCESSING_BATCH_SIZE = int(os.getenv("SNIFFER_PROCESSING_BATCH_SIZE"))
 DB_NAME = os.getenv("DB_NAME")
 ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI"))
+ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE"))
+
 ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE"))
 LIMIT_USER_AFTER_USER_DATA = str_to_bool(os.getenv("LIMIT_USER_AFTER_USER_DATA"))
 
 # print(BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE, SNIFFER_PROCESSING_BATCH_SIZE, ENABLE_BLUETOOTH)
 
 if not ENABLE_PARTIAL_COVERAGE:
-    if ENABLE_BLUETOOTH:
-        sniffer_location = extract_orjson("data/full_coverage_ble_sniffer_location.json")
-    else:
-        sniffer_location = extract_orjson("data/full_coverage_wifi_sniffer_location.json")
+    # if ENABLE_BLUETOOTH:
+    #     sniffer_location = extract_orjson("data/full_coverage_ble_sniffer_location.json")
+    # else:
+    ''' SINCE BLE AND WIFI have same coverage now'''
+    sniffer_location = extract_orjson("data/full_coverage_wifi_sniffer_location.json")
 else:
     sniffer_location = extract_orjson("data/partial_coverage_sniffer_location.json")
 
@@ -37,42 +41,48 @@ else:
     raw_user_data_df = pl.read_csv(f"data/user_data_{DB_NAME}.csv")
 raw_user_data = raw_user_data_df.to_dicts()
 
-def process_batch(batch: List[Dict[str, Any]], sniffers: List['Sniffer'], enable_bluetooth: bool=ENABLE_BLUETOOTH) -> deque:
+def process_batch(batch: List[Dict[str, Any]], sniffers: List['Sniffer'], enable_bluetooth: bool=ENABLE_BLUETOOTH, enable_wifi: bool=ENABLE_WIFI, enable_lte: bool=ENABLE_LTE) -> deque:
     detected_users = deque()
     
+    if not enable_bluetooth:
+        user_data["bluetooth_id"] = None
+    if not enable_lte:
+        user_data["lte_id"] = None
+    if not enable_wifi:
+        user_data["wifi_id"] = None
     # Pre-extracting the required attributes to avoid repetitive dictionary accesses
-    if enable_bluetooth:
-        for user_data in batch:
-            user_location = [user_data["loc_x"], user_data["loc_y"]]
-            for sniffer in sniffers:
-                a = sniffer.detect_raw_users(
-                    timestep=user_data["timestep"],
-                    user_id=user_data["user_id"],
-                    user_location=user_location,
-                    user_lte_id=user_data["lte_id"],
-                    user_wifi_id=user_data["wifi_id"],
-                    user_bluetooth_id=user_data["bluetooth_id"],
-                    transmit_ble=user_data["transmit_ble"],
-                    transmit_wifi=user_data["transmit_wifi"],
-                    transmit_lte=user_data["transmit_lte"]
-                )
-                if a:
-                    detected_users.extend(a)
-    else:
-        for user_data in batch:
-            user_location = [user_data["loc_x"], user_data["loc_y"]]
-            for sniffer in sniffers:
-                a = sniffer.detect_raw_users(
-                    timestep=user_data["timestep"],
-                    user_id=user_data["user_id"],
-                    user_location=user_location,
-                    user_lte_id=user_data["lte_id"],
-                    user_wifi_id=user_data["wifi_id"],
-                    transmit_wifi=user_data["transmit_wifi"],
-                    transmit_lte=user_data["transmit_lte"]
-                )
-                if a:
-                    detected_users.extend(a)
+    # if enable_bluetooth:
+    for user_data in batch:
+        user_location = [user_data["loc_x"], user_data["loc_y"]]
+        for sniffer in sniffers:
+            a = sniffer.detect_raw_users(
+                timestep=user_data["timestep"],
+                user_id=user_data["user_id"],
+                user_location=user_location,
+                user_lte_id=user_data["lte_id"],
+                user_wifi_id=user_data["wifi_id"],
+                user_bluetooth_id=user_data["bluetooth_id"],
+                transmit_ble=user_data["transmit_ble"],
+                transmit_wifi=user_data["transmit_wifi"],
+                transmit_lte=user_data["transmit_lte"]
+            )
+            if a:
+                detected_users.extend(a)
+    # else:
+    # for user_data in batch:
+    #     user_location = [user_data["loc_x"], user_data["loc_y"]]
+    #     for sniffer in sniffers:
+    #         a = sniffer.detect_raw_users(
+    #             timestep=user_data["timestep"],
+    #             user_id=user_data["user_id"],
+    #             user_location=user_location,
+    #             user_lte_id=user_data["lte_id"],
+    #             user_wifi_id=user_data["wifi_id"],
+    #             transmit_wifi=user_data["transmit_wifi"],
+    #             transmit_lte=user_data["transmit_lte"]
+    #         )
+    #         if a:
+    #             detected_users.extend(a)
 
     return detected_users
 
