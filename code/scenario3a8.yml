@@ -10,7 +10,9 @@ general:
 user_threshold:
   TOTAL_NUMBER_OF_USERS: 256          # Create only same set of users for different run
   ENABLE_USER_THRESHOLD: true        # Enable user threshold
-
+  LIMIT_USER_NUM_USERS: 256
+  LIMIT_USER_AFTER_USER_DATA: false
+  
 # Movement Parameters
 movement_parameters:
   POLYGON_COORDS:                     # Polygon coordinates
@@ -45,7 +47,7 @@ randomization_intervals:
   WIFI_MAX_REFRESH: 60
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 720
+  LTE_MIN_REFRESH: 900
   LTE_MAX_REFRESH: 1800
 
 #Transmission Intervals
@@ -55,12 +57,12 @@ transmission_intervals:
   BLUETOOTH_MAX_TRANSMIT: 30
 
   # WiFi ID transmit range uniform (in seconds)
-  WIFI_MIN_TRANSMIT: 120
-  WIFI_MAX_TRANSMIT: 300
+  WIFI_MIN_TRANSMIT: 0
+  WIFI_MAX_TRANSMIT: 120
 
   # LTE transmit range uniform (in seconds)
-  LTE_MIN_TRANSMIT: 120
-  LTE_MAX_TRANSMIT: 300
+  LTE_MIN_TRANSMIT: 0
+  LTE_MAX_TRANSMIT: 60
 
 # Range for communication protocols
 communication_range:
@@ -71,15 +73,15 @@ communication_range:
 # Localization errors
 localization_errors:
   BLUETOOTH_LOCALIZATION_ERROR: 1    # Bluetooth localization error (in meters)
-  WIFI_LOCALIZATION_ERROR: 5         # WiFi localization error (in meters)
-  LTE_LOCALIZATION_ERROR: 10         # LTE localization error (in meters)
+  WIFI_LOCALIZATION_ERROR: 1         # WiFi localization error (in meters)
+  LTE_LOCALIZATION_ERROR: 1         # LTE localization error (in meters)
 
 smart:
   ENABLE_SMART_TRACKING: false
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.66          # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 1.8          # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:

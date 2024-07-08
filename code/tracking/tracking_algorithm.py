@@ -73,15 +73,15 @@ def tracking_phase_2_part_1(mapping0, mapping1, visited_inter_list, inter_potent
             if id1 not in visited_inter_list[id2]:
                 timestep_1_potential_mapping[id2].add(id1)
                     
-    if '8WJDMMBYOBK2' in timestep_1_potential_mapping:
-        print('timestep_1_potential_mapping - 8WJDMMBYOBK2 found')
-        print(timestep_1_potential_mapping["8WJDMMBYOBK2"])
-    if '8WJDMMBYOBK2' in timestep_0_potential_mapping:
-        print('timestep_0_potential_mapping - 8WJDMMBYOBK2 found')
-        print(timestep_0_potential_mapping["8WJDMMBYOBK2"])
-    if '8WJDMMBYOBK2' in visited_inter_list:
-        print('visited_inter_list - 8WJDMMBYOBK2 found')
-        print(visited_inter_list["8WJDMMBYOBK2"])
+    # if '8WJDMMBYOBK2' in timestep_1_potential_mapping:
+    #     print('timestep_1_potential_mapping - 8WJDMMBYOBK2 found')
+    #     print(timestep_1_potential_mapping["8WJDMMBYOBK2"])
+    # if '8WJDMMBYOBK2' in timestep_0_potential_mapping:
+    #     print('timestep_0_potential_mapping - 8WJDMMBYOBK2 found')
+    #     print(timestep_0_potential_mapping["8WJDMMBYOBK2"])
+    # if '8WJDMMBYOBK2' in visited_inter_list:
+    #     print('visited_inter_list - 8WJDMMBYOBK2 found')
+    #     print(visited_inter_list["8WJDMMBYOBK2"])
     return timestep_0_potential_mapping, timestep_1_potential_mapping
 
 def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_mapping,inter_potential_mapping,visited_inter_list, intra_potential_mapping):
@@ -100,9 +100,9 @@ def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_m
     # print(different_ids_0, different_ids_1, common_ids)
     # print("\n")
     
-    if '8WJDMMBYOBK2' in inter_potential_mapping:
-        print('inter_potential_mapping - 8WJDMMBYOBK2 found')
-        print(inter_potential_mapping["8WJDMMBYOBK2"])
+    # if '8WJDMMBYOBK2' in inter_potential_mapping:
+    #     print('inter_potential_mapping - 8WJDMMBYOBK2 found')
+    #     print(inter_potential_mapping["8WJDMMBYOBK2"])
         
     ''' Adding these ids to interpotential mapping directly '''
     # if not inter_potential_mapping:
@@ -181,13 +181,15 @@ def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_m
                         inter_potential_mapping[id].add(i)
                     
         elif t0_1 and t1_0:
-            if '8WJDMMBYOBK2' in inter_potential_mapping:
-                print("t0_1")
-                print(t0_1)
-                print("t1_0")
-                print(t1_0)
-                print('inter_potential_mapping - 8WJDMMBYOBK2 found - 2-2')
-                print(inter_potential_mapping["8WJDMMBYOBK2"])
+            # if '8WJDMMBYOBK2' in inter_potential_mapping:
+            #     print("t0_1")
+            #     print(t0_1)
+            #     print("t1_0")
+            #     print(t1_0)
+            #     print("common_mappings")
+            #     print(common_mappings)
+            #     print('inter_potential_mapping - 8WJDMMBYOBK2 found - 2-2')
+            #     print(inter_potential_mapping["8WJDMMBYOBK2"])
             total_ids = t0_1.union(t1_0)
             added_ids = set()
             for i in t0_1:
@@ -265,9 +267,9 @@ def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_m
                 for i in uncommon_set:
                     if i not in inter_potential_mapping[id]:
                         visited_inter_list[id].update({i})
-    if '8WJDMMBYOBK2' in inter_potential_mapping:
-        print('inter_potential_mapping - 8WJDMMBYOBK2 found - 2-1')
-        print(inter_potential_mapping["8WJDMMBYOBK2"])
+    # if '8WJDMMBYOBK2' in inter_potential_mapping:
+    #     print('inter_potential_mapping - 8WJDMMBYOBK2 found - 2-1')
+    #     print(inter_potential_mapping["8WJDMMBYOBK2"])
         
     return inter_potential_mapping, visited_inter_list
     
@@ -397,6 +399,8 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
         
     # print("Visited intra list prior phase 3")
     # pprint(visited_intra_list)
+    # print("Visited Inter mapping prior phase 3")
+    # pprint(visited_inter_list)
     ''' Update the intra potential mappings based on inter potential mappings '''
     intra_potential_mapping, visited_intra_list = tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_intra_list)
     

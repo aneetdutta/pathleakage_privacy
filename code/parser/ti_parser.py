@@ -26,6 +26,7 @@ pcap_data = []
 
 folder_path = '/media/wisec/data/paper_pcaps_final/'
 file_dict = defaultdict(defaultdict)
+temp2_dict= {}
 
 for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
     temp_dict = {}
@@ -44,6 +45,12 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
                 # print(packet.frame_info._all_fields)
                 # print(packet.frame_info.time_relative)
                 tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
+    elif s[0] == "ble":
+        with pyshark.FileCapture(filename, display_filter="", keep_packets=True, ) as cap:
+            for i, packet in enumerate(cap):
+                # print(packet.frame_info._all_fields)
+                # print(packet.frame_info.time_relative)
+                tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
                 # break
         # print(sorted(list(tranmission_times)))
     transmission_interval = np.diff(sorted(list(tranmission_times)))
@@ -52,10 +59,14 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
     min = int(np.min(transmission_interval))
     avg = float(np.average(transmission_interval))
     stats = {"min": min, "max": max, "avg": avg}
+    temp2_dict[new_filename] = list(transmission_interval)
     temp_dict[new_filename.replace(f"_{s[1]}", "")] = {"stats": stats, "transmission_interval": list(transmission_interval)}
+    
     file_dict[s[1]].update(temp_dict)
 
-
 j = json.dumps(file_dict, indent=4,  cls=NumpyEncoder)
+with open(f'data/ti_full.json', 'w') as f:
+    print(j, file=f)
+j = json.dumps(temp2_dict, indent=4,  cls=NumpyEncoder)
 with open(f'data/ti.json', 'w') as f:
     print(j, file=f)

@@ -8,9 +8,11 @@ general:
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
-  TOTAL_NUMBER_OF_USERS: 256          # Create only same set of users for different run
+  TOTAL_NUMBER_OF_USERS: 512          # Create only same set of users for different run
   ENABLE_USER_THRESHOLD: true        # Enable user threshold
-
+  LIMIT_USER_NUM_USERS: 256
+  LIMIT_USER_AFTER_USER_DATA: false
+  
 # Movement Parameters
 movement_parameters:
   POLYGON_COORDS:                     # Polygon coordinates
@@ -45,7 +47,7 @@ randomization_intervals:
   WIFI_MAX_REFRESH: 60
 
   # LTE refresh range uniform (in seconds)
-  LTE_MIN_REFRESH: 720
+  LTE_MIN_REFRESH: 900
   LTE_MAX_REFRESH: 1800
 
 #Transmission Intervals
@@ -55,12 +57,12 @@ transmission_intervals:
   BLUETOOTH_MAX_TRANSMIT: 30
 
   # WiFi ID transmit range uniform (in seconds)
-  WIFI_MIN_TRANSMIT: 120
-  WIFI_MAX_TRANSMIT: 300
+  WIFI_MIN_TRANSMIT: 0
+  WIFI_MAX_TRANSMIT: 120
 
   # LTE transmit range uniform (in seconds)
-  LTE_MIN_TRANSMIT: 120
-  LTE_MAX_TRANSMIT: 300
+  LTE_MIN_TRANSMIT: 0
+  LTE_MAX_TRANSMIT: 60
 
 # Range for communication protocols
 communication_range:
@@ -79,7 +81,7 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.66          # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 1.8          # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:

@@ -19,6 +19,7 @@ SNIFFER_PROCESSING_BATCH_SIZE = int(os.getenv("SNIFFER_PROCESSING_BATCH_SIZE"))
 DB_NAME = os.getenv("DB_NAME")
 ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE"))
+LIMIT_USER_AFTER_USER_DATA = str_to_bool(os.getenv("LIMIT_USER_AFTER_USER_DATA"))
 
 # print(BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE, SNIFFER_PROCESSING_BATCH_SIZE, ENABLE_BLUETOOTH)
 
@@ -29,8 +30,11 @@ if not ENABLE_PARTIAL_COVERAGE:
         sniffer_location = extract_orjson("data/full_coverage_wifi_sniffer_location.json")
 else:
     sniffer_location = extract_orjson("data/partial_coverage_sniffer_location.json")
-    
-raw_user_data_df = pl.read_csv(f"data/user_data_{DB_NAME}.csv")
+
+if LIMIT_USER_AFTER_USER_DATA:
+    raw_user_data_df = pl.read_csv(f"data/user_data_limit_{DB_NAME}.csv")
+else:
+    raw_user_data_df = pl.read_csv(f"data/user_data_{DB_NAME}.csv")
 raw_user_data = raw_user_data_df.to_dicts()
 
 def process_batch(batch: List[Dict[str, Any]], sniffers: List['Sniffer'], enable_bluetooth: bool=ENABLE_BLUETOOTH) -> deque:

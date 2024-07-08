@@ -123,7 +123,7 @@ def group_distances(sniffer_groups, incompatible_ids: defaultdict[set]):
 def grouper(sniffer_data, incompatible_ids: defaultdict[set]):
     grouped_list = deque()
     for sniffer_id, data in sniffer_data.items():
-        incompatible_ids, distance_groups = group_distances(data, incompatible_ids)
+        incompatible_intra_ids, incompatible_inter_ids, distance_groups = group_distances(data, incompatible_ids)
         grouped_list.extend(distance_groups)
     grouped_list = remove_subsets_and_duplicates(grouped_list)
     return incompatible_ids, grouped_list

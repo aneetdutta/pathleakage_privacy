@@ -8,9 +8,12 @@ import polars as pd
 from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
+DATA_USECASE = os.getenv("DATA_USECASE")
+
 ml = MyLogger(f"generate_user_data_{DB_NAME}")
 
-df = pd.read_csv(f"data/raw_user_data_{DB_NAME}.csv")
+df = pd.read_csv(f"data/raw_user_data_{DATA_USECASE}.csv")
+print(df)
 raw_user_data = df.to_dicts()
 
 ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))

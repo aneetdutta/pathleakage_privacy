@@ -4,6 +4,7 @@
 
 general:
   USER_TIMESTEPS: 25200               # Number of user timesteps
+  DATA_USECASE: "scenario"
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
