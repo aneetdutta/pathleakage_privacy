@@ -158,7 +158,7 @@ else:
     lte_df = None
 
 if ENABLE_BLUETOOTH:
-    bluetooth_df = lte_df = bl_df[bl_df['protocol'] == 'bluetooth'].reset_index(drop=True)
+    bluetooth_df = bl_df[bl_df['protocol'] == 'bluetooth'].reset_index(drop=True)
     idx = bluetooth_df.groupby('user_id')['privacy_score'].idxmax()
     bluetooth_df = bluetooth_df.loc[idx].reset_index(drop=True)
 else:

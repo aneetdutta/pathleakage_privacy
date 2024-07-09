@@ -73,6 +73,12 @@ def aggregate():
     
     print("Aggregation process finished.")
 
+def sanity_group():
+    print("Running sanity_group...")
+    run_command("python3 sanity/group_checker.py")
+    run_command("python3 sanity/sanity_incompatible.py")
+    print("sanity_group finished.")    
+
 def aggregate_timesteps():
     print("Running aggregation.py...")
     run_command("python3 group/aggregation.py")
@@ -102,6 +108,9 @@ def tracking_smart():
     run_command('python3 tracking/tracking_smart.py')
     print("tracking_smart service finished.")
 
+def sanity_incompatible():
+    run_command('python3 sanity/sanity_incompatible.py')
+    print("sanity service finished.")
     
 def sanity():
     """Run sanity service."""
@@ -111,8 +120,7 @@ def sanity():
     print("Starting sanity service...")
     run_command('python3 sanity/sanity.py')
     print("sanity service finished.")
-    run_command('python3 sanity/sanity_incompatible.py')
-    print("sanity service finished.")
+    sanity_incompatible()
 
 def reconstruction_baseline():
     run_command('python3 reconstruction/reconstruction_baseline.py')
@@ -296,5 +304,8 @@ tasks = {
     "import_data_mongo": import_data_mongo,
     "aggregate_timesteps": aggregate_timesteps,
     "limit_users_after_user_data": limit_users_after_user_data,
-    "after_group_without_smart": after_group_without_smart
+    "after_group_without_smart": after_group_without_smart,
+    "sanity_group": sanity_group,
+    "reconstruction_baseline_smart": reconstruction_baseline_smart,
+    "sanity_incompatible": sanity_incompatible
 }

@@ -156,15 +156,19 @@ test_tuple = [
         1,
         [
             {"LTE": ["L1"], "WiFi": ["W1"]},
-            {"LTE": ["L1"], "WiFi": ["W1`"]},
+            {"LTE": ["L1`"], "WiFi": ["W1"]},
+            # {"LTE": ["L2"], "WiFi": ["W2"]},
+            # {"LTE": ["L1"], "WiFi": ["W1`"]},
         ],
     ),
     (
         2,
         [
-            {"LTE": ["L1"], "WiFi": ["W1`"]},
-            {"LTE": ["L1`"], "WiFi": ["W1`"]},
-            {"LTE": ["L1`"], "WiFi": ["W1``"]},
+            {"LTE": ["L1`"], "WiFi": ["W1"]},
+            {"LTE": ["L2"], "WiFi": ["W2"]},
+            # {"LTE": ["L2"], "WiFi": ["W2"]},
+            # {"LTE": ["L1`"], "WiFi": ["W1"]},
+            # {"LTE": ["L1`"], "WiFi": ["W1``"]},
         ],
     ),
     # (
@@ -220,3 +224,14 @@ for timestep_pair in timestep_pairs:
     pprint(visited_intra_list)
     print("\n")
     i += 1
+
+
+'''
+
+Keep inter mapping as:
+
+{"L1" : {"wifi": [W1], "ble": [B1]}}
+{"W1": {"lte": [L1], "ble": [B1]}}
+
+
+'''

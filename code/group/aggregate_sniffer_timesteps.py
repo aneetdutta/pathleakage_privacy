@@ -11,11 +11,22 @@ md = MongoDB()
 DB_NAME = os.getenv("DB_NAME")
 compressed_file_path = f"data/sniffed_data_{DB_NAME}.csv"
 
+ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI"))
+ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE"))
+
 BLUETOOTH_MAX_TRANSMIT = int(os.getenv("BLUETOOTH_MAX_TRANSMIT"))
 WIFI_MAX_TRANSMIT = int(os.getenv("WIFI_MAX_TRANSMIT"))
 LTE_MAX_TRANSMIT = int(os.getenv("LTE_MAX_TRANSMIT"))
-SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, WIFI_MAX_TRANSMIT, LTE_MAX_TRANSMIT)
-ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
+
+if not ENABLE_LTE:
+    SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, WIFI_MAX_TRANSMIT)
+elif not ENABLE_WIFI:
+    SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, LTE_MAX_TRANSMIT)
+elif not ENABLE_BLUETOOTH:
+    SNIFFER_TIMESTEP = max(WIFI_MAX_TRANSMIT, LTE_MAX_TRANSMIT)
+elif ENABLE_BLUETOOTH and ENABLE_LTE and ENABLE_WIFI:
+    SNIFFER_TIMESTEP = max(BLUETOOTH_MAX_TRANSMIT, LTE_MAX_TRANSMIT, WIFI_MAX_TRANSMIT)
 # print(SNIFFER_TIMESTEP)
 
 # Decompress and read the CSV file
@@ -58,10 +69,16 @@ max_st_window_df = df.groupby('user_id')['st_window'].max().reset_index()
 
 merged_df = pd.merge(df, max_st_window_df, on=['user_id', 'st_window'])
 grouped_df = merged_df.groupby(['user_id']).agg({'protocol': set, 'st_window': 'first'}).reset_index()
-if ENABLE_BLUETOOTH:
-    filtered_df = grouped_df[grouped_df['protocol'].apply(lambda x: 'LTE' not in x or 'WiFi' not in x or 'Bluetooth' not in x)]
-else:
+
+if not ENABLE_BLUETOOTH:
     filtered_df = grouped_df[grouped_df['protocol'].apply(lambda x: 'LTE' not in x or 'WiFi' not in x)]
+elif not ENABLE_WIFI:
+    filtered_df = grouped_df[grouped_df['protocol'].apply(lambda x: 'LTE' not in x or 'Bluetooth' not in x)]
+elif not ENABLE_LTE:
+    filtered_df = grouped_df[grouped_df['protocol'].apply(lambda x: 'WiFi' not in x or 'Bluetooth' not in x)]
+elif ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
+    filtered_df = grouped_df[grouped_df['protocol'].apply(lambda x: 'LTE' not in x or 'WiFi' not in x or 'Bluetooth' not in x)]
+    
 
 to_remove = pd.merge(df, filtered_df[['user_id', 'st_window']], on=['user_id', 'st_window'])
 # to_remove = pd.merge(df, filtered_df[['user_id', 'st_window']], on=['user_id', 'st_window'], how='left', indicator=True)

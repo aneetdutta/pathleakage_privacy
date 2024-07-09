@@ -7,11 +7,14 @@ from group.grouping_smart_algorithm_tri_seq import grouper_tri
 from services.general import str_to_bool
 from collections import defaultdict
 import time
+from modules.logger import MyLogger
+import time
 md = MongoDB()
+DB_NAME = os.getenv("DB_NAME")
 '''The below code converts the aggregated results into groups using the grouping distance algorithm
 The groups of every sniffer are first calculated and then they are appended to single timestep.
 So, we have the dict as 
-{timestep: 0, grouped_data: [{LTE: "", WIFI: "", BLUETOOTH: ""}]}'''
+{timestep: 0, grouped_dataENABLE_MULTILATERATION: [{LTE: "", WIFI: "", BLUETOOTH: ""}]}'''
 
 md.set_collection("aggregated_sniffer")
 '''grouped according to timestep and sniffer'''
@@ -26,12 +29,21 @@ now = time.time()
 grouping_list = []
 # incompatible_ids: defaultdict[set] = defaultdict(set)
 incompatible_intra_ids, incompatible_inter_ids = defaultdict(set), defaultdict(set)
+
+ml = MyLogger(f"grouping_seq_{DB_NAME}")
+
 ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION"))
+
+if ENABLE_MULTILATERATION:
+    ml = MyLogger(f"grouping_smart_seq_MULTILATERATION_{DB_NAME}")
+else:
+    ml = MyLogger(f"grouping_smart_seq_{DB_NAME}")
 
 for document in sniffer_data:
     id = document["_id"]
     st_window = document["st_window"]
     sniffer_data = document["sniffer_data"]
+    ml.logger.info(f"Time window: {st_window}")
     # print(id, timestep)
     # print(incompatible_ids)
     if ENABLE_MULTILATERATION:
@@ -44,6 +56,7 @@ for document in sniffer_data:
 grouping_list.sort(key=lambda x: x['st_window'])
 group_collection.drop()
 group_collection.insert_many(grouping_list)
+
 
 incompatible_intra_collection = md.db['incompatible_intra_smart']
 incompatible_intra_collection.drop()

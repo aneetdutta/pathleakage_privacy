@@ -45,6 +45,14 @@ visited_intra_list: defaultdict[set] = defaultdict(set)
 intra_potential_mapping_list = convert_sets_to_lists(intra_potential_mapping)
 visited_intra_mapping_list = convert_sets_to_lists(visited_intra_list)
 
+
+md.set_collection(f'incompatible_intra_smart')
+documents = list(md.collection.find())
+visited_intra_list = {document['_id']: set(document['mapping']) for document in documents}
+ml.logger.info("Received visited_intra_list from grouping")
+
+md.set_collection("groups_smart")
+
 for timestep_pair in timestep_pairs:
     # Extract documents for each timestep pair
     documents = md.collection.find({"st_window": {"$in": timestep_pair}})

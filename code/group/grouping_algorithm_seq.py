@@ -73,9 +73,6 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
                         if not incompatible_inter_ids[sg["id"]].intersection({d[1]}) or incompatible_intra_ids[sg["id"]].intersection({d[1]}):
                             compatible_set.add(d)
                     else:
-                        # if sg["id"] == "AOF6DG1FNM4J" or sg["id"]  == 'ZTX6SG8HWMY0':
-                        #     print(sg, d, dist_dict[d[1]], updated_timestep_dict[d[1]])
-                            
                         if sg["id"] != d[1]:
                             if sg["protocol"] != d[0]:
                                 incompatible_inter_ids[sg["id"]].add(d[1])

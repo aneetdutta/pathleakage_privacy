@@ -22,14 +22,15 @@ user_df = pd.DataFrame(documents)
 ENABLE_SMART_TRACKING = str_to_bool(os.getenv('ENABLE_SMART_TRACKING'))
 
 if ENABLE_SMART_TRACKING:
-    md.set_collection('incompatible_intra')
+    ml = MyLogger(f"sanity_incompatible_smart_{DB_NAME}")
+    md.set_collection('incompatible_intra_smart')
     documents = list(md.collection.find())
     inter_df = pd.DataFrame(documents)
-    incompatible_inter_data = {document['_id']: set(document['mapping']) for document in documents}
+    incompatible_intra = {document['_id']: set(document['mapping']) for document in documents}
 
     problem = {}
-    for id, mapping in incompatible_inter_data.items():
-        for user, user_ids in user_data:
+    for id, mapping in incompatible_intra.items():
+        for user, user_ids in user_data.items():
             if id in user_ids:
                 common = mapping.intersection(user_ids)
                 if common:
@@ -37,9 +38,9 @@ if ENABLE_SMART_TRACKING:
                     break
 
     ml.logger.info(f"Smart tracking: {ENABLE_SMART_TRACKING}")
-    ml.logger.info(f"Total problematic mappings found with same inter ids: {len(problem)}")
+    ml.logger.info(f"Total problematic mappings found with same intra ids: {len(problem)}")
     ml.logger.info(problem)    
-    
+
 md.set_collection('incompatible_inter')
 documents = list(md.collection.find())
 inter_df = pd.DataFrame(documents)
@@ -47,7 +48,7 @@ incompatible_inter_data = {document['_id']: set(document['mapping']) for documen
 
 problem = {}
 for id, mapping in incompatible_inter_data.items():
-    for user, user_ids in user_data:
+    for user, user_ids in user_data.items():
         if id in user_ids:
             common = mapping.intersection(user_ids)
             if common:

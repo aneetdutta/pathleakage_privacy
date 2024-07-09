@@ -9,6 +9,7 @@ import polars as pd
 from modules.logger import MyLogger
 from collections import defaultdict
 import json
+import time
 
 DB_NAME = os.getenv("DB_NAME")
 DATA_USECASE = os.getenv("DATA_USECASE")
@@ -19,10 +20,10 @@ df = pd.read_csv(f"data/raw_user_data_{DATA_USECASE}.csv")
 print(df)
 raw_user_data = df.to_dicts()
 
-
 ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))
 # GENERATE_SNIFFER_DATA = str_to_bool(os.getenv("GENERATE_SNIFFER_DATA"))
 TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
+MAX_MOBILITY_FACTOR = float(os.getenv('MAX_MOBILITY_FACTOR'))
 
 same_userset: set = set()
 
@@ -31,7 +32,30 @@ user_data = deque()
 
 check_users = False
 user_mobility = defaultdict()
-max_mobility_checker = defaultdict(tuple)
+max_mobility_checker = defaultdict(list)
+
+for user_ in raw_user_data:
+    user_id = user_["user_id"]
+    timestep = user_["timestep"]
+    mf = user_["mf"]
+    loc_x = user_["loc_x"]
+    loc_y = user_["loc_y"]
+    if user_id in max_mobility_checker:
+        dis = calculate_distance_l(max_mobility_checker[user_id][0], [loc_x, loc_y])
+        tim = (timestep - max_mobility_checker[user_id][1])
+        user_mobility[user_id] = max(dis/tim, user_mobility[user_id])
+            # time.sleep(0.2)
+    else:
+        user_mobility[user_id] = 0
+        
+    max_mobility_checker[user_id] = [[loc_x, loc_y], float(timestep)]
+
+users_with_less_mobility = set()
+
+for user_id, value in user_mobility.items(): 
+    if value < MAX_MOBILITY_FACTOR:
+        users_with_less_mobility.add(user_id)
+
 
 for user_ in raw_user_data:
     # print(user_)
@@ -41,23 +65,16 @@ for user_ in raw_user_data:
     loc_x = user_["loc_x"]
     loc_y = user_["loc_y"]
     
+    if user_id not in users_with_less_mobility:
+        continue
+    
     if ENABLE_USER_THRESHOLD:
         # print(ENABLE_USER_THRESHOLD)
         if user_id not in same_userset and len(same_userset) < TOTAL_NUMBER_OF_USERS:
             same_userset.add(user_id)
         elif user_id not in same_userset:
             continue
-    
-    if user_id in max_mobility_checker:
-        dis = calculate_distance_l(max_mobility_checker[user_id][0], [loc_x, loc_y])
-        tim = (timestep - max_mobility_checker[user_id][1])
-        user_mobility[user_id] = max(float(dis / tim), user_mobility[user_id])
-    else:
-        user_mobility[user_id] = 0
         
-    max_mobility_checker[user_id][0] = [loc_x, loc_y]
-    max_mobility_checker[user_id][1] = float(timestep)
-    
     if len(same_userset) >= TOTAL_NUMBER_OF_USERS and not check_users:
         ml.logger.info(f"Total number of users {len(same_userset)} capped at {timestep}")
         check_users = True
@@ -108,9 +125,16 @@ for col_name in columns_to_replace:
 # print(df['randomized_ble'])
 df.write_csv(user_file)
 
-with open("data/user_mobility_{DB_NAME}.json", "w") as f:
+with open(f"data/user_mobility_{DB_NAME}.json", "w") as f:
     json.dump(user_mobility, f)
 
 max_key= max(user_mobility, key=user_mobility.get)
 
+count_users = sum(1 for value in user_mobility.values() if value > 2.0)
+
 ml.logger.info(f"Max mobility achieved per user: {max_key}, value: {user_mobility[max_key]}")
+ml.logger.info(f"Number of users having mobility greater than {MAX_MOBILITY_FACTOR} {count_users}")
+
+
+ml.logger.info(f"Total users with mobility less than {MAX_MOBILITY_FACTOR}: {len(users_with_less_mobility)}")
+ml.logger.info(list(users_with_less_mobility))

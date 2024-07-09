@@ -32,6 +32,13 @@ incompatible_inter_ids: defaultdict[set] = defaultdict(set)
 # incompatible_list = []
 ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION"))
 
+if ENABLE_MULTILATERATION:
+    ml = MyLogger(f"grouping_seq_MULTILATERATION_{DB_NAME}")
+else:
+    ml = MyLogger(f"grouping_seq_{DB_NAME}")
+
+
+
 for document in sniffer_data_:
     id = document["_id"]
     st_window = document["st_window"]
@@ -48,8 +55,8 @@ for document in sniffer_data_:
 
 grouping_list.sort(key=lambda x: x['st_window'])
 group_collection.drop()
-group_collection.insert_many(grouping_list
-                             )
+group_collection.insert_many(grouping_list)
+
 incompatible_intra_collection = md.db['incompatible_intra']
 incompatible_intra_collection.drop()
 for i, j in incompatible_intra_ids.items():

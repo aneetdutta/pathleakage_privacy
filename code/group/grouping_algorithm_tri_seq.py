@@ -1,29 +1,34 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.general import remove_subsets_and_duplicates, remove_subsets_group, calculate_distance_l
+from services.general import remove_subsets_and_duplicates, remove_subsets_group, calculate_distance_l, str_to_bool
 from collections import defaultdict, deque
 from itertools import product
 import sys
 
 
-def group_distances_tri(sniffer_groups, incompatible_ids: defaultdict[set]):    
-    # BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR"))
-    # WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR"))
-    # LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR"))
-    MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR"))
+def group_distances_tri(sniffer_groups, incompatible_intra_ids, incompatible_inter_ids):    
+    BLUETOOTH_LOCALIZATION_ERROR = int(os.getenv("BLUETOOTH_LOCALIZATION_ERROR", 1))
+    WIFI_LOCALIZATION_ERROR = int(os.getenv("WIFI_LOCALIZATION_ERROR", 5))
+    LTE_LOCALIZATION_ERROR = int(os.getenv("LTE_LOCALIZATION_ERROR", 10))
+    MAX_MOBILITY_FACTOR = float(os.getenv("MAX_MOBILITY_FACTOR", 1.66))
+    ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH", "false"))
+    ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI", "false"))
+    ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE", "false"))
     
     # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
     groups = []  # Initialize list to store final groups
-    incompatible_ids = defaultdict(set, incompatible_ids)
+    incompatible_intra_ids = defaultdict(set, incompatible_intra_ids)
+    incompatible_inter_ids = defaultdict(set, incompatible_inter_ids)
+
     '''iterate through sniffer_groups'''
     updated_timestep_dict = defaultdict()
     ul_dict = defaultdict()
     sniffer_groups: dict
     for sg in sniffer_groups:
-        if sg["id"] not in incompatible_ids: incompatible_ids[sg["id"]] = set()
-        # print(sg)
+        if sg["id"] not in incompatible_intra_ids: incompatible_intra_ids[sg["id"]] = set()
+        if sg["id"] not in incompatible_inter_ids: incompatible_inter_ids[sg["id"]] = set()        # print(sg)
         updated_timestep_dict[sg["id"]] = sg['timestep']
         sg_tup = (sg["protocol"],sg["id"])
         ul_dict[sg["id"]] = [sg["ul_x"], sg["ul_y"]]
@@ -47,39 +52,32 @@ def group_distances_tri(sniffer_groups, incompatible_ids: defaultdict[set]):
                 abs_dist = calculate_distance_l(ul_dict[sg["id"]], ul_dict[d[1]])
                 mobility_error = abs(int(updated_timestep_dict[d[1]]) - int(sg['timestep']))*MAX_MOBILITY_FACTOR
                 
-                if d[0] != sg["protocol"] and abs_dist <= (mobility_error):
+                if d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= (LTE_LOCALIZATION_ERROR + WIFI_LOCALIZATION_ERROR + mobility_error):
                     compatible = True
-                else:
+                elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                    compatible = True
+                elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR + WIFI_LOCALIZATION_ERROR + mobility_error):
+                    compatible = True
+                elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                    compatible = True
+                elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                    compatible = True
+                elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
+                    compatible = True
+                else: 
                     compatible = False
-                
-                # if d[0] == "LTE" and sg["protocol"] == "WiFi" and abs_dist <= (mobility_error):
-                #     compatible = True
-                # elif d[0] == "LTE" and sg["protocol"] == "Bluetooth" and abs_dist <= (mobility_error):
-                #     compatible = True
-                # elif d[0] == "WiFi" and sg["protocol"] == "LTE" and abs_dist <= (mobility_error):
-                #     compatible = True
-                # elif d[0] == "WiFi" and sg["protocol"] == "Bluetooth" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
-                #     compatible = True
-                # elif d[0] == "Bluetooth" and sg["protocol"] == "LTE" and abs_dist <= (LTE_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
-                #     compatible = True
-                # elif d[0] == "Bluetooth" and sg["protocol"] == "WiFi" and abs_dist <= (WIFI_LOCALIZATION_ERROR+BLUETOOTH_LOCALIZATION_ERROR + mobility_error):
-                #     compatible = True
-                # elif d[0] == "LTE" and sg["protocol"] == "LTE":
-                #     compatible=False
-                # elif d[0] == "WiFi" and sg["protocol"] == "WiFi":
-                #     compatible=False
-                # elif d[0] == "Bluetooth" and sg["protocol"] == "Bluetooth":
-                #     compatible=False
-                # else: 
-                #     compatible = False
                     
                 if compatible:
-                    if not incompatible_ids[sg["id"]].intersection({d[1]}):
+                    if not incompatible_inter_ids[sg["id"]].intersection({d[1]}) or incompatible_intra_ids[sg["id"]].intersection({d[1]}):
                         compatible_set.add(d)
                 else:
                     if sg["id"] != d[1]:
-                        incompatible_ids[sg["id"]].update({d[1]})
-                        incompatible_ids[d[1]].update({sg["id"]})
+                        if sg["protocol"] != d[0]:
+                            incompatible_inter_ids[sg["id"]].add(d[1])
+                            incompatible_inter_ids[d[1]].add(sg["id"])
+                        else:
+                            incompatible_intra_ids[sg["id"]].add(d[1])
+                            incompatible_intra_ids[d[1]].add(sg["id"])
 
             if sg_tup in group and not compatible:
                 # print(sg_tup, group, compatible)
@@ -113,7 +111,12 @@ def group_distances_tri(sniffer_groups, incompatible_ids: defaultdict[set]):
     '''
     # print(groups)
     groups = remove_subsets_group(groups)
-    
+    if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
+        to_remove = []
+        for g in groups:
+            if len(g) < 3:
+                to_remove.append(g)
+        groups = [item for item in groups if item not in to_remove]
     # print(groups)
 
     group_list:list = []
@@ -127,13 +130,13 @@ def group_distances_tri(sniffer_groups, incompatible_ids: defaultdict[set]):
                 else:
                     temp_dict[devtup[0]].append(devtup[1])     
         group_list.append(temp_dict)  
-    return incompatible_ids, group_list
+    return incompatible_intra_ids, incompatible_inter_ids, group_list
 
 
-def grouper_tri(sniffer_data, incompatible_ids: defaultdict[set]):
+def grouper_tri(sniffer_data, incompatible_intra_ids: defaultdict[set], incompatible_inter_ids: defaultdict[set]):
     grouped_list = deque()
     for sniffer_id, data in sniffer_data.items():
-        incompatible_ids, distance_groups = group_distances_tri(data, incompatible_ids)
+        incompatible_intra_ids, incompatible_inter_ids, distance_groups = group_distances_tri(data, incompatible_intra_ids, incompatible_inter_ids,)
         grouped_list.extend(distance_groups)
     grouped_list = remove_subsets_and_duplicates(grouped_list)
-    return incompatible_ids, grouped_list
+    return incompatible_intra_ids, incompatible_inter_ids, grouped_list

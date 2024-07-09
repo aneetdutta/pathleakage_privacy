@@ -83,7 +83,7 @@ mobility:
 
 # Sniffer settings
 sniffer:
-  GENERATE_SNIFFER_DATA: false
+  # GENERATE_SNIFFER_DATA: false
   ENABLE_PARTIAL_COVERAGE: false
   ENABLE_MULTILATERATION: false
   ENABLE_BLUETOOTH: false            # Enable Bluetooth

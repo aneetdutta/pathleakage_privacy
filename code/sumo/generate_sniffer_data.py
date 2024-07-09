@@ -43,16 +43,20 @@ raw_user_data = raw_user_data_df.to_dicts()
 
 def process_batch(batch: List[Dict[str, Any]], sniffers: List['Sniffer'], enable_bluetooth: bool=ENABLE_BLUETOOTH, enable_wifi: bool=ENABLE_WIFI, enable_lte: bool=ENABLE_LTE) -> deque:
     detected_users = deque()
-    
-    if not enable_bluetooth:
-        user_data["bluetooth_id"] = None
-    if not enable_lte:
-        user_data["lte_id"] = None
-    if not enable_wifi:
-        user_data["wifi_id"] = None
+
     # Pre-extracting the required attributes to avoid repetitive dictionary accesses
     # if enable_bluetooth:
     for user_data in batch:
+        if not enable_bluetooth:
+            user_data["bluetooth_id"] = None
+            user_data["transmit_ble"] = False
+        if not enable_lte:
+            user_data["lte_id"] = None
+            user_data["transmit_lte"] = False
+        if not enable_wifi:
+            user_data["wifi_id"] = None
+            user_data["transmit_wifi"] = False
+            
         user_location = [user_data["loc_x"], user_data["loc_y"]]
         for sniffer in sniffers:
             a = sniffer.detect_raw_users(

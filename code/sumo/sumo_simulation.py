@@ -78,6 +78,19 @@ try:
                 }
             )        
         traci.simulationStep()
+        # Set the speed for all vehicles
+        for vehicle_id in traci.vehicle.getIDList():
+            traci.vehicle.setMaxSpeed(vehicle_id, 0.8)
+            # traci.vehicle.setSpeed(vehicle_id, 1.0)
+
+        # Set the speed for all pedestrians
+        for person_id in traci.person.getIDList():
+            traci.person.setMaxSpeed(person_id, 0.8)
+            # traci.person.setSpeed(person_id, 1.0)
+        
+        # for lane in traci.lane.getIDList():
+        #     traci.lane.setMaxSpeed(lane, 0.8)
+        
     print("Time taken: ", time.time() - now)
     traci.close()
 except Exception as e:
@@ -107,4 +120,5 @@ ml.logger.info(f"Min Mobility: {min_value}")
 ml.logger.info(f"Average Mobility: {average_value}")
 ml.logger.info(f"Median Mobility: {median_value}")
 
+ml.logger.info(visited_person)
 df.write_csv(user_file)
