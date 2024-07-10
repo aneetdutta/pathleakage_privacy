@@ -112,18 +112,15 @@ def sanity_incompatible():
     run_command('python3 sanity/sanity_incompatible.py')
     print("sanity service finished.")
     
-def group_checker():
+def sanity():
+    """Run sanity service."""
     print("Starting Group Checker service...")
     run_command('python3 sanity/group_checker.py')
     print("Group Checker finished.")
-    
-def sanity():
-    # group_checker()
-    """Run sanity service."""
     print("Starting sanity service...")
     run_command('python3 sanity/sanity.py')
     print("sanity service finished.")
-    # sanity_incompatible()
+    sanity_incompatible()
 
 def reconstruction_baseline():
     run_command('python3 reconstruction/reconstruction_baseline.py')
@@ -310,6 +307,5 @@ tasks = {
     "after_group_without_smart": after_group_without_smart,
     "sanity_group": sanity_group,
     "reconstruction_baseline_smart": reconstruction_baseline_smart,
-    "sanity_incompatible": sanity_incompatible,
-    "group_checker": group_checker
+    "sanity_incompatible": sanity_incompatible
 }

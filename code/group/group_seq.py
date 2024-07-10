@@ -37,8 +37,6 @@ if ENABLE_MULTILATERATION:
 else:
     ml = MyLogger(f"grouping_seq_{DB_NAME}")
 
-
-
 for document in sniffer_data_:
     id = document["_id"]
     st_window = document["st_window"]

@@ -6,6 +6,7 @@ from collections import defaultdict
 ''' Load the sumo_simulation result from mongodb '''
 import pandas as pd
 import sys
+from itertools import chain
 
 from modules.logger import MyLogger
 
@@ -31,10 +32,10 @@ for document in intra_docs:
     
 md.set_collection('inter_mappings')
 
-inter_docs = md.collection.find()
+inter_docs = list(md.collection.find())
 inter_data = {}
 for document in inter_docs:
-    inter_data[document['_id']] = document['mapping']
+    inter_data[document['_id']] = list(chain(*document['mapping'].values()))
 
 
 intra_length = len(list(intra_data))

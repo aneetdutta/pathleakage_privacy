@@ -6,8 +6,10 @@ from modules.mongofn import MongoDB
 import pandas as pd
 # from env import USER_TIMESTEPS
 import sys
+from itertools import chain
 # import sys
 md = MongoDB()
+import json
 from modules.logger import MyLogger
 
 DB_NAME = os.getenv("DB_NAME")
@@ -31,6 +33,7 @@ if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
 
     md.set_collection(f'modified_inter_mappings_{TRACK_UNTIL}')
     documents = list(md.collection.find())
+    inter_time_data = {document['_id']: (document["start_timestep"], document["last_timestep"]) for document in documents}
     inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_df = pd.DataFrame(documents)
 
@@ -45,6 +48,7 @@ else:
 
     md.set_collection('modified_inter_mappings')
     documents = list(md.collection.find())
+    inter_time_data = {document['_id']: (document["start_timestep"], document["last_timestep"]) for document in documents}
     inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_df = pd.DataFrame(documents)
 
@@ -52,6 +56,10 @@ else:
     documents = md.collection.find()
     baseline_data = pd.DataFrame(documents)
 
+
+md.set_collection("aggregate_users")
+documents = md.collection.find()
+user_data = {document['user_id']: document["ids"] for document in documents}
 ''' To create something like:
 user_id, linked_id, duration_of_linked_id_through_tracking, duration_of_linked_id_in_sniffed_data, privacy score
 
@@ -60,123 +68,103 @@ a) Take an id from inter identifier - calculate whether the mappings in it are c
 b) Take user_id corresponding to the linked_id, - measure its duration in sniffed data
 c) Privacy score = duration_of_linked_id_through_tracking / duration_of_linked_id_in_sniffed_data'''
 
-intra_data_user = {}
+
+''' Create chain of intra mappings '''
+
+intra_single = {}
 for id, mapping in intra_data.items():
-    ''' Tries to first clean the intra mappings based on user id, those which dont match are set to null '''
-    user_id = inter_user_data[id]
-    checker = True
-    # if not mapping:
-    #     continue
-    for id_ in mapping:
-        if inter_user_data[id_] != user_id:
-            checker = False
-            break
-    if checker:
-        intra_data_user[id] = mapping
+    # print(mapping)
+    if len(mapping) > 1:
+        intra_single[id] = ''
+    elif mapping:
+        intra_single[id] = mapping[0]
     else:
-        intra_data_user[id] = []
-# print(intra_data_user)
-# sys.exit()
-# print(intra_data_user)
-# Initialize the columns
-intra_df["chained_start_timestep"] = 0
-intra_df["chained_last_timestep"] = 0
+        intra_single[id] = ''
 
-# Function to remove subsets and merge, assuming it's efficient and correct
-chained_intra = remove_subsets_and_merge(intra_data_user)
+chained_intra = find_all_possible_chains(intra_single)
+# Initialize an empty dictionary
+chained_dict = {char: lst for lst in chained_intra for char in lst}
 
-# Flatten chained_intra and create a DataFrame with each intraid and its group
-intraid_to_group = {intraid: idx for idx, group in enumerate(chained_intra) for intraid in group}
-
-# Create a DataFrame from the dictionary
-group_df = pd.DataFrame(list(intraid_to_group.items()), columns=['_id', 'group'])
-
-# Merge the group DataFrame with intra_df to get the group for each row in intra_df
-merged_df = intra_df.merge(group_df, on='_id', how='left')
-
-# Group by 'group' and calculate the min and max timesteps
-grouped = merged_df.groupby('group').agg({'start_timestep': 'min', 'last_timestep': 'max'}).reset_index()
-
-# Merge the aggregated data back with the original merged DataFrame
-merged_df = merged_df.merge(grouped, on='group', suffixes=('', '_chained'))
-
-# Update the original DataFrame
-intra_df['chained_start_timestep'] = merged_df['start_timestep_chained']
-intra_df['chained_last_timestep'] = merged_df['last_timestep_chained']
-
-inter_df = inter_df.merge(intra_df[['_id', 'chained_start_timestep', 'chained_last_timestep']], on='_id', how='left')
-inter_df.fillna({'chained_start_timestep': inter_df['start_timestep']}, inplace=True)
-inter_df.fillna({'chained_last_timestep': inter_df['last_timestep']}, inplace=True)
-
-# inter_df['chained_start_timestep'] = inter_df['chained_start_timestep'].fillna(inter_df['start_timestep'], inplace=True)
-# inter_df['chained_last_timestep'] = inter_df['chained_last_timestep'].fillna(inter_df['start_timestep'], inplace=True)
-# print(inter_df)
-
-# print(intra_df[['_id', 'start_timestep', 'last_timestep', 'chained_start_timestep', 'chained_last_timestep']])
-# sys.exit()
-
-# print(chained_intra)
-# sys.exit()
 multi_protocol = []
-# visited_set = set()
-# visited_user = set()
-# print(inter_df)
-def check_user_id(row, id_to_user_id):
-    mapped_user_ids = [id_to_user_id[_id] for _id in row['mapping']]
-    return all(user_id == row['user_id'] for user_id in mapped_user_ids)
 
-inter_df['user_id_match'] = inter_df.apply(lambda row: check_user_id(row, inter_user_data), axis=1)
+def merge_matching_sublists(lst, target_sublist):
+    # print(target_sublist)
+    # print(lst)
+    matching_set = set()
+    for sublist in lst:
+        if set(target_sublist).issubset(set(sublist)):
+            matching_set.update(set(sublist))
+    return matching_set
 
-# user_id_match = check_user_id_match(inter_df, inter_user_data)
+def inter_intra_mapper(data):
+    if not data:
+        return []
+    # print("checking")
+    o = []
+    for p, p_item in data.items():
+        sf = set(merge_matching_sublists(chained_intra, p_item))
+        # print(sf)
+        o.append(sf)
+    # print(o)
+    return o
 
-# print(user_id_match)
-# sys.exit()
 
+correctness = {}
+total_rows = inter_df.shape[0]
 
 for index, inter_row in inter_df.iterrows():
+    ml.logger.info(f"index - {index} of {total_rows}")
     # print(index)
-    min_start_timestep, max_last_timestep = None, None
-    inter_id, intra_id1 = None, None
+    u = inter_row["user_id"]
+    min_start_timestep, max_last_timestep = inter_row["start_timestep"], inter_row["last_timestep"]
     inter_id = inter_row["_id"]
-    user_id_match = inter_row["user_id_match"]
-    # print(inter_id)
-    # print(inter_row)
-        
-    inter_mapping = inter_row["mapping"]
-    if not inter_mapping:
-        ml.logger.info(f"No inter mapping found for {inter_id}")
-        # continue
-    user_id = inter_row["user_id"]
-    ml.logger.info(f'{index}, {inter_id}, {user_id}')
+    if inter_id in chained_dict:
+        chain1 = chained_dict[inter_id]
+        # print(chain1)
+    else:
+        chain1 = []
+    # user_id_match = inter_row["user_id_match"]
+    chain_ = inter_intra_mapper(inter_row["mapping"])
+    # print(len(chain_))
     
-    ''' Fetch chain for id1 - (inter id) intra mapping and calculating min/max timestep'''
-        
-    # if inter_id in intra_data_user:
-    min_start_timestep = inter_row["chained_start_timestep"]
-    max_last_timestep = inter_row["chained_last_timestep"]
-    # else:
-    #     min_start_timestep_id1 = inter_row["start_timestep"]
-    #     max_last_timestep_id1 = inter_row["last_timestep"]
-    
-    fetch_inter_mapping_timesteps = inter_df[inter_df['_id'].isin(inter_mapping)]
-    fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps[
-        ~(
-            ((fetch_inter_mapping_timesteps['start_timestep'] < min_start_timestep) &
-            (fetch_inter_mapping_timesteps['last_timestep'] < min_start_timestep)) |
-            ((fetch_inter_mapping_timesteps['start_timestep'] > max_last_timestep) &
-            (fetch_inter_mapping_timesteps['last_timestep'] > max_last_timestep))
-        )
-    ]
-    
-    if not fetch_inter_mapping_timesteps.empty:
-        fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps.drop_duplicates(subset=['chained_start_timestep', 'chained_last_timestep'])
+    chain_.append(chain1)
+    user_id_ = None
 
-    # print(fetch_inter_mapping_timesteps)
-    # sys.exit()
-    # Filter the DataFrame to include only rows with the minimum start_timestep
-    if user_id_match:
-        min_start_timestep = min(fetch_inter_mapping_timesteps['chained_start_timestep'].min(), min_start_timestep)
-        max_last_timestep = max(fetch_inter_mapping_timesteps['chained_last_timestep'].max(), max_last_timestep)
+    p = [False]*len(chain_)
+    
+    for user_id, ids in user_data.items():
+        flag = False
+        for i, c in enumerate(chain_):
+            # print(i, c)
+            if not c:
+                continue
+            if set(c).issubset(ids):
+                correctness[inter_id] = True
+                p[i] = True
+                flag = True
+        if flag:
+            break
+    
+    if inter_id not in correctness or not correctness[inter_id]:
+        ''' Consider baseline'''
+        # print(p)
+        correctness[inter_id] = False
+        # print(min_start_timestep)
+        # print(max_last_timestep)
+        duration = max_last_timestep - min_start_timestep
+        multi_protocol.append({"id": inter_id, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": u})
+        continue
+    # print(p)
+    lchain = []
+    for i, j in enumerate(p):
+        if p[i]:
+            lchain.extend(chain_[i])
+            
+    fetch_inter_mapping_timesteps = inter_df[inter_df['_id'].isin(lchain)]
+    # fetch_inter_mapping_timesteps = fetch_inter_mapping_timesteps.drop_duplicates(subset=['start_timestep', 'last_timestep'])
+    min_start_timestep = min(fetch_inter_mapping_timesteps['start_timestep'].min(), min_start_timestep)
+    max_last_timestep = max(fetch_inter_mapping_timesteps['last_timestep'].max(), max_last_timestep)
+
     
     if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
         if max_last_timestep > TRACK_UNTIL:
@@ -184,9 +172,20 @@ for index, inter_row in inter_df.iterrows():
 
     duration = max_last_timestep - min_start_timestep
     # print(inter_id, intra_id1)
-    multi_protocol.append({"id": inter_id, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": user_id})
-    # delete 
+    multi_protocol.append({"id": inter_id, "start_timestep": min_start_timestep, "last_timestep": max_last_timestep, "duration": duration, "user_id": u})
 
+
+# ml.logger.info("Correctness: {correc}")
+
+true_count = sum(correctness.values())
+
+# Count False values
+false_count = len(correctness) - true_count
+
+ml.logger.info(f"Count of True values: {true_count}")
+ml.logger.info(f"Count of False values: {false_count}")
+
+print("completed")
 multi_protocol_df = pd.DataFrame(multi_protocol)
 ml.logger.info(multi_protocol_df)
 multi_protocol_df = pd.merge(multi_protocol_df, baseline_data[['id', 'ideal_duration']], left_on='id', right_on='id', how='left')
@@ -216,3 +215,6 @@ else:
     multi_protocol_df.to_csv(f'csv/multi_protocol_{DB_NAME}.csv', index=False)
     md.db['reconstruction_multiproto'].drop()
     md.db['reconstruction_multiproto'].insert_many(multi_data)
+
+with open(f'data/correctness_{DB_NAME}.json', 'w') as f:
+    json.dump(correctness, f)

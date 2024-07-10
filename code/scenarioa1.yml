@@ -4,7 +4,7 @@
 
 general:
   USER_TIMESTEPS: 25200               # Number of user timesteps
-  DATA_USECASE: "scenario"
+  DATA_USECASE: "scenario_1.5"
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
@@ -68,7 +68,7 @@ transmission_intervals:
 communication_range:
   BLUETOOTH_RANGE: 30                # Bluetooth range (in meters)
   WIFI_RANGE: 60                     # WiFi range (in meters)
-  LTE_RANGE: 100                    # LTE range (in meters)
+  LTE_RANGE: 100                     # LTE range (in meters)
 
 # Localization errors
 localization_errors:
@@ -81,15 +81,15 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 0.8        # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 1.0        # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:
   GENERATE_SNIFFER_DATA: false
   ENABLE_PARTIAL_COVERAGE: false
   ENABLE_MULTILATERATION: false
-  ENABLE_BLUETOOTH: false       # Enable Bluetooth
-  ENABLE_WIFI: true            # Enable Bluetooth
+  ENABLE_BLUETOOTH: true       # Enable Bluetooth
+  ENABLE_WIFI: false            # Enable Bluetooth
   ENABLE_LTE: true             # Enable Bluetooth
 
   SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size

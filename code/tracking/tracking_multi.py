@@ -150,7 +150,7 @@ else:
     for i, j in inter_potential_mapping_list.items():
         result = md.db['inter_mappings'].update_one(
                 {"_id": str(i)},
-                {"$set": {"_id": str(i), "mapping": list(j)}},
+                {"$set": {"_id": str(i), "mapping": {key: list(value) for key, value in j.items()}}},
                 upsert=True  # Create a new document if no document matches the filter
             )
         

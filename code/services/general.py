@@ -13,6 +13,38 @@ import yaml
 from shapely.geometry import Point, Polygon
 import concurrent.futures
 
+
+def find_all_possible_chains(dictionary):
+    all_chains = []
+    visited_keys = set()
+
+    for start_key in dictionary:
+        if start_key not in visited_keys:
+            chain = []
+            current_key = start_key
+            
+            while current_key is not None:
+                visited_keys.add(current_key)
+                chain.append(current_key)
+                if current_key in dictionary:
+                    next_key = dictionary[current_key]
+                else:
+                    break
+                if next_key is None:
+                    break
+                if next_key in visited_keys:
+                    # If we encounter a loop, we stop exploring this chain further
+                    break
+                
+                if not next_key:
+                    break
+                
+                current_key = next_key
+            
+            all_chains.append(chain)
+    
+    return all_chains
+
 class UnionFind:
     def __init__(self):
         self.parent = {}

@@ -368,24 +368,24 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     ''' Performing Intra Mapping '''
     intra_potential_mapping, visited_intra_list = tracking_phase1(mapping0, mapping1, intra_potential_mapping, visited_intra_list)
                         
-    print("Intra potential mapping - Initial")
-    pprint(intra_potential_mapping)
-    print("Visited intra mapping - Initial")
-    pprint(visited_intra_list)
+    # print("Intra potential mapping - Initial")
+    # pprint(intra_potential_mapping)
+    # print("Visited intra mapping - Initial")
+    # pprint(visited_intra_list)
     
     ''' Performing Inter Mapping '''
     
     ''' Step 1: Calculate mapping for timestep 0 and timestep 1'''
     timestep_0_potential_mapping, timestep_1_potential_mapping = tracking_phase_2_part_1(mapping0, mapping1, visited_inter_list, inter_potential_mapping)
-    print("Inter potential mapping - timestep")
-    pprint(timestep_0_potential_mapping)
-    pprint(timestep_1_potential_mapping)
+    # print("Inter potential mapping - timestep")
+    # pprint(timestep_0_potential_mapping)
+    # pprint(timestep_1_potential_mapping)
 
     inter_potential_mapping, visited_inter_list = tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_mapping, inter_potential_mapping, visited_inter_list, intra_potential_mapping, ENABLE_PARTIAL_COVERAGE)
-    print("Intra potential mapping - After Inter")
-    pprint(intra_potential_mapping)
-    print("Inter potential mapping without filtering")
-    pprint(inter_potential_mapping)
+    # print("Intra potential mapping - After Inter")
+    # pprint(intra_potential_mapping)
+    # print("Inter potential mapping without filtering")
+    # pprint(inter_potential_mapping)
     
     # print("Visited Inter List without filtering")
     # pprint(visited_inter_list)
@@ -394,10 +394,10 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     Here, if L1 -> W3,W1, but W3 does not contain L1 then remove W3 from L1's mapping; check iteratively in while loop'''
     if not ENABLE_PARTIAL_COVERAGE:
         inter_potential_mapping, visited_inter_list = tracking_phase_2_part_3(inter_potential_mapping, visited_inter_list)
-    print("intra_potential_mapping - before updation")
-    pprint(intra_potential_mapping)
-    print("inter_potential_mapping - before updation")
-    pprint(inter_potential_mapping)
+    # print("intra_potential_mapping - before updation")
+    # pprint(intra_potential_mapping)
+    # print("inter_potential_mapping - before updation")
+    # pprint(inter_potential_mapping)
     inter_potential_mapping = defaultdict(
         lambda: defaultdict(set),
         {k: convert_to_defaultdict(v) for k, v in inter_potential_mapping.items()}

@@ -67,7 +67,7 @@ transmission_intervals:
 # Range for communication protocols
 communication_range:
   BLUETOOTH_RANGE: 30                # Bluetooth range (in meters)
-  WIFI_RANGE: 30                     # WiFi range (in meters)
+  WIFI_RANGE: 60                     # WiFi range (in meters)
   LTE_RANGE: 100                     # LTE range (in meters)
 
 # Localization errors
@@ -81,7 +81,7 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.6        # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 0.8        # Mobility factor in m/s
 
 # Sniffer settings
 sniffer:
