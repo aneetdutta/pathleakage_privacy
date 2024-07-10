@@ -77,7 +77,7 @@ localization_errors:
   LTE_LOCALIZATION_ERROR: 10         # LTE localization error (in meters)
 
 smart:
-  ENABLE_SMART_TRACKING: true
+  ENABLE_SMART_TRACKING: false
 
 # Mobility settings
 mobility:

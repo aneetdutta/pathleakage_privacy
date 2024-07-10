@@ -50,6 +50,8 @@ else:
     documents = list(md.collection.find())
     inter_time_data = {document['_id']: (document["start_timestep"], document["last_timestep"]) for document in documents}
     inter_user_data = {document['_id']: document["user_id"] for document in documents}
+    inter_last_time_data = {document['_id']: document["last_timestep"] for document in documents}
+    # print(inter_last_time_data["7DLVEZAWLLHL"])
     inter_df = pd.DataFrame(documents)
 
     md.set_collection('reconstruction_baseline')
@@ -58,8 +60,13 @@ else:
 
 
 md.set_collection("aggregate_users")
-documents = md.collection.find()
+documents = list(md.collection.find())
 user_data = {document['user_id']: document["ids"] for document in documents}
+user_time_data = {document['user_id']: document["last_timestep"] for document in documents}
+
+
+
+
 ''' To create something like:
 user_id, linked_id, duration_of_linked_id_through_tracking, duration_of_linked_id_in_sniffed_data, privacy score
 
@@ -84,7 +91,7 @@ for id, mapping in intra_data.items():
 chained_intra = find_all_possible_chains(intra_single)
 # Initialize an empty dictionary
 chained_dict = {char: lst for lst in chained_intra for char in lst}
-
+corresponding_users = set()
 multi_protocol = []
 
 def merge_matching_sublists(lst, target_sublist):
@@ -128,6 +135,22 @@ for index, inter_row in inter_df.iterrows():
     # print(len(chain_))
     
     chain_.append(chain1)
+    
+    chain_sets = [set(c) for c in chain_]
+
+    # Create a new list to store the updated sets
+    updated_chain = []
+
+    for c_set in chain_sets:
+        updated_set = {j for j in c_set if inter_last_time_data[j] <= user_time_data[u]}
+        updated_chain.append(updated_set)
+
+    # Convert the sets back to lists if necessary
+    chain_ = [list(s) for s in updated_chain]
+    
+    # if inter_id == "F2SARB5IJCSZ":
+    #     print(inter_id)
+    #     print(chain_)
     user_id_ = None
 
     p = [False]*len(chain_)
@@ -138,6 +161,14 @@ for index, inter_row in inter_df.iterrows():
             # print(i, c)
             if not c:
                 continue
+            # if inter_id == "ANWCUSWWVXST" and u == user_id:
+            #     print(c)
+            #     print(ids)
+            #     print(set(c).issubset(ids))
+            # if inter_id == "F2SARB5IJCSZ" and u == user_id:
+                # print(c)
+                # print(ids)
+                # print(set(c).issubset(ids))
             if set(c).issubset(ids):
                 correctness[inter_id] = True
                 p[i] = True
@@ -149,6 +180,7 @@ for index, inter_row in inter_df.iterrows():
         ''' Consider baseline'''
         # print(p)
         correctness[inter_id] = False
+        corresponding_users.add(u)
         # print(min_start_timestep)
         # print(max_last_timestep)
         duration = max_last_timestep - min_start_timestep
@@ -218,3 +250,6 @@ else:
 
 with open(f'data/correctness_{DB_NAME}.json', 'w') as f:
     json.dump(correctness, f)
+    
+print(corresponding_users)
+print(len(corresponding_users))

@@ -63,6 +63,12 @@ if ENABLE_SMART_TRACKING:
 multi_protocol_df = pd.read_csv(f'csv/multi_protocol_{DB_NAME}.csv')  
 multi_protocol_scores = multi_protocol_df['privacy_score'].values
 multi_protocol_scores_sorted = np.sort(multi_protocol_scores)
+scores_less_than_one = multi_protocol_scores_sorted[multi_protocol_scores_sorted < 1.0]
+
+# Print the scores and their count
+print(f"Scores less than 1.0: {scores_less_than_one}")
+print(f"Count of scores less than 1.0: {len(scores_less_than_one)}")
+
 multi_protocol_users = np.arange(1, len(multi_protocol_scores_sorted) + 1)
 
 if ENABLE_WIFI and ENABLE_BLUETOOTH and not ENABLE_LTE:

@@ -67,7 +67,9 @@ plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Multi-Protoc
 
 # plt.plot(multi_protocol_users_old, multi_protocol_scores_sorted_old, label='Multi-Protocol (18797)', alpha=0.7)
 
-plt.xticks(np.linspace(min(multi_protocol_users), max(multi_protocol_users), math.floor(len(multi_protocol_users)/50)), fontsize=10)
+xticks = np.linspace(min(multi_protocol_users), max(multi_protocol_users), (math.floor(len(multi_protocol_users)/50)))
+xticks = np.round(xticks).astype(int)
+plt.xticks(xticks, fontsize=10)
 plt.yticks(fontsize=20)
 plt.xlabel('Number of Users', fontsize=20)
 plt.ylabel('Privacy Leakage', fontsize=20)
