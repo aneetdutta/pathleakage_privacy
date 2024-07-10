@@ -15,6 +15,7 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
     ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH", "false"))
     ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI", "false"))
     ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE", "false"))
+    ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE", "false"))
     
     # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
@@ -115,12 +116,13 @@ def group_distances(sniffer_groups, incompatible_intra_ids: defaultdict[set], in
     groups = remove_subsets_group(groups)
 
     # print(groups)
-    if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
-        to_remove = []
-        for g in groups:
-            if len(g) < 3:
-                to_remove.append(g)
-        groups = [item for item in groups if item not in to_remove]
+    if not ENABLE_PARTIAL_COVERAGE:
+        if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
+            to_remove = []
+            for g in groups:
+                if len(g) < 3:
+                    to_remove.append(g)
+            groups = [item for item in groups if item not in to_remove]
     # else:
     #     to_remove = []
     #     for g in groups:

@@ -15,7 +15,8 @@ def group_distances_tri(sniffer_groups, incompatible_intra_ids, incompatible_int
     ENABLE_BLUETOOTH = str_to_bool(os.getenv("ENABLE_BLUETOOTH", "false"))
     ENABLE_WIFI = str_to_bool(os.getenv("ENABLE_WIFI", "false"))
     ENABLE_LTE = str_to_bool(os.getenv("ENABLE_LTE", "false"))
-    
+    ENABLE_PARTIAL_COVERAGE = str_to_bool(os.getenv("ENABLE_PARTIAL_COVERAGE", "false"))
+
     # print(BLUETOOTH_LOCALIZATION_ERROR, WIFI_LOCALIZATION_ERROR, LTE_LOCALIZATION_ERROR, MAX_MOBILITY_FACTOR)
     
     groups = []  # Initialize list to store final groups
@@ -111,12 +112,13 @@ def group_distances_tri(sniffer_groups, incompatible_intra_ids, incompatible_int
     '''
     # print(groups)
     groups = remove_subsets_group(groups)
-    if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
-        to_remove = []
-        for g in groups:
-            if len(g) < 3:
-                to_remove.append(g)
-        groups = [item for item in groups if item not in to_remove]
+    if not ENABLE_PARTIAL_COVERAGE:
+        if ENABLE_BLUETOOTH and ENABLE_WIFI and ENABLE_LTE:
+            to_remove = []
+            for g in groups:
+                if len(g) < 3:
+                    to_remove.append(g)
+            groups = [item for item in groups if item not in to_remove]
     # print(groups)
 
     group_list:list = []

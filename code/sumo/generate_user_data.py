@@ -24,6 +24,7 @@ ENABLE_USER_THRESHOLD = str_to_bool(os.getenv("ENABLE_USER_THRESHOLD"))
 # GENERATE_SNIFFER_DATA = str_to_bool(os.getenv("GENERATE_SNIFFER_DATA"))
 TOTAL_NUMBER_OF_USERS = int(os.getenv("TOTAL_NUMBER_OF_USERS"))
 MAX_MOBILITY_FACTOR = float(os.getenv('MAX_MOBILITY_FACTOR'))
+ENABLE_SYNCED_RANDOMIZATION = str_to_bool(os.getenv("ENABLE_SYNCED_RANDOMIZATION", "false"))
 
 same_userset: set = set()
 
@@ -84,6 +85,7 @@ for user_ in raw_user_data:
         user = user_dict[user_id]
         user.location = [loc_x, loc_y]
         user.mf = mf
+        
         user.randomize_identifiers()
         user.transmit_identifiers()
     else:

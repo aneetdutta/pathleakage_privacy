@@ -36,6 +36,7 @@ if TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP:
     inter_time_data = {document['_id']: (document["start_timestep"], document["last_timestep"]) for document in documents}
     inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_df = pd.DataFrame(documents)
+    inter_mapping_data = {document['_id']: document["mapping"] for document in documents}
 
     md.set_collection(f'reconstruction_baseline_{TRACK_UNTIL}')
     documents = md.collection.find()
@@ -51,6 +52,7 @@ else:
     inter_time_data = {document['_id']: (document["start_timestep"], document["last_timestep"]) for document in documents}
     inter_user_data = {document['_id']: document["user_id"] for document in documents}
     inter_last_time_data = {document['_id']: document["last_timestep"] for document in documents}
+    inter_mapping_data = {document['_id']: document["mapping"] for document in documents}
     # print(inter_last_time_data["7DLVEZAWLLHL"])
     inter_df = pd.DataFrame(documents)
 
@@ -118,20 +120,21 @@ def inter_intra_mapper(data):
 
 correctness = {}
 total_rows = inter_df.shape[0]
-
-for index, inter_row in inter_df.iterrows():
-    ml.logger.info(f"index - {index} of {total_rows}")
+k=0
+for inter_id, mapping in inter_mapping_data.items():
+    ml.logger.info(f"index - {k} of {total_rows}")
+    k=k+1
     # print(index)
-    u = inter_row["user_id"]
-    min_start_timestep, max_last_timestep = inter_row["start_timestep"], inter_row["last_timestep"]
-    inter_id = inter_row["_id"]
+    u = inter_user_data[inter_id]
+    min_start_timestep, max_last_timestep = inter_time_data[inter_id][0], inter_time_data[inter_id][1]
+    
     if inter_id in chained_dict:
         chain1 = chained_dict[inter_id]
         # print(chain1)
     else:
         chain1 = []
     # user_id_match = inter_row["user_id_match"]
-    chain_ = inter_intra_mapper(inter_row["mapping"])
+    chain_ = inter_intra_mapper(mapping)
     # print(len(chain_))
     
     chain_.append(chain1)

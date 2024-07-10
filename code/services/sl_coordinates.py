@@ -17,6 +17,8 @@ ml = MyLogger(f"sl_coordinates_{DB_NAME}")
 ENABLE_BLUETOOTH = False #str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 WIFI_RANGE = int(os.getenv("WIFI_RANGE", 30))
 BLUETOOTH_RANGE = int(os.getenv("BLUETOOTH_RANGE", 10))
+LTE_RANGE = int(os.getenv("LTE_RANGE", 96))
+
 
 def is_point_inside_polygon(x, y, polygon):
     point = Point(x, y)
@@ -46,7 +48,7 @@ def generate_sniffer_locations():
     if ENABLE_BLUETOOTH:
         radius = BLUETOOTH_RANGE
     else:
-        radius = WIFI_RANGE
+        radius = LTE_RANGE
         
     hex_height = radius * np.sqrt(3)
     hex_width = 2 * radius
@@ -92,8 +94,9 @@ def generate_sniffer_locations():
     # # plt.show()
     # plt.savefig('monaco.png', transparent=True, dpi=600)
 
-    # ml.logger.info(f"Total number of sniffers placed: {num_circles}")
-    # dump_orjson('data/full_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
+    ml.logger.info(f"Total number of sniffers placed: {num_circles}")
+    print(f"Total number of sniffers placed: {num_circles}")
+    dump_orjson('data/partial_coverage_sniffer_location.json', {"sniffer_location": circle_centers})
     
     
 # generate_sniffer_locations()
@@ -125,4 +128,4 @@ def generate_partial_sniffer_coverage(num_sniffers = 200):
     
     
     
-generate_partial_sniffer_coverage()
+generate_sniffer_locations()

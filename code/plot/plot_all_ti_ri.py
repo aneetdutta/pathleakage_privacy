@@ -147,7 +147,9 @@ for condition in conditions:
     plt.ylim(0, None)  # Ensure the y-axis starts at 0 to avoid negative values display
     plt.tight_layout()
     
+    plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
+    
     # Save plot to PDF
     with PdfPages(filename) as pdf:
-        pdf.savefig()
+        pdf.savefig(dpi=600, bbox_inches='tight')
     plt.close()

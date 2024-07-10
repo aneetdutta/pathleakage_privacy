@@ -151,6 +151,7 @@ def tracking_phase_2_part_2(timestep_0_potential_mapping, timestep_1_potential_m
         ''' Get protocol list'''
         
         if set(list(timestep_0_potential_mapping[id])) != set(list(timestep_1_potential_mapping[id])):
+            print(id, timestep_0_potential_mapping[id], timestep_1_potential_mapping[id])
             raise Exception(f"Grouping not proper, inconsistency found {list(timestep_0_potential_mapping[id])} - {list(timestep_1_potential_mapping[id])}")
         protocols = set(list(timestep_0_potential_mapping[id])).intersection(set(list(timestep_0_potential_mapping[id])))
         # print(protocols)
@@ -284,7 +285,7 @@ def tracking_phase_2_part_3(inter_potential_mapping, visited_inter_list):
     return inter_potential_mapping, visited_inter_list
     
     
-def tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_intra_list):
+def tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_intra_list, ENABLE_PARTIAL_COVERAGE):
     # for i
     # for id1 in intra_potential_mapping:
     #     for p, value_set_ in intra_potential_mapping[id1]:
@@ -302,9 +303,14 @@ def tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_i
             for p in inter_potential_mapping[id1]:
                 set_id1: set = set(inter_potential_mapping[id1][p])
                 set_id2: set = set(inter_potential_mapping[id2][p])
+                
                 common_set = set_id1.intersection(set_id2)
-                if not set_id1 or not set_id2:
-                    raise Exception("Null Ids exists somewhere prior")
+                # if not ENABLE_PARTIAL_COVERAGE:
+                #     if not set_id1 or not set_id2:
+                #         raise Exception("Null Ids exists somewhere prior")
+                # else:
+                #     if not set_id1 or not set_id2:
+                #         continue
                 # print(id1, id2, common_set, set_id1, set_id2)
                 if not common_set:# and set_id1 and set_id2:
                     ''' Remove id2 from the value of intra potential mapping of id1 '''
@@ -407,7 +413,7 @@ def tracking_algorithm(two_timestep_data, intra_potential_mapping: defaultdict[s
     # print("Visited Inter mapping prior phase 3")
     # pprint(visited_inter_list)
     ''' Update the intra potential mappings based on inter potential mappings '''
-    intra_potential_mapping, visited_intra_list = tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_intra_list)
+    intra_potential_mapping, visited_intra_list = tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_intra_list, ENABLE_PARTIAL_COVERAGE)
     
     return intra_potential_mapping, inter_potential_mapping, visited_inter_list, visited_intra_list
 
