@@ -38,19 +38,19 @@ for filename in sorted(glob.glob(os.path.join(folder_path, '*.pcap'))):
     if s[0] == "wifi":
         with pyshark.FileCapture(filename, display_filter="", keep_packets=True) as cap:
             for i, packet in enumerate(cap):
-                tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
+                tranmission_times.add((float(packet.frame_info.time_relative)))
     elif s[0] == "lte":
         with pyshark.FileCapture(filename, display_filter="mac-lte.direction == 0", keep_packets=True, ) as cap:
             for i, packet in enumerate(cap):
                 # print(packet.frame_info._all_fields)
                 # print(packet.frame_info.time_relative)
-                tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
+                tranmission_times.add((float(packet.frame_info.time_relative)))
     elif s[0] == "ble":
         with pyshark.FileCapture(filename, display_filter="", keep_packets=True, ) as cap:
             for i, packet in enumerate(cap):
                 # print(packet.frame_info._all_fields)
                 # print(packet.frame_info.time_relative)
-                tranmission_times.add(math.floor(float(packet.frame_info.time_relative)))
+                tranmission_times.add((float(packet.frame_info.time_relative)))
                 # break
         # print(sorted(list(tranmission_times)))
     transmission_interval = np.diff(sorted(list(tranmission_times)))

@@ -305,12 +305,12 @@ def tracking_phase_3(inter_potential_mapping, intra_potential_mapping, visited_i
                 set_id2: set = set(inter_potential_mapping[id2][p])
                 
                 common_set = set_id1.intersection(set_id2)
-                # if not ENABLE_PARTIAL_COVERAGE:
-                #     if not set_id1 or not set_id2:
-                #         raise Exception("Null Ids exists somewhere prior")
-                # else:
-                #     if not set_id1 or not set_id2:
-                #         continue
+                if not ENABLE_PARTIAL_COVERAGE:
+                    if not set_id1 or not set_id2:
+                        raise Exception("Null Ids exists somewhere prior")
+                else:
+                    if not set_id1 or not set_id2:
+                        continue
                 # print(id1, id2, common_set, set_id1, set_id2)
                 if not common_set:# and set_id1 and set_id2:
                     ''' Remove id2 from the value of intra potential mapping of id1 '''

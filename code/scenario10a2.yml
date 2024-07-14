@@ -1,0 +1,100 @@
+# General simulation settings
+# variables:
+#   &user_timesteps 18400
+
+general:
+  USER_TIMESTEPS: 25200               # Number of user timesteps
+  DATA_USECASE: "scenario"
+  IDENTIFIER_LENGTH: 12               # Number of characters in identifier
+
+user_threshold:
+  TOTAL_NUMBER_OF_USERS: 512          # Create only same set of users for different run
+  ENABLE_USER_THRESHOLD: true        # Enable user threshold
+  LIMIT_USER_NUM_USERS: 256
+  LIMIT_USER_AFTER_USER_DATA: false
+
+# Movement Parameters
+movement_parameters:
+  POLYGON_COORDS:                     # Polygon coordinates
+    - [3499.77, 1500.07]
+    - [5798.43, 3799.93]
+    - [6452.11, 3150.56]
+    - [5401.44, 2099.71]
+    - [5751.91, 1749.63]
+    - [4500.10, 498.92]
+  # MAX_STEP_SIZE: 2                    # Step size
+  # PROBABILITY_PAUSE: 0.3              # Probability of pause
+  # PAUSE_DURATION_MIN: 1               # Minimum pause duration
+  # PAUSE_DURATION_MAX: 5               # Maximum pause duration
+
+tracking_and_reconstruction_until:
+  TRACK_AND_RECONSTRUCT_UNTIL_TIMESTEP: false
+  TRACK_UNTIL: 18797
+  FIRST_TIMESTEP: 18002
+
+countermeasure:
+  ENABLE_SAME_REFRESH: false
+  ENABLE_PROXIMITY_REFRESH: false
+
+# Randomization Intervals
+randomization_intervals:
+  # Bluetooth IDs refresh range uniform (in seconds)
+  BLUETOOTH_MIN_REFRESH: 600
+  BLUETOOTH_MAX_REFRESH: 900
+
+  # WiFi ID refresh range uniform (in seconds)
+  WIFI_MIN_REFRESH: 1
+  WIFI_MAX_REFRESH: 60
+
+  # LTE refresh range uniform (in seconds)
+  LTE_MIN_REFRESH: 720
+  LTE_MAX_REFRESH: 1800
+
+#Transmission Intervals
+transmission_intervals:
+  # Bluetooth IDs transmit range uniform (in seconds)
+  BLUETOOTH_MIN_TRANSMIT: 0
+  BLUETOOTH_MAX_TRANSMIT: 60
+
+  # WiFi ID transmit range uniform (in seconds)
+  WIFI_MIN_TRANSMIT: 0
+  WIFI_MAX_TRANSMIT: 60
+
+  # LTE transmit range uniform (in seconds)
+  LTE_MIN_TRANSMIT: 0
+  LTE_MAX_TRANSMIT: 60
+
+# Range for communication protocols
+communication_range:
+  BLUETOOTH_RANGE: 30                # Bluetooth range (in meters)
+  WIFI_RANGE: 60                     # WiFi range (in meters)
+  LTE_RANGE: 100                     # LTE range (in meters)
+
+# Localization errors
+localization_errors:
+  BLUETOOTH_LOCALIZATION_ERROR: 1    # Bluetooth localization error (in meters)
+  WIFI_LOCALIZATION_ERROR: 5         # WiFi localization error (in meters)
+  LTE_LOCALIZATION_ERROR: 10         # LTE localization error (in meters)
+
+smart:
+  ENABLE_SMART_TRACKING: false
+
+# Mobility settings
+mobility:
+  MAX_MOBILITY_FACTOR: 0.8        # Mobility factor in m/s
+
+countermeasure:
+  ENABLE_SYNCED_RANDOMIZATION: false
+  PROTOCOL_MIN_REFRESH: 0
+  PROTOCOL_MAX_REFRESH: 300
+
+# Sniffer settings
+sniffer:
+  GENERATE_SNIFFER_DATA: false
+  ENABLE_PARTIAL_COVERAGE: true
+  ENABLE_MULTILATERATION: true
+  ENABLE_BLUETOOTH: true       # Enable Bluetooth
+  ENABLE_WIFI: true            # Enable Bluetooth
+  ENABLE_LTE: true             # Enable Bluetooth
+
+  SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size

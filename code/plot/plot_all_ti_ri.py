@@ -8,15 +8,13 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 
-def remove_outliers(values):
+def remove_outliers(values, percentile=90):
     Q1 = np.percentile(values, 25)
-    Q3 = np.percentile(values, 75)
+    Q3 = np.percentile(values, percentile)
     IQR = Q3 - Q1
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
     return [x for x in values if lower_bound <= x <= upper_bound]
-
-
 
 # Load your JSON data (replace 'your_json_data' with the actual JSON string or load from a file)
 # your_json_data = """
@@ -44,12 +42,14 @@ with open(f"data/ti.json", 'r') as f:
     data = json.load(f)
 
 
-data["ble_sm11_randomization"] = [662, 897, 817]
 data["ble_opn_randomization"] = [723, 795, 546, 431]
+data["ble_sm11_randomization"] = [662, 897, 817]
 
-data["wifi_opn_connected"] = data["wifi_opn_connected_inactive"]+data["wifi_opn_connected_active"]
-data["wifi_rk50_connected"] = data["wifi_rk50_connected_inactive"]+data["wifi_rk50_connected_active"]
-data["wifi_sm11_connected"] = data["wifi_sm11_connected_inactive"]+data["wifi_sm11_connected_active"]
+data["ble_opn_disconnected"] = data["ble_opn"]
+data["ble_sm11_disconnected"] = data["ble_sm11"]
+# data["wifi_opn_connected"] = data["wifi_opn_connected_inactive"]+data["wifi_opn_connected_active"]
+# data["wifi_rk50_connected"] = data["wifi_rk50_connected_inactive"]+data["wifi_rk50_connected_active"]
+# data["wifi_sm11_connected"] = data["wifi_sm11_connected_inactive"]+data["wifi_sm11_connected_active"]
 
 # Prepare a list to collect the relevant data
 records = []
@@ -61,11 +61,34 @@ for key, values in data.items():
     protocol, device, *mode = key.split('_')
     mode = '_'.join(mode) if mode else None
     
+    # if protocol == "ble":
+    #     print(values)
     
-    if (protocol == "ble") or (protocol == "wifi" and device == "opn" and mode == "connected_active") or (protocol == "wifi" and device == "sm11" and mode == "connected_active"):
-        pass
-    else:
-        values = remove_outliers(values)
+    if (protocol == "wifi"):
+        if (mode == "connected_inactive"):
+            values = remove_outliers(values, percentile=90)
+        if (mode == "connected_active"):
+            values = remove_outliers(values, percentile=90)
+            
+    if (protocol == "lte"):
+        if mode == "inactive":
+            values = remove_outliers(values, percentile=98)
+        if mode == "active":
+            values = remove_outliers(values, percentile=98)
+    
+    # if (protocol )
+    # if (protocol == 'ble')
+    # if (protocol == "ble"):
+    #     if mode == 'disconnected':
+    #         values = remove_outliers(values, percentile=90)
+        
+    # if (protocol == "ble") or (protocol == "wifi" and device == "opn" and mode == "connected_active") or (protocol == "wifi" and device == "sm11" and mode == "connected_active"):
+    #     pass
+    # else:
+    #     values = remove_outliers(values)
+    
+    # if (protocol == "lte" and device == "sm11" and mode == "connected_inactive"):
+    #     values = remove_outliers(values)
         
     for value in values:
         records.append({
@@ -78,6 +101,7 @@ for key, values in data.items():
 # Convert the list of records to a pandas DataFrame
 df = pd.DataFrame(records)
 
+# print(df.max())
 if (df['transmission_time'] < 0).any():
     raise ValueError("Negative values found in transmission_time data.")
 
@@ -104,7 +128,7 @@ conditions = [
     {'protocol': 'lte', 'mode': 'active'},
     {'protocol': 'wifi', 'mode': 'connected_inactive'},
     {'protocol': 'wifi', 'mode': 'connected_active'},
-    {'protocol': 'wifi', 'mode': 'connected'},
+    # {'protocol': 'wifi', 'mode': 'connected'},
     {'protocol': 'wifi', 'mode': 'disconnected'},
     {'protocol': 'ble', 'mode': 'randomization'},
     {'protocol': 'ble', 'mode': 'disconnected'},

@@ -17,7 +17,7 @@ ml = MyLogger(f"sl_coordinates_{DB_NAME}")
 ENABLE_BLUETOOTH = False #str_to_bool(os.getenv("ENABLE_BLUETOOTH"))
 WIFI_RANGE = int(os.getenv("WIFI_RANGE", 30))
 BLUETOOTH_RANGE = int(os.getenv("BLUETOOTH_RANGE", 10))
-LTE_RANGE = int(os.getenv("LTE_RANGE", 96))
+LTE_RANGE = int(os.getenv("LTE_RANGE", 10))
 
 
 def is_point_inside_polygon(x, y, polygon):

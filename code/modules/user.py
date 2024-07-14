@@ -37,6 +37,7 @@ class User:
         self.next_bluetooth_refresh = 0
         self.next_wifi_refresh = 0
         self.next_lte_refresh = 0
+        
         self.next_protocol_refresh = 0
         
         self.randomized_bluetooth = False
@@ -60,6 +61,9 @@ class User:
         self.ENABLE_SYNCED_RANDOMIZATION = str_to_bool(os.getenv("ENABLE_SYNCED_RANDOMIZATION", "false"))
         self.PROTOCOL_MIN_REFRESH = float(os.getenv("PROTOCOL_MIN_REFRESH", 0))
         self.PROTOCOL_MAX_REFRESH = float(os.getenv("PROTOCOL_MAX_REFRESH", 0))
+        
+        # print(self.PROTOCOL_MIN_REFRESH)
+        # print(self.PROTOCOL_MAX_REFRESH)
         
         if not self.ENABLE_SYNCED_RANDOMIZATION:
             self.set_next_bluetooth_refresh()
@@ -86,9 +90,7 @@ class User:
 
     def set_next_protocol_refresh(self):
         duration = randint(self.PROTOCOL_MIN_REFRESH, self.PROTOCOL_MAX_REFRESH)
-        self.next_wifi_refresh = self.identifier_counter + duration
-        self.next_bluetooth_refresh = self.identifier_counter + duration
-        self.next_lte_refresh = self.identifier_counter + duration
+        self.next_protocol_refresh = self.identifier_counter + duration
         
     def set_next_wifi_refresh(self):
         duration = randint(self.WIFI_MIN_REFRESH, self.WIFI_MAX_REFRESH)
@@ -102,31 +104,7 @@ class User:
     def randomize_identifiers(self):
         self.identifier_counter += 1
 
-        if not self.ENABLE_SYNCED_RANDOMIZATION:
-            if self.identifier_counter >= self.next_bluetooth_refresh:
-                # print("Randomized ble")
-                self.set_next_bluetooth_refresh()
-                self.temp_bluetooth_id = random_identifier()
-                self.randomized_bluetooth = True
-            else:
-                self.randomized_bluetooth = False
-
-            if self.identifier_counter >= self.next_wifi_refresh:
-                # print("randomized wifi")
-                self.set_next_wifi_refresh()
-                self.temp_wifi_id = random_identifier()
-                self.randomized_wifi = True
-            else:
-                self.randomized_wifi = False
-
-            if self.identifier_counter >= self.next_lte_refresh:
-                # print("randomized lte")
-                self.set_next_lte_refresh()
-                self.temp_lte_id = random_identifier()
-                self.randomized_lte = True
-            else:
-                self.randomized_lte = False
-        else:
+        if self.ENABLE_SYNCED_RANDOMIZATION:
             if self.identifier_counter >= self.next_protocol_refresh:
                 # print("Randomized ble")
                 self.set_next_protocol_refresh()
@@ -140,6 +118,32 @@ class User:
                 self.randomized_bluetooth = False
                 self.randomized_wifi = False
                 self.randomized_lte = False
+                
+            return
+                
+        if self.identifier_counter >= self.next_bluetooth_refresh:
+            # print("Randomized ble")
+            self.set_next_bluetooth_refresh()
+            self.temp_bluetooth_id = random_identifier()
+            self.randomized_bluetooth = True
+        else:
+            self.randomized_bluetooth = False
+
+        if self.identifier_counter >= self.next_wifi_refresh:
+            # print("randomized wifi")
+            self.set_next_wifi_refresh()
+            self.temp_wifi_id = random_identifier()
+            self.randomized_wifi = True
+        else:
+            self.randomized_wifi = False
+
+        if self.identifier_counter >= self.next_lte_refresh:
+            # print("randomized lte")
+            self.set_next_lte_refresh()
+            self.temp_lte_id = random_identifier()
+            self.randomized_lte = True
+        else:
+            self.randomized_lte = False
             
     def transmit_identifiers(self):
         ''' since identifier count is increased in randomize identifiers, not increasing during transmit '''

@@ -178,6 +178,9 @@ def clean_db():
     """Clean the MongoDB database."""
     run_command(f'mongosh --eval "db.getSiblingDB(\'{DB_NAME}\').dropDatabase()"')
 
+def partial_reconstruction():
+    run_command('python3 reconstruction/reconstruction_precompute_partial.py')
+
 def after_aggregate_without_smart():
     multi()
     reconstruction_without_smart()
@@ -311,5 +314,6 @@ tasks = {
     "sanity_group": sanity_group,
     "reconstruction_baseline_smart": reconstruction_baseline_smart,
     "sanity_incompatible": sanity_incompatible,
-    "group_checker": group_checker
+    "group_checker": group_checker,
+    "partial_reconstruction": partial_reconstruction
 }

@@ -10,21 +10,21 @@ marker_interval = 50
 plt.figure(figsize=(10, 6))
 
 
-full_multilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5b2.csv')
-full_multilateration_scores = full_multilateration_df['privacy_score'].values
-full_multilateration_scores_sorted = np.sort(full_multilateration_scores)
-full_multilateration_users = np.arange(1, len(full_multilateration_scores_sorted) + 1)
-count_users_privacy_1 = full_multilateration_df[full_multilateration_df['privacy_score'] == 1.0].shape[0]
-count_users_privacy_2 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.95].shape[0]
-count_users_privacy_3 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.9].shape[0]
-count_users_privacy_4 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.8].shape[0]
-print(f"Total number of users for Full Cov Multilateration with privacy_score == 1.0: {count_users_privacy_1} - {count_users_privacy_1/512}")
-print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.95: {count_users_privacy_2} - {count_users_privacy_2/512}")
-print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.9: {count_users_privacy_3} - {count_users_privacy_3/512}")
-print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.8: {count_users_privacy_4} - {count_users_privacy_4/512}")
-plt.plot(full_multilateration_users, full_multilateration_scores_sorted, label='Full Coverage with Multilateration', alpha=0.7, linewidth=3, color="#61304B", marker='+', markevery=marker_interval)
+# full_multilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5b2.csv')
+# full_multilateration_scores = full_multilateration_df['privacy_score'].values
+# full_multilateration_scores_sorted = np.sort(full_multilateration_scores)
+# full_multilateration_users = np.arange(1, len(full_multilateration_scores_sorted) + 1)
+# count_users_privacy_1 = full_multilateration_df[full_multilateration_df['privacy_score'] == 1.0].shape[0]
+# count_users_privacy_2 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.95].shape[0]
+# count_users_privacy_3 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.9].shape[0]
+# count_users_privacy_4 = full_multilateration_df[full_multilateration_df['privacy_score'] >= 0.8].shape[0]
+# print(f"Total number of users for Full Cov Multilateration with privacy_score == 1.0: {count_users_privacy_1} - {count_users_privacy_1/512}")
+# print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.95: {count_users_privacy_2} - {count_users_privacy_2/512}")
+# print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.9: {count_users_privacy_3} - {count_users_privacy_3/512}")
+# print(f"Total number of users for Full Cov Multilateration with privacy_score >= 0.8: {count_users_privacy_4} - {count_users_privacy_4/512}")
+# plt.plot(full_multilateration_users, full_multilateration_scores_sorted, label='Full Coverage with Multilateration', alpha=0.7, linewidth=3, color="#61304B", marker='+', markevery=marker_interval)
 
-# partial_nomultilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5c2.csv')
+# partial_nomultilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5c2_.csv')
 # partial_nomultilateration_scores = partial_nomultilateration_df['privacy_score'].values
 # partial_nomultilateration_scores_sorted = np.sort(partial_nomultilateration_scores)
 # partial_nomultilateration_users = np.arange(1, len(partial_nomultilateration_scores_sorted) + 1)
@@ -38,7 +38,7 @@ plt.plot(full_multilateration_users, full_multilateration_scores_sorted, label='
 # # print(f"Total number of users for LTE-WIFI with privacy_score >= 0.8: {count_users_privacy_4}")
 # plt.plot(partial_nomultilateration_users, partial_nomultilateration_scores_sorted, label='Partial Coverage with No Multilateration', alpha=0.7, linewidth=3, color="#a6d854", marker='>', markevery=marker_interval)
 
-# partial_multilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5d2.csv')
+# partial_multilateration_df = pd.read_csv(f'csv/multi_protocol_scenario5d2_.csv')
 # partial_multilateration_scores = partial_multilateration_df['privacy_score'].values
 # partial_multilateration_scores_sorted = np.sort(partial_multilateration_scores)
 # partial_multilateration_users = np.arange(1, len(partial_multilateration_scores_sorted) + 1)
@@ -64,9 +64,7 @@ print(f"Total number of users for LTE-WIFI-BLE with privacy_score == 1.0: {count
 print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.95: {count_users_privacy_2}")
 print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.9: {count_users_privacy_3}")
 print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.8: {count_users_privacy_4}")
-
-
-plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Full Coverage with No Multilateration', alpha=0.7, linewidth=3, color="#000000", marker='*', markevery=marker_interval)
+plt.plot(multi_protocol_users, multi_protocol_users, label='Full Coverage with No Multilateration', alpha=0.7, linewidth=3, color="#000000", marker='*', markevery=marker_interval)
 
 # plt.margins(0)
 # plt.autoscale(enable=True, axis='both', tight=True)

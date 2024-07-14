@@ -10,23 +10,23 @@ marker_interval = 50
 plt.figure(figsize=(10, 6))
 
 # Load the CSV files
-baseline_wifi_df = pd.read_csv(f'csv/baseline_wifi_scenario1a4.csv')
+baseline_wifi_df = pd.read_csv(f'csv/baseline_smart_wifi_scenario4a2.csv')
 baseline_wifi_scores = baseline_wifi_df['privacy_score'].values
 baseline_wifi_scores_sorted = np.sort(baseline_wifi_scores)
 baseline_wifi_users = np.arange(1, len(baseline_wifi_scores_sorted) + 1)
-plt.plot(baseline_wifi_users, baseline_wifi_scores_sorted, label='Naive Baseline (WiFi)', linestyle=':', alpha=0.7, linewidth=3, color="#66c2a5", marker='o', markevery=marker_interval)
+plt.plot(baseline_wifi_users, baseline_wifi_scores_sorted, label='Single Protocol (WiFi)', linestyle=':', alpha=0.7, linewidth=3, color="#66c2a5", marker='o', markevery=marker_interval)
 
-baseline_ble_df = pd.read_csv(f'csv/baseline_ble_scenario1a1.csv')
+baseline_ble_df = pd.read_csv(f'csv/baseline_smart_ble_scenario4a2.csv')
 baseline_ble_scores = baseline_ble_df['privacy_score'].values
 baseline_ble_scores_sorted = np.sort(baseline_ble_scores)
 baseline_ble_users = np.arange(1, len(baseline_ble_scores_sorted) + 1)
-plt.plot(baseline_ble_users, baseline_ble_scores_sorted, label='Naive Baseline (Bluetooth)', linestyle=':', alpha=0.7, linewidth=3, color="#8da0cb", marker='s', markevery=marker_interval)
+plt.plot(baseline_ble_users, baseline_ble_scores_sorted, label='Single Protocol (Bluetooth)', linestyle=':', alpha=0.7, linewidth=3, color="#8da0cb", marker='s', markevery=marker_interval)
 
-baseline_lte_df = pd.read_csv(f'csv/baseline_lte_scenario1a1.csv')
+baseline_lte_df = pd.read_csv(f'csv/baseline_smart_lte_scenario4a2.csv')
 baseline_lte_scores = baseline_lte_df['privacy_score'].values
 baseline_lte_scores_sorted = np.sort(baseline_lte_scores)
 baseline_lte_users = np.arange(1, len(baseline_lte_scores_sorted) + 1)
-plt.plot(baseline_lte_users, baseline_lte_scores_sorted, label='Naive Baseline (LTE)', linestyle=':', alpha=0.7, linewidth=3, color="#fdc086", marker='v', markevery=marker_interval)
+plt.plot(baseline_lte_users, baseline_lte_scores_sorted, label='Single Protocol (LTE)', linestyle=':', alpha=0.7, linewidth=3, color="#fdc086", marker='v', markevery=marker_interval)
 
 ble_wifi_df = pd.read_csv(f'csv/multi_protocol_scenario1a4.csv')
 ble_wifi_scores = ble_wifi_df['privacy_score'].values
