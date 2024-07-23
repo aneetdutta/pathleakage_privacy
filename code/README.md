@@ -4,7 +4,7 @@
 
 Official Repository for the paper titled "CrossLink: Breaking Location Privacy by Linking Device Identifiers Across Protocols" 
 
-![pipeline of the attack](/media/wisec/data/path-leakage/code/design/design_arch.png)
+![pipeline of the attack](https://projects.cispa.saarland/c01mrsi/path-leakage/-/blob/feature/parser/code/design/design_arch.png)
 
 ## Simulation Experiment
 
