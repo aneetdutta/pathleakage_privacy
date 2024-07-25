@@ -63,6 +63,8 @@ python3 main.py -c project.yml -t help
 
 #### 2. Data Generation Phase
 
+##### 2.1 Sumo Simulation (Raw data generation)
+
 The environment variables required are ```POLYGON_COORDS``` and ```USER_TIMESTEPS``` for running the sumo simulation code. Here the user movements data would generated.
 
 This can be run with the command
@@ -74,5 +76,70 @@ With this command, the file with name ```raw_user_data_<config filename>.csv``` 
 Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/``` folder.
 
 
+##### 2.2 User data generation
 
 To generate user data based on this obtained sumo simulation data, we require to configure following env variables: 
+
+Parameters to set transmission interval are:
+```BLUETOOTH_MIN_TRANSMIT,BLUETOOTH_MAX_TRANSMIT,WIFI_MIN_TRANSMIT,WIFI_MAX_TRANSMIT,LTE_MIN_TRANSMIT,LTE_MAX_TRANSMIT```  for Bluetooth, WiFi and LTE protocols.
+
+Parameters to set randomization interval are: 
+```BLUETOOTH_MIN_REFRESH,BLUETOOTH_MAX_REFRESH,WIFI_MIN_REFRESH,WIFI_MAX_REFRESH,LTE_MIN_REFRESH,LTE_MAX_REFRESH``` for Bluetooth, WiFi and LTE protocols.
+
+Parameters to enable synced randomization (Randomization at the same time) are: ```ENABLE_SYNCED_RANDOMIZATION, PROTOCOL_MIN_REFRESH, PROTOCOL_MAX_REFRESH```.
+
+Apart from these params, few generic parameters to set are:
+```DATA_USECASE```: here to run our scenario on previous ```raw_user_data_<config filename>.csv``` config file, ```DATA_USECASE = <config filename>```
+For our usecase, ```DATA_USECASE = project```.
+Users get added after every timesteps. To ensure that we want only a particular amount of users or less in the simulation, we should use ```ENABLE_USER_THRESHOLD, TOTAL_NUMBER_OF_USERS```.
+The ```MAX_MOBILITY_FACTOR``` ensures the max mobility of the users that could be captured. By setting this, any users beyond the max mobility would be filtered.
+
+To generate user data, we can run the command
+```bash
+python3 main.py -c project.yml -t generate_user_data
+```
+
+With this command, the file with name ```user_data_<config filename>.csv``` would be created.
+Here for ```project.yml```, ```user_data_project.csv``` file would be created in the ```data/``` folder.
+
+
+
+> Note: This is RAM intensive (as the code is not optimized). The SUMO data gets loaded in the memory and for filtering, multiple copies are made in the memory.
+
+
+##### 2.3 Sniffer data generation
+
+To generate the sniffer, first we need to check the sniffer placements. To generate the sniffer location coordinates, one can directly run 
+```bash
+python3 services/sl_coordinates.py
+```
+To enable diverse range of polygon co-ordinates, the required editing can be performed in ```service/sl_coordinates.py``` file.
+Alternatively, we provide ```full_coverage_ble_sniffer_location.json```, ```full_coverage_wifi_sniffer_location.json``` and ```partial_coverage_sniffer_location.json``` files in the ```data``` folder.
+
+These files can be directly used for generating the sniffer data.
+
+For generating the sniffer data, we need to set the following parameters:
+
+Parameters for Protocol Range are: ```BLUETOOTH_RANGE, WIFI_RANGE, LTE_RANGE``` 
+
+For parallel processing we split the user data into batches. Thus, we need to set ```SNIFFER_PROCESSING_BATCH_SIZE```.
+
+Apart from this, we need to also set the protocols that sniffer can sniff through with:```ENABLE_BLUETOOTH, ENABLE_WIFI, ENABLE_LTE```.
+
+If we need to use ```partial_coverage_sniffer_location.json```, we need to set ```ENABLE_PARTIAL_COVERAGE```.
+
+Once we have set the parameters, we can generate the sniffer data through command
+```bash
+python3 main.py -c project.yml -t generate_sniffer_data
+```
+With this command, the file with name ```sniffed_data_<config filename>.csv``` would be created.
+Here for ```project.yml```, ```sniffed_data_project.csv``` file would be created in the ```data/``` folder.
+
+
+Once this data is generated, we can now push this to the MongoDB through the command:
+```bash
+python3 main.py -c project.yml -t import_data_mongo
+```
+
+#### 3. Data Aggregation Phase
+
