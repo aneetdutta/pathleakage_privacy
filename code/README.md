@@ -135,11 +135,81 @@ python3 main.py -c project.yml -t generate_sniffer_data
 With this command, the file with name ```sniffed_data_<config filename>.csv``` would be created.
 Here for ```project.yml```, ```sniffed_data_project.csv``` file would be created in the ```data/``` folder.
 
+##### 2.4 Importing data to MongoDB
 
 Once this data is generated, we can now push this to the MongoDB through the command:
 ```bash
 python3 main.py -c project.yml -t import_data_mongo
 ```
 
+Once data is imported, we can find the sniffed_data and user_data collections created under the file_name (Database name). For our case, we will have database name - project.
+
+
+To automate 2.2 - 2.4, we can directly run command
+```bash
+python3 main.py -c project.yml -t user_data
+```
+
+To clean all data and generate from fresh - all the data from task 2.1 to 2.4, we can directly run command 
+```bash
+python3 main.py -c project.yml -t data_gen
+```
+
 #### 3. Data Aggregation Phase
+
+Data aggregation phase consists of
+- Aggregation by sniffers
+- Aggregation by users
+- Aggregation by timesteps '''
+
+First we parsed and add content to the sniffed_data by running ```group/aggregate_sniffer_timesteps.py```
+Then we aggregate through ```group/aggregation.py```.
+
+Both these procedures are run with command:
+```bash
+python3 main.py -c project.yml -t aggregate
+```
+
+Once the aggregation is completed, we will have the following collections found in our database ```project``:
+```aggregate_timesteps```, ```aggregate_users```, ```aggregated_sniffer```.
+
+
+#### 4. Grouping Phase
+
+To generate initial set of inter-protocol linkages, we would run the grouping python files.
+
+Here we would be required to set the following parameters:
+
+Parameter to set the Localization Error are: ```BLUETOOTH_LOCALIZATION_ERROR```, ```WIFI_LOCALIZATION_ERROR```, ```LTE_LOCALIZATION_ERROR```.
+
+Additionally if we wish to use Multilateration, we should set it to true else false.
+Parameter for multilateration is ```ENABLE_MULTILATERATION```.
+
+To run single protocol grouping, we enable multi-lateration by default.
+
+For multi-protocol, we would run the command:
+```bash
+python3 main.py -c project.yml -t group_multi
+```
+We would have the collection ```groups``` added the database.
+
+For single-protocol, we would run the command:
+```bash
+python3 main.py -c project.yml -t group_smart
+```
+We would have the collection ```groups_smart``` added the database.
+
+#### 5. Tracking Phase
+
+Similarly for tracking, we would run the single protocol or multi-protocol.
+
+For multi-protocol, we would run the command:
+```bash
+python3 main.py -c project.yml -t tracking_multi
+```
+
+For single-protocol, we would run the command:
+```bash
+python3 main.py -c project.yml -t tracking_smart
+```
 
