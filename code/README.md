@@ -50,10 +50,14 @@ To ensure our readers have an understand of the code, we will try to follow an e
 First we configure the ```project.yml``` file. All the below mentioned environment variables are part of this config file. This would be situated in the code folder of the repository. 
 
 To understand the argument params, the command used would be:
-```python3 main.py -h```
+```bash 
+python3 main.py -h
+```
 
 To know the pipelines for running the code, run the command
-```python3 main.py -c project.yml -t help```
+```bash
+python3 main.py -c project.yml -t help
+```
 
 **(Ensure that the shell path is situated in the code folder and not in the root folder to run the code.)**.
 
@@ -62,7 +66,9 @@ To know the pipelines for running the code, run the command
 The environment variables required are ```POLYGON_COORDS``` and ```USER_TIMESTEPS``` for running the sumo simulation code. Here the user movements data would generated.
 
 This can be run with the command
-```python3 main.py -c project.yml -t sumo```
+```bash
+python3 main.py -c project.yml -t sumo
+```
 
 With this command, the file with name ```raw_user_data_<config filename>.csv``` would be created.
 Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/``` folder.
