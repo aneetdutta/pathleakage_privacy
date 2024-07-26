@@ -27,8 +27,18 @@ Once the poetry tool is installed, the packages can be installed using ```poetry
 
 
 ## TODO before you start
+0) Clone the repository with 
+```bash
+https://projects.cispa.saarland/c01mrsi/path-leakage.git
+```
+and checkout the branch ```feature/parser``` with command:
+```bash
+git checkout feature/parser
+```
 
-1) Check the ```*.yml``` file which you make. This file contains the conigurations required for the simulation setup.
+
+
+1) Check the ```<config file name>.yml``` file which you make. This file contains the conigurations required for the simulation setup.
 
 2) Install mongodb through the [official website](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
 
@@ -183,20 +193,25 @@ Here we would be required to set the following parameters:
 Parameter to set the Localization Error are: ```BLUETOOTH_LOCALIZATION_ERROR```, ```WIFI_LOCALIZATION_ERROR```, ```LTE_LOCALIZATION_ERROR```.
 
 Additionally if we wish to use Multilateration, we should set it to true else false.
+
 Parameter for multilateration is ```ENABLE_MULTILATERATION```.
 
 To run single protocol grouping, we enable multi-lateration by default.
 
 For multi-protocol, we would run the command:
+
 ```bash
 python3 main.py -c project.yml -t group_multi
 ```
+
 We would have the collection ```groups``` added the database.
 
 For single-protocol, we would run the command:
+
 ```bash
 python3 main.py -c project.yml -t group_smart
 ```
+
 We would have the collection ```groups_smart``` added the database.
 
 #### 5. Tracking Phase
@@ -204,11 +219,13 @@ We would have the collection ```groups_smart``` added the database.
 Similarly for tracking, we would run the single protocol or multi-protocol.
 
 For multi-protocol, we would run the command:
+
 ```bash
 python3 main.py -c project.yml -t tracking_multi
 ```
 
 For single-protocol, we would run the command:
+
 ```bash
 python3 main.py -c project.yml -t tracking_smart
 ```
@@ -216,7 +233,8 @@ python3 main.py -c project.yml -t tracking_smart
 
 To run the grouping and tracking phase (Phase 4 ad Phase 5 together)
 
-We can run the following command from the pipeline
+We can run the following command from the pipeline.
+
 For multi-protocol -
 ```bash
 python3 main.py -c project.yml -t multi
@@ -269,7 +287,7 @@ python3 main.py -c project.yml -t sanity
 ```
 
 
-#### 7. Reconstruction
+#### 7. Recreconstruction_without_smartonstruction
 
 Once we have received the linkages through tracking. We will create user traces through reconstruction.
 
