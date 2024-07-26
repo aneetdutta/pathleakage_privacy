@@ -297,7 +297,7 @@ python3 main.py -c project.yml -t sanity
 ```
 
 
-#### 7. Recreconstruction_without_smartonstruction
+#### 7. Reconstruction
 
 Once we have received the linkages through tracking. We will create user traces through reconstruction.
 
