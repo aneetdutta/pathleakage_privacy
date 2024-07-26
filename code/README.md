@@ -213,3 +213,145 @@ For single-protocol, we would run the command:
 python3 main.py -c project.yml -t tracking_smart
 ```
 
+
+To run the grouping and tracking phase (Phase 4 ad Phase 5 together)
+
+We can run the following command from the pipeline
+For multi-protocol -
+```bash
+python3 main.py -c project.yml -t multi
+```
+
+For single protocol -
+```bash
+python3 main.py -c project.yml -t smart
+```
+
+#### 6. Sanity check
+
+Here, we apply three sanity checks to verify that the algorithm that we developed has any errors or not.
+
+
+##### 6.1 Group checker
+
+This check counts the groups with single protocol identifer and the groups with multiprotocol identifers
+
+This helps to verify if there are any single mappings found during the initial interlinks creation
+
+We run this using the command:
+```bash
+python3 main.py -c project.yml -t group_checker
+```
+
+##### 6.2 Incompatible Group checker
+
+This checks whether the incompatible list created during the grouping, consists of any identifiers with same user id corresponding to their identifiers.
+If any then counts and prints them
+
+We run this using the command:
+```bash
+python3 main.py -c project.yml -t sanity_incompatible
+```
+
+To run 6.1 and 6.2 together, we run the pipeline command:
+
+```bash
+python3 main.py -c project.yml -t sanity_group
+```
+
+##### 6.3 Sanity Report
+
+This check provides details on the overall users and corresponding metrics for inter and intra links created.
+
+We run this using the command:
+```bash
+python3 main.py -c project.yml -t sanity
+```
+
+
+#### 7. Reconstruction
+
+Once we have received the linkages through tracking. We will create user traces through reconstruction.
+
+##### 7.1 Reconstruct the user data
+
+This is a prior data preparation step.
+
+Where we add the start timestep and final timestep of a user by merge aggregate timestep collection to aggregate user collection.
+
+We run the command:
+```bash
+python3 main.py -c project.yml -t reconstruction_user_data
+```
+
+
+##### 7.2 Reconstruct baseline data
+
+Here we reconstruct the baseline (single protocol without localization)
+
+We run the command:
+```bash
+python3 main.py -c project.yml -t reconstruction_baseline
+```
+
+##### 7.3 Reconstruct multi protocol
+
+To reconstruct multi protocol
+We run the command:
+```bash
+python3 main.py -c project.yml -t reconstruction_multi
+```
+##### 7.4 Reconstruct single protocol
+
+To reconstruct single protocol, we run the command:
+```bash
+python3 main.py -c project.yml -t reconstruction_baseline_smart
+```
+
+> Note: For running single protocol or multi protocol, we need to run the baseline first as it prepares data necessary for running these pipelines.
+
+##### 7.5 Reconstruct partial coverage (for multi protocol)
+
+To reconstruct during partial coverage scenario, we run the command
+```bash
+python3 main.py -c project.yml -t partial_reconstruction
+```
+
+To automate step 7.1, 7.2, 7.3, we run the command:
+```bash
+python3 main.py -c project.yml -t reconstruction_without_smart
+```
+
+Finally after reconstruction, the files would be present in ```csv/``` folder.
+
+For baseline, the files would named as:
+
+```baseline_<protocol>_<config file name>.yml```
+
+In our case, it would be for example:
+```baseline_ble_project.csv```, ```baseline_wifi_project.csv```, ```baseline_lte_project.csv```
+
+For single protocol, the files would named as:
+
+```baseline_smart_<protocol>_<config file name>.yml```
+
+In our case, it would be for example:
+```baseline_smart_ble_project.csv```, ```baseline_smart_wifi_project.csv```, ```baseline_smart_lte_project.csv```
+
+For multi protocol,
+we have the file names:
+```multi_protocol_<config file name>.yml```
+
+In our case, it would be:
+```multi_protocol_project.yml```
+
+
+#### 8. Plotting the graphs
+
+Once we have reconstructed and found the user traces, we plot the cdf graph for it.
+
+This can be done using the command:
+```bash
+python3 main.py -c project.yml -t plot
+```
+The plots would be present in the ```images/``` folder
