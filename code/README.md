@@ -25,6 +25,9 @@ Our code works on most of the hardware settings. However, for efficiency and spe
 The requirements for the code are listed in the ```pyproject.toml```. These requirements require poetry package to be installed. ```pip3 install poetry```.
 Once the poetry tool is installed, the packages can be installed using ```poetry install``` command and then using ```poetry shell```, the temporary shell can be invoked to run the code.
 
+## Repository structure
+
+The repository structure can be found in the ```misc/detailed_readme.md```
 
 ## TODO before you start
 0) Clone the repository with 
@@ -35,8 +38,6 @@ and checkout the branch ```feature/parser``` with command:
 ```bash
 git checkout feature/parser
 ```
-
-
 
 1) Check the ```<config file name>.yml``` file which you make. This file contains the conigurations required for the simulation setup.
 
