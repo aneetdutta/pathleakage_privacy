@@ -51,7 +51,6 @@ git checkout feature/parser
 
 6) Code utilizes SuMO simulation package and the configurations used for the setup are located in the ```scenario``` folder at the root of the repository.
 
-
 ## Simulation Setup
 
 To ensure our readers have an understand of the code, we will try to follow an example.
@@ -68,6 +67,16 @@ python3 main.py -h
 To know the pipelines for running the code, run the command
 ```bash
 python3 main.py -c project.yml -t help
+```
+
+Clean any older files in ```log, images, pdf, csv folders``` with command:
+```bash
+python3 main.py -c project.yml -t clean_all
+```
+
+To only clean pycache, run 
+```bash
+python3 main.py -c project.yml -t clean
 ```
 
 **(Ensure that the shell path is situated in the code folder and not in the root folder to run the code.)**.

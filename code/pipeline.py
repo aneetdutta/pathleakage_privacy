@@ -85,7 +85,7 @@ def aggregate_timesteps():
     print("aggregation.py finished.")
 
 def group_multi():
-    """Run grouping service."""
+    """Runreconstruction_multi grouping service."""
     print("Starting group_multi service...")
     run_command("python3 group/group_seq.py")
     print("group_multi service finished.")
@@ -172,6 +172,15 @@ def clean():
     # run_command('rm -rf logs/*.log')
     # run_command('rm -rf images/*.pdf')
 
+def clean_all():
+    """Clean up generated files."""
+    run_command('rm -f *.pyc')
+    run_command('rm -rf __pycache__')
+    run_command('rm -rf csv/*.csv')
+    run_command('rm -rf data/*.csv')
+    run_command('rm -rf logs/*.log')
+    run_command('rm -rf images/*.pdf')  
+    
 #task
 def clean_db():
     DB_NAME = os.getenv("DB_NAME")
@@ -314,6 +323,7 @@ tasks = {
     "sanity_group": sanity_group,
     "reconstruction_baseline_smart": reconstruction_baseline_smart,
     "sanity_incompatible": sanity_incompatible,
-    "group_checker": group_checker,
-    "partial_reconstruction": partial_reconstruction
+    "group_cpartial_reconstructionhecker": group_checker,
+    "partial_reconstruction": partial_reconstruction,
+    "clean_all": clean_all
 }
