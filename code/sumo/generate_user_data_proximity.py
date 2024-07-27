@@ -13,10 +13,35 @@ import time
 
 DB_NAME = os.getenv("DB_NAME")
 DATA_USECASE = os.getenv("DATA_USECASE")
+PROXIMITY_DISTANCE = float(os.getenv("PROXIMITY_DISTANCE"))
 
 ml = MyLogger(f"generate_user_data_{DB_NAME}")
 
 df = pd.read_csv(f"data/raw_user_data_{DATA_USECASE}_filtered.csv")
+df_sorted = df.sort('timestep')
+
+# Group by 'timestep'
+timestep_groups = df_sorted.groupby('timestep')
+
+timestep_:pd.DataFrame
+for timestep, timestep_data in timestep_groups:
+    raw_user_data = timestep_data.to_dicts()
+    
+    user_proximity_dict = defaultdict(set)
+    user_proximity_refresh_checker = defaultdict()
+    
+    user_loc = defaultdict(tuple, {user_["user_id"]: (user_["loc_x"], user_["loc_y"]) for user_ in raw_user_data})
+    print(user_loc)
+    if len(raw_user_data) > 1:
+        for users in user_loc:
+            
+            
+        
+        
+    
+
+
+sys.exit()
 raw_user_data = df.to_dicts()
 
 same_userset: set = set()
@@ -40,7 +65,7 @@ for user_ in raw_user_data:
         user = user_dict[user_id]
         user.location = [loc_x, loc_y]
         user.mf = mf
-        
+
         user.randomize_identifiers()
         user.transmit_identifiers()
     else:

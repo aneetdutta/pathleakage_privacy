@@ -3,13 +3,13 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 18300               # Number of user timesteps
-  DATA_USECASE: "project"
+  USER_TIMESTEPS: 25200               # Number of user timesteps
+  DATA_USECASE: "scenario"
   IDENTIFIER_LENGTH: 12               # Number of characters in identifier
 
 user_threshold:
   TOTAL_NUMBER_OF_USERS: 512          # Create only same set of users for different run
-  ENABLE_USER_THRESHOLD: false        # Enable user threshold
+  ENABLE_USER_THRESHOLD: true        # Enable user threshold
   LIMIT_USER_NUM_USERS: 256
   LIMIT_USER_AFTER_USER_DATA: false
 
@@ -33,8 +33,7 @@ tracking_and_reconstruction_until:
   FIRST_TIMESTEP: 18002
 
 countermeasure:
-  ENABLE_PROXIMITY_REFRESH: false
-  PROXIMITY_DISTANCE: 2
+  ENABLE_PROXIMITY_REFRESH: true
 
 # Randomization Intervals
 randomization_intervals:
@@ -43,12 +42,13 @@ randomization_intervals:
   BLUETOOTH_MAX_REFRESH: 900
 
   # WiFi ID refresh range uniform (in seconds)
-  WIFI_MIN_REFRESH: 0
+  WIFI_MIN_REFRESH: 1
   WIFI_MAX_REFRESH: 60
 
   # LTE refresh range uniform (in seconds)
   LTE_MIN_REFRESH: 720
   LTE_MAX_REFRESH: 1800
+
 
 #Transmission Intervals
 transmission_intervals:
@@ -81,15 +81,23 @@ smart:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 0.5        # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 0.8        # Mobility factor in m/s
+
+
+# Countermeasure
+countermeasure:
+  ENABLE_SYNCED_RANDOMIZATION: true
+  PROTOCOL_MIN_REFRESH: 720
+  PROTOCOL_MAX_REFRESH: 1800
+
 
 # Sniffer settings
 sniffer:
   GENERATE_SNIFFER_DATA: false
   ENABLE_PARTIAL_COVERAGE: false
-  ENABLE_MULTILATERATION: false
+  ENABLE_MULTILATERATION: true
   ENABLE_BLUETOOTH: true       # Enable Bluetooth
-  ENABLE_WIFI: false            # Enable Bluetooth
+  ENABLE_WIFI: true            # Enable Bluetooth
   ENABLE_LTE: true             # Enable Bluetooth
 
-  SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size
+  SNIFFER_PROCESSING_BATCH_SIZE: 10 # Sniffer processing batch size

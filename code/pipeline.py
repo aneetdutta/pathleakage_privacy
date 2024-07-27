@@ -21,11 +21,17 @@ def sumo():
     print("Starting SUMO simulation...")
     run_command('python3 sumo/sumo_simulation.py')
     print("SUMO simulation finished.")
+    filter_users()
 
 def generate_user_data():
     print("Running generate_user_data.py...")
     run_command('python3 sumo/generate_user_data.py')
     print("generate_user_data.py finished.")
+
+def generate_user_data_proximity():
+    print("Running generate_user_data_proximity.py...")
+    run_command('python3 sumo/generate_user_data_proximity.py')
+    print("generate_user_data_proximity.py finished.")
     
 def generate_sniffer_data():
     print("Running generate_sniffer_data.py...")
@@ -59,6 +65,11 @@ def user_data():
     import_user_data_mongo()
     print("User data generation and import finished.")
 
+def filter_users():
+    print("Filter users..")
+    run_command("python3 sumo/filter_users.py")
+    print("User filtering finished.")
+    
 def aggregate():
     """Running aggregation."""
     print("Starting aggregation process...")
@@ -284,10 +295,14 @@ def limit_users_after_user_data():
     run_command('python3 sumo/limit_users.py')
     print("limit_users.py finished.")
     
+    
+    
 tasks = {
     "sumo": sumo,
     "user_data": user_data,
+    "filter_users": filter_users,
     "generate_user_data": generate_user_data,
+    "generate_user_data_proximity": generate_user_data_proximity,
     "generate_sniffer_data": generate_sniffer_data,
     "import_user_data_mongo": import_user_data_mongo,
     "import_sniffer_data_mongo": import_sniffer_data_mongo,
