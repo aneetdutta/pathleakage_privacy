@@ -10,7 +10,7 @@ from modules.logger import MyLogger
 import time
 md = MongoDB()
 DB_NAME = os.getenv("DB_NAME")
-ml = MyLogger(f"grouping_seq_{DB_NAME}")
+# ml = MyLogger(f"grouping_seq_{DB_NAME}")
 '''The below code converts the aggregated results into groups using the grouping distance algorithm
 The groups of every sniffer are first calculated and then they are appended to single timestep.
 So, we have the dict as 

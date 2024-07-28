@@ -78,7 +78,7 @@ localization_errors:
   LTE_LOCALIZATION_ERROR: 10         # LTE localization error (in meters)
 
 smart:
-  ENABLE_SMART_TRACKING: true
+  ENABLE_SMART_TRACKING: false
 
 # Mobility settings
 mobility:
@@ -96,7 +96,7 @@ synced_randomization:
 sniffer:
   GENERATE_SNIFFER_DATA: false
   ENABLE_PARTIAL_COVERAGE: false
-  ENABLE_MULTILATERATION: false
+  ENABLE_MULTILATERATION: true
   ENABLE_BLUETOOTH: true       # Enable Bluetooth
   ENABLE_WIFI: true            # Enable Bluetooth
   ENABLE_LTE: true             # Enable Bluetooth

@@ -31,7 +31,6 @@ for user_ in raw_user_data:
     # print(user_)
     user_id = user_["user_id"]
     timestep = user_["timestep"]
-    mf = user_["mf"]
     loc_x = user_["loc_x"]
     loc_y = user_["loc_y"]
 
@@ -39,7 +38,6 @@ for user_ in raw_user_data:
     if user_id in list(user_dict):
         user = user_dict[user_id]
         user.location = [loc_x, loc_y]
-        user.mf = mf
         
         user.randomize_identifiers()
         user.transmit_identifiers()
@@ -47,7 +45,7 @@ for user_ in raw_user_data:
         bluetooth_id=random_identifier()
         wifi_id=random_identifier()
         lte_id=random_identifier()
-        user = User(user_id,[loc_x,loc_y],bluetooth_id=bluetooth_id, wifi_id=wifi_id, lte_id=lte_id, mf=mf) 
+        user = User(user_id,[loc_x,loc_y],bluetooth_id=bluetooth_id, wifi_id=wifi_id, lte_id=lte_id) 
         user_dict[user_id] = user
     
     user_data.append({
@@ -55,7 +53,6 @@ for user_ in raw_user_data:
         "user_id": user.user_id,
         "loc_x": user.location[0],
         "loc_y": user.location[1],
-        "mf": user.mf,
         "bluetooth_id": user.bluetooth_id,
         "wifi_id": user.wifi_id,
         "lte_id": user.lte_id,

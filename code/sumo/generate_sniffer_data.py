@@ -30,7 +30,7 @@ if not ENABLE_PARTIAL_COVERAGE:
     # if ENABLE_BLUETOOTH:
     #     sniffer_location = extract_orjson("data/full_coverage_ble_sniffer_location.json")
     # else:
-    ''' SINCE BLE AND WIFI have same coverage now'''
+    ''' coverage of 30'''
     sniffer_location = extract_orjson("data/full_coverage_wifi_sniffer_location.json")
 else:
     print("Partial Coverage enabled")

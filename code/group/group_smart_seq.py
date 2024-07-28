@@ -30,7 +30,7 @@ grouping_list = []
 # incompatible_ids: defaultdict[set] = defaultdict(set)
 incompatible_intra_ids, incompatible_inter_ids = defaultdict(set), defaultdict(set)
 
-ml = MyLogger(f"grouping_seq_{DB_NAME}")
+# ml = MyLogger(f"grouping_smart_seq_{DB_NAME}")
 
 # ENABLE_MULTILATERATION = str_to_bool(os.getenv("ENABLE_MULTILATERATION", "true"))
 ENABLE_MULTILATERATION = True
