@@ -34,6 +34,7 @@ tracking_and_reconstruction_until:
 
 countermeasure:
   ENABLE_PROXIMITY_REFRESH: true
+  PROXIMITY_DISTANCE: 30
 
 # Randomization Intervals
 randomization_intervals:
@@ -85,10 +86,10 @@ mobility:
 
 
 # Countermeasure
-countermeasure:
+synced_randomization:
   ENABLE_SYNCED_RANDOMIZATION: true
-  PROTOCOL_MIN_REFRESH: 720
-  PROTOCOL_MAX_REFRESH: 1800
+  PROTOCOL_MIN_REFRESH: 10
+  PROTOCOL_MAX_REFRESH: 60
 
 
 # Sniffer settings

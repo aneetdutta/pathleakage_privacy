@@ -48,6 +48,7 @@ def import_sniffer_data_mongo():
 def import_user_data_mongo():
     DB_NAME = os.getenv("DB_NAME")
     print("Importing user data to MongoDB...")
+    print(DB_NAME)
     run_command(f'mongosh --host localhost --port 27017 --eval "use {DB_NAME}; db.user_data.drop()"')
     run_command(f'mongoimport --host localhost --port 27017 --db {DB_NAME} --collection user_data --type csv --file data/user_data_{DB_NAME}.csv --headerline')
     print("user data imported to MongoDB.")

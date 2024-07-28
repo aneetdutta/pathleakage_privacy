@@ -34,7 +34,7 @@ tracking_and_reconstruction_until:
 
 countermeasure:
   ENABLE_PROXIMITY_REFRESH: false
-  PROXIMITY_DISTANCE: 2
+  PROXIMITY_DISTANCE: 10
 
 # Randomization Intervals
 randomization_intervals:
