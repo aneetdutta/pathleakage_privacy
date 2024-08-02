@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 
@@ -162,6 +163,7 @@ for condition in conditions:
     plt.figure(figsize=(12, 6))
     # if condition
     sns.violinplot(x='device_label', y='transmission_time', data=subset, inner='box', scale='width', palette=device_palette, cut=0)
+    # Adjust the plot to only show the left side
     # plt.title(title)
     plt.xlabel('Device')
     if condition["mode"] == "randomization":

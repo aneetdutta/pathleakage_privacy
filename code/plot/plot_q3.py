@@ -18,10 +18,6 @@ count_users_privacy_1 = ti_30_df[ti_30_df['privacy_score'] == 1.0].shape[0]
 count_users_privacy_2 = ti_30_df[ti_30_df['privacy_score'] >= 0.95].shape[0]
 count_users_privacy_3 = ti_30_df[ti_30_df['privacy_score'] >= 0.9].shape[0]
 count_users_privacy_4 = ti_30_df[ti_30_df['privacy_score'] >= 0.8].shape[0]
-print(f"Total number of users for LTE-WIFI-BLE with privacy_score == 1.0: {count_users_privacy_1}")
-print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.95: {count_users_privacy_2}")
-print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.9: {count_users_privacy_3}")
-print(f"Total number of users for LTE-WIFI-BLE with privacy_score >= 0.8: {count_users_privacy_4}")
 
 plt.plot(ti_30_users, ti_30_scores_sorted, label='LTE, BLE - Transmission Interval:(0-30)', alpha=0.7, linewidth=3, color="#000000", marker='o', markevery=marker_interval)
 

@@ -93,7 +93,9 @@ python3 main.py -c project.yml -t sumo
 ```
 
 With this command, the file with name ```raw_user_data_<config filename>.csv``` would be created.
-Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/``` folder.
+Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/``` folder. Also the file named ```raw_user_data_project_filtered.csv``` would be created. We use filtered file for further usecases.
+
+> Note: This is RAM intensive (as the code is not optimized). The SUMO data gets loaded in the memory and for filtering, multiple copies are made in the memory.
 
 
 ##### 2.2 User data generation
@@ -121,10 +123,6 @@ python3 main.py -c project.yml -t generate_user_data
 
 With this command, the file with name ```user_data_<config filename>.csv``` would be created.
 Here for ```project.yml```, ```user_data_project.csv``` file would be created in the ```data/``` folder.
-
-
-
-> Note: This is RAM intensive (as the code is not optimized). The SUMO data gets loaded in the memory and for filtering, multiple copies are made in the memory.
 
 
 ##### 2.3 Sniffer data generation

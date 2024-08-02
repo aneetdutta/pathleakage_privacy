@@ -55,6 +55,11 @@ count_users_privacy_1 = multi_protocol_df[multi_protocol_df['privacy_score'] == 
 count_users_privacy_2 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.95].shape[0]
 count_users_privacy_3 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.9].shape[0]
 count_users_privacy_4 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.8].shape[0]
+count_users_privacy_4 = multi_protocol_df[multi_protocol_df['privacy_score'] <= 0.5].shape[0]
+print(f"Total number of users with privacy_score == 1.0: {count_users_privacy_1}")
+print(f"Total number of users with privacy_score >= 0.95: {count_users_privacy_2}")
+print(f"Total number of users with privacy_score >= 0.9: {count_users_privacy_3}")
+print(f"Total number of users with privacy_score <= 0.2: {count_users_privacy_4}")
 plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Multi-Protocol [Sync with Proximity] (LTE, WiFi, Bluetooth)', alpha=0.7, linewidth=3, color="#ea700b", marker='*', markevery=marker_interval)
 
 multi_protocol_df = pd.read_csv(f'csv/multi_protocol_scenario11a2.csv')  
@@ -65,6 +70,10 @@ count_users_privacy_1 = multi_protocol_df[multi_protocol_df['privacy_score'] == 
 count_users_privacy_2 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.95].shape[0]
 count_users_privacy_3 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.9].shape[0]
 count_users_privacy_4 = multi_protocol_df[multi_protocol_df['privacy_score'] >= 0.8].shape[0]
+print(f"Total number of users with privacy_score == 1.0: {count_users_privacy_1}")
+print(f"Total number of users with privacy_score >= 0.95: {count_users_privacy_2}")
+print(f"Total number of users with privacy_score >= 0.9: {count_users_privacy_3}")
+print(f"Total number of users with privacy_score >= 0.8: {count_users_privacy_4}")
 plt.plot(multi_protocol_users, multi_protocol_scores_sorted, label='Multi-Protocol - Multilateration [Sync with Proximity] (LTE, WiFi, Bluetooth)', alpha=0.7, linewidth=3, color="#5ba7d2", marker='*', markevery=marker_interval)
 
 multi_protocol_ml_df = pd.read_csv(f'csv/multi_protocol_scenario8a1.csv')  
@@ -94,7 +103,7 @@ plt.xticks(xticks, fontsize=22)
 plt.yticks(fontsize=22)
 plt.xlabel('Number of Users', fontsize=22)
 plt.ylabel('Privacy Leakage', fontsize=22)
-plt.legend(loc='lower right', fontsize=15, bbox_to_anchor=(0.9, -0.8))
+plt.legend(loc='lower right', fontsize=19, bbox_to_anchor=(1, -0.9))
 plt.grid(True)
 plt.subplots_adjust(left=0, right=1, bottom=0, top=1)
 plt.savefig(f'images/privacy_leakage_q6.pdf', dpi=600, bbox_inches='tight')
