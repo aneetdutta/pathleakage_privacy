@@ -1,0 +1,19 @@
+2025-01-15 13:10:17.578 CET | INFO | reconstruction_tracing_multi.py | Baseline Privacy score calculated
+2025-01-15 13:10:17.606 CET | INFO | reconstruction_tracing_multi.py | Reconstruction started
+2025-01-15 13:18:29.290 CET | INFO | reconstruction_tracing_multi.py | Processing now
+2025-01-15 13:19:49.770 CET | INFO | reconstruction_tracing_multi.py | 0 total incorrectness and 0 incorrect users
+2025-01-15 13:19:49.770 CET | INFO | reconstruction_tracing_multi.py | defaultdict(<class 'set'>, {}) incorrect mappings, set() incorrect users
+2025-01-15 13:19:49.798 CET | INFO | reconstruction_tracing_multi.py |                                    id  start_timestep  last_timestep  total_time                 user_id   protocol
+0         pedestrian_1-2_1990_L_MD5HD         18002.0        25200.0      7199.0     pedestrian_1-2_1990        LTE
+1         pedestrian_1-2_1990_B_GLZG2         18002.0        25200.0      7199.0     pedestrian_1-2_1990  Bluetooth
+2       pedestrian_1-1-pt_255_B_GGMG0         18079.0        25200.0      7122.0   pedestrian_1-1-pt_255  Bluetooth
+3         pedestrian_1-2_1990_B_W1ICM         18002.0        25200.0      7199.0     pedestrian_1-2_1990  Bluetooth
+4         pedestrian_1-3_2374_L_4E4NH         18002.0        25200.0      7199.0     pedestrian_1-3_2374        LTE
+...                               ...             ...            ...         ...                     ...        ...
+62398     pedestrian_1-2_3590_W_INYO6         19043.0        25200.0      6158.0     pedestrian_1-2_3590       WiFi
+62399      pedestrian_2-1_842_W_ECPSZ         19287.0        25200.0      5914.0      pedestrian_2-1_842       WiFi
+62400     pedestrian_2-1_5067_W_LUYTN         19780.0        25200.0      5421.0     pedestrian_2-1_5067       WiFi
+62401     pedestrian_1-2_2564_W_EI7LK         22613.0        25200.0      2588.0     pedestrian_1-2_2564       WiFi
+62402  pedestrian_1-1-pt_5913_W_79NCU         19687.0        25200.0      5514.0  pedestrian_1-1-pt_5913       WiFi
+
+[62403 rows x 6 columns]

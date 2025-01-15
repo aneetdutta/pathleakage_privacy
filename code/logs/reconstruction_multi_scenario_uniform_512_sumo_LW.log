@@ -1,0 +1,19 @@
+2025-01-15 14:01:10.884 CET | INFO | reconstruction_tracing_multi.py | Baseline Privacy score calculated
+2025-01-15 14:01:10.918 CET | INFO | reconstruction_tracing_multi.py | Reconstruction started
+2025-01-15 14:08:07.440 CET | INFO | reconstruction_tracing_multi.py | Processing now
+2025-01-15 14:09:43.217 CET | INFO | reconstruction_tracing_multi.py | 0 total incorrectness and 0 incorrect users
+2025-01-15 14:09:43.217 CET | INFO | reconstruction_tracing_multi.py | defaultdict(<class 'set'>, {}) incorrect mappings, set() incorrect users
+2025-01-15 14:09:43.253 CET | INFO | reconstruction_tracing_multi.py |                                    id  start_timestep  last_timestep  total_time                 user_id protocol
+0         pedestrian_2-1_3119_W_T096H         23598.0        25200.0      1603.0     pedestrian_2-1_3119     WiFi
+1         pedestrian_1-2_5943_W_H4L0R         18201.0        22080.0      3880.0     pedestrian_1-2_5943     WiFi
+2         pedestrian_1-2_1948_W_NH0ZV         23753.0        23850.0        98.0     pedestrian_1-2_1948     WiFi
+3         pedestrian_1-2_4098_W_X65LZ         22348.0        22348.0         1.0     pedestrian_1-2_4098     WiFi
+4         pedestrian_1-2_5020_W_3RRQQ         19018.0        23297.0      4280.0     pedestrian_1-2_5020     WiFi
+...                               ...             ...            ...         ...                     ...      ...
+74574      pedestrian_1-2_263_W_7H4JT         20473.0        20473.0         1.0      pedestrian_1-2_263     WiFi
+74575     pedestrian_1-3_4822_W_IC2CE         18746.0        25200.0      6455.0     pedestrian_1-3_4822     WiFi
+74576     pedestrian_1-3_4644_W_81KXV         20846.0        25200.0      4355.0     pedestrian_1-3_4644     WiFi
+74577  pedestrian_1-1-pt_8762_W_330QF         20713.0        20723.0        11.0  pedestrian_1-1-pt_8762     WiFi
+74578  pedestrian_1-1-pt_6413_W_V36GG         19164.0        24854.0      5691.0  pedestrian_1-1-pt_6413     WiFi
+
+[74579 rows x 6 columns]

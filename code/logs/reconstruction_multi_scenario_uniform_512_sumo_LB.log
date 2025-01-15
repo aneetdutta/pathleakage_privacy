@@ -1,0 +1,19 @@
+2025-01-15 13:59:14.645 CET | INFO | reconstruction_tracing_multi.py | Baseline Privacy score calculated
+2025-01-15 13:59:14.647 CET | INFO | reconstruction_tracing_multi.py | Reconstruction started
+2025-01-15 13:59:16.516 CET | INFO | reconstruction_tracing_multi.py | Processing now
+2025-01-15 13:59:18.702 CET | INFO | reconstruction_tracing_multi.py | 0 total incorrectness and 0 incorrect users
+2025-01-15 13:59:18.702 CET | INFO | reconstruction_tracing_multi.py | defaultdict(<class 'set'>, {}) incorrect mappings, set() incorrect users
+2025-01-15 13:59:18.706 CET | INFO | reconstruction_tracing_multi.py |                                   id  start_timestep  last_timestep  total_time                 user_id   protocol
+0     pedestrian_1-1-pt_7123_B_UZ50B         18197.0        25200.0      7004.0  pedestrian_1-1-pt_7123  Bluetooth
+1     pedestrian_1-1-pt_1497_B_VCAFM         19748.0        25200.0      5453.0  pedestrian_1-1-pt_1497  Bluetooth
+2         pedestrian_2-1_600_L_42154         19618.0        25200.0      5583.0      pedestrian_2-1_600        LTE
+3       pedestrian_1-1-veh_5_B_TENVN         19694.0        25200.0      5507.0    pedestrian_1-1-veh_5  Bluetooth
+4     pedestrian_1-1-pt_6538_B_CU4LW         18901.0        25200.0      6300.0  pedestrian_1-1-pt_6538  Bluetooth
+...                              ...             ...            ...         ...                     ...        ...
+7364  pedestrian_1-1-pt_4736_L_R18J7         18877.0        25200.0      6324.0  pedestrian_1-1-pt_4736        LTE
+7365  pedestrian_1-1-pt_3176_L_QXVJZ         19489.0        25200.0      5712.0  pedestrian_1-1-pt_3176        LTE
+7366      pedestrian_1-2_168_L_7754J         18704.0        25200.0      6497.0      pedestrian_1-2_168        LTE
+7367      pedestrian_1-3_990_B_5D3F2         18939.0        25200.0      6262.0      pedestrian_1-3_990  Bluetooth
+7368     pedestrian_1-2_5951_B_X4PS0         18716.0        25200.0      6485.0     pedestrian_1-2_5951  Bluetooth
+
+[7369 rows x 6 columns]
