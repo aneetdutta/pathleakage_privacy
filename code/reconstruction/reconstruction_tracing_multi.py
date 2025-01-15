@@ -23,7 +23,7 @@ id_timestep_data = {row['id']: (row['start_timestep'], row['last_timestep'])    
 }
 
 inter_data = np.load(f'data/{SCENARIO_NAME}/refined_intermap_{SCENARIO_NAME}.npy', allow_pickle=True).item()
-intra_data = np.load(f'data/{SCENARIO_NAME}/filtered_intramap_{SCENARIO_NAME}.npy', allow_pickle=True).item()
+intra_data = np.load(f'data/{SCENARIO_NAME}/refined_intramap_{SCENARIO_NAME}.npy', allow_pickle=True).item()
 
 
 user_df = pl.read_parquet(f"data/{SCENARIO_NAME}/aggregated_users_{SCENARIO_NAME}.parquet")
