@@ -1,0 +1,91 @@
+# General Python ignores
+*.py[cod]
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+
+# Bytecode and temporary files
+*.pyo
+*.pyd
+*.so
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments and dependencies
+venv/
+.env/
+*.egg-info/
+.eggs/
+*.egg
+build/
+dist/
+pip-wheel-metadata/
+*.lock
+poetry.lock
+
+# Logs and debugging
+*.log
+logs/*
+*/logs/*
+*.out
+*.err
+*.trace
+
+# Data files (e.g., generated, processed, or temporary data)
+*.pkl
+*.csv
+*.json
+data/
+data/**/*.json
+data/**/*.csv
+data/**/*.parquet
+data/**/*.npy
+
+
+# Output directories
+output/data/*.csv
+output/data/**/*.csv
+output/images/*.pdf
+
+# Temporary files created by editors/IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Configuration backups
+*.orig
+*.bak
+*.~*
+*.temp
+
+# Graph simulation outputs
+simulation/graph/*.json
+simulation/graph/*.pdf
+
+# SUMO Simulation
+# simulation/sumo/sumo_scenario/in/add/*.xml
+# simulation/sumo/sumo_scenario/in/route/*.xml
+simulation/sumo/*.log
+
+# Ignore compiled Python files in reconstruction and tracing_algorithm
+reconstruction/*.pyc
+reconstruction/*.pyo
+tracing_algorithm/*.pyc
+tracing_algorithm/*.pyo
+
+# Ignore test outputs and temporary test artifacts
+tests/__pycache__/
+tests/*.tmp
+tests/*.log
+
+# General ignore for all hidden files
+.*.swp
+.*.swo

@@ -3,12 +3,11 @@
 #   &user_timesteps 18400
 
 general:
-  USER_TIMESTEPS: 7200               # Number of user timesteps
-  DATA_USECASE: "graph"
-  CELL_SPACING: 21
-
+  USER_TIMESTEPS: 25200               # Number of user timesteps
+  DATA_USECASE: "sumo"
+  
 user_threshold:
-  TOTAL_NUMBER_OF_USERS: 2048          # Create only same set of users for different run
+  TOTAL_NUMBER_OF_USERS: 512          # Create only same set of users for different run
   ENABLE_USER_THRESHOLD: true        # Enable user threshold
 
 # Movement Parameters
@@ -23,4 +22,4 @@ movement_parameters:
 
 # Mobility settings
 mobility:
-  MAX_MOBILITY_FACTOR: 1.5       # Mobility factor in m/s
+  MAX_MOBILITY_FACTOR: 3       # Mobility factor in m/s
