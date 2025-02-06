@@ -33,29 +33,37 @@ Once the poetry tool is installed, the packages can be installed using ```poetry
 
 ## Repository structure
 
-The repository structure can be found in the ```misc/detailed_readme.md```
+The repository structure can be found in the ```design/code_pipeline.pdf```
+
+The repository contains the following sub-artifacts:
+
+1) simulation: contains two separate folders one for SuMO simulation and another for graph simulation. 
+
+2) tracing_algorithm: contains the code of our propsed algorithm.
+
+3) reconstruction: contains the code for path reconstruction algorithm.
+
+4) plot: folder contains the code for creating the plots presented in our paper.
+
+5) configs: folder contains the different configuration files for different parameter setting explained in our work.
 
 ## TODO before you start
 0) Clone the repository with 
 ```bash
 https://projects.cispa.saarland/c01mrsi/path-leakage.git
 ```
-and checkout the branch ```feature/parser``` with command:
+and checkout the branch ```usenix``` with command:
 ```bash
-git checkout feature/parser
+git checkout usenix
 ```
 
 1) Check the ```<config file name>.yml``` file which you make. This file contains the conigurations required for the simulation setup.
 
-2) Install mongodb through the [official website](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
+2) For every scenarios configured through the yml file, the yml file name would become the database name where the respective collections would be added. 
 
-3) Check if the mongodb service is enabled. For ubuntu, this can be checked via ```sudo systemctl status mongod```
+3) The code consists of various scripts in the folders namely group, tracking, sumo, sanity, reconstruction. While these scripts could run individual by prescribing the environment variables, these scripts are stitched using the ```main.py``` and ```pipeline.py```. The ```main.py``` used **setuptools** to create various pipelines as showcased in ```pipeline.py```. For future purpose, more such pipeline functions can be added to ```pipeline.py```.
 
-4) For every scenarios configured through the yml file, the yml file name would become the database name where the respective collections would be added. 
-
-5) The code consists of various scripts in the folders namely group, tracking, sumo, sanity, reconstruction. While these scripts could run individual by prescribing the environment variables, these scripts are stitched using the ```main.py``` and ```pipeline.py```. The ```main.py``` used **setuptools** to create various pipelines as showcased in ```pipeline.py```. For future purpose, more such pipeline functions can be added to ```pipeline.py```.
-
-6) Code utilizes SuMO simulation package and the configurations used for the setup are located in the ```scenario``` folder at the root of the repository.
+4) Code utilizes SuMO simulation package and the configurations used for the setup are located in the ```scenario``` folder at the root of the repository.
 
 ## Simulation Setup
 
@@ -91,15 +99,15 @@ python3 main.py -c project.yml -t clean
 
 ##### 2.1 Sumo Simulation (Raw data generation)
 
-The environment variables required are ```POLYGON_COORDS``` and ```USER_TIMESTEPS``` for running the sumo simulation code. Here the user movements data would generated.
+The environment variables required are ```POLYGON_COORDS```, ```USER_TIMESTEPS``` and ```mobility_factor``` for running the sumo simulation code. Here the user movements data would generated.
 
 This can be run with the command
 ```bash
-python3 main.py -c project.yml -t sumo
+python3 main.py -c scenario_result_512_sumo_all.yml -t sumo
 ```
 
 With this command, the file with name ```raw_user_data_<config filename>.csv``` would be created.
-Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/``` folder. Also the file named ```raw_user_data_project_filtered.csv``` would be created. We use filtered file for further usecases.
+Here for ```project.yml```, ```raw_user_data_project.csv``` file would be created in the ```data/scenario_name/``` folder. Also the file named ```raw_user_data_scenario_name.csv``` would be created. We use this filtered file for user data generation.
 
 > Note: This is RAM intensive (as the code is not optimized). The SUMO data gets loaded in the memory and for filtering, multiple copies are made in the memory.
 
@@ -124,11 +132,11 @@ The ```MAX_MOBILITY_FACTOR``` ensures the max mobility of the users that could b
 
 To generate user data, we can run the command
 ```bash
-python3 main.py -c project.yml -t generate_user_data
+python3 main.py -c scenario_result_512_sumo_all.yml -t generate_user_data
 ```
 
 With this command, the file with name ```user_data_<config filename>.csv``` would be created.
-Here for ```project.yml```, ```user_data_project.csv``` file would be created in the ```data/``` folder.
+Here for ```scenario_result_512_sumo_all.yml```, ```user_data_scenario_result_512_sumo_all.csv``` file would be created in the ```data/scenario_result_512_sumo_all/``` folder.
 
 
 ##### 2.3 Sniffer data generation
@@ -154,154 +162,60 @@ If we need to use ```partial_coverage_sniffer_location.json```, we need to set `
 
 Once we have set the parameters, we can generate the sniffer data through command
 ```bash
-python3 main.py -c project.yml -t generate_sniffer_data
+python3 main.py -c scenario_result_512_sumo_all.yml -t generate_sniffer_data
 ```
 With this command, the file with name ```sniffed_data_<config filename>.csv``` would be created.
-Here for ```project.yml```, ```sniffed_data_project.csv``` file would be created in the ```data/``` folder.
-
-##### 2.4 Importing data to MongoDB
-
-Once this data is generated, we can now push this to the MongoDB through the command:
-```bash
-python3 main.py -c project.yml -t import_data_mongo
-```
-
-Once data is imported, we can find the sniffed_data and user_data collections created under the file_name (Database name). For our case, we will have database name - project.
+Here for ```scenario_result_512_sumo_all.yml```, ```sniffed_data_scenario_result_512_sumo_all.yml.csv``` file would be created in the ```data/scenario_result_512_sumo_all/``` folder.
 
 
-To automate 2.2 - 2.4, we can directly run command
-```bash
-python3 main.py -c project.yml -t user_data
-```
-
-To clean all data and generate from fresh - all the data from task 2.1 to 2.4, we can directly run command 
-```bash
-python3 main.py -c project.yml -t data_gen
-```
 
 #### 3. Data Aggregation Phase
 
 Data aggregation phase consists of
-- Aggregation by sniffers
-- Aggregation by users
-- Aggregation by timesteps '''
 
-First we parsed and add content to the sniffed_data by running ```group/aggregate_sniffer_timesteps.py```
-Then we aggregate through ```group/aggregation.py```.
+- Aggregation by users
+ '''
 
 Both these procedures are run with command:
 ```bash
-python3 main.py -c project.yml -t aggregate
+python3 main.py -c scenario_result_512_sumo_all.yml -t aggregate
 ```
 
-Once the aggregation is completed, we will have the following collections found in our database ```project``:
-```aggregate_timesteps```, ```aggregate_users```, ```aggregated_sniffer```.
+Once the aggregation is completed, we will have the file ```aggregated_id_scenario_512_sumo_all.parquet```
 
+#### 4. Tracing Algorithm
 
-#### 4. Grouping Phase
-
-To generate initial set of inter-protocol linkages, we would run the grouping python files.
+To generate initial set of inter-protocol and intra-protocol linkages, we would run the grouping python files.
 
 Here we would be required to set the following parameters:
 
 Parameter to set the Localization Error are: ```BLUETOOTH_LOCALIZATION_ERROR```, ```WIFI_LOCALIZATION_ERROR```, ```LTE_LOCALIZATION_ERROR```.
 
-Additionally if we wish to use Multilateration, we should set it to true else false.
-
-Parameter for multilateration is ```ENABLE_MULTILATERATION```.
-
-To run single protocol grouping, we enable multi-lateration by default.
-
-For multi-protocol, we would run the command:
+For tracing, we would run the command:
 
 ```bash
-python3 main.py -c project.yml -t group_multi
+python3 main.py -c scenario_result_512_sumo_all.yml -t intermap_new
+
+python3 main.py -c scenario_result_512_sumo_all.yml -t intramap_new
+
+python3 main.py -c scenario_result_512_sumo_all.yml -t generate_mappings
+
+python3 main.py -c scenario_result_512_sumo_all.yml -t refine_intramap
+
+python3 main.py -c scenario_result_512_sumo_all.yml -t intra_filter
+
 ```
 
-We would have the collection ```groups``` added the database.
+We would have ```filtered_intramap_scenario_result_512_sumo_all.npy``` and ```refined_intermap_scenario_result_512_sumo_all.npy``` in ```data/scenario_result_512_sumo_all``` folder for multi-protocol mappings.
 
-For single-protocol, we would run the command:
+For single protocol mapping, we would have ```filtered_intramap_single_scenario_result_512_sumo_all.npy``` in ```data/scenario_result_512_sumo_all``` folder.
 
-```bash
-python3 main.py -c project.yml -t group_smart
-```
 
-We would have the collection ```groups_smart``` added the database.
 
-#### 5. Tracking Phase
-
-Similarly for tracking, we would run the single protocol or multi-protocol.
-
-For multi-protocol, we would run the command:
-
-```bash
-python3 main.py -c project.yml -t tracking_multi
-```
-
-For single-protocol, we would run the command:
-
-```bash
-python3 main.py -c project.yml -t tracking_smart
 ```
 
 
-To run the grouping and tracking phase (Phase 4 ad Phase 5 together)
-
-We can run the following command from the pipeline.
-
-For multi-protocol -
-```bash
-python3 main.py -c project.yml -t multi
-```
-
-For single protocol -
-```bash
-python3 main.py -c project.yml -t smart
-```
-
-#### 6. Sanity check
-
-Here, we apply three sanity checks to verify that the algorithm that we developed has any errors or not.
-
-
-##### 6.1 Group checker
-
-This check counts the groups with single protocol identifer and the groups with multiprotocol identifers
-
-This helps to verify if there are any single mappings found during the initial interlinks creation
-
-We run this using the command:
-```bash
-python3 main.py -c project.yml -t group_checker
-```
-
-##### 6.2 Incompatible Group checker
-
-This checks whether the incompatible list created during the grouping, consists of any identifiers with same user id corresponding to their identifiers.
-If any then counts and prints them
-
-We run this using the command:
-```bash
-python3 main.py -c project.yml -t sanity_incompatible
-```
-
-To run 6.1 and 6.2 together, we run the pipeline command:
-
-```bash
-python3 main.py -c project.yml -t sanity_group
-```
-
-##### 6.3 Sanity Report
-
-This check provides details on the overall users and corresponding metrics for inter and intra links created.
-
-We run this using the command:
-```bash
-python3 main.py -c project.yml -t sanity
-```
-
-
-#### 7. Reconstruction
+#### 5. Reconstruction
 
 Once we have received the linkages through tracking. We will create user traces through reconstruction.
 
@@ -313,77 +227,17 @@ Where we add the start timestep and final timestep of a user by merge aggregate 
 
 We run the command:
 ```bash
-python3 main.py -c project.yml -t reconstruction_user_data
+python3 main.py -c scenario_result_512_sumo_all.yml -t reconstruction
 ```
 
 
-##### 7.2 Reconstruct baseline data
 
-Here we reconstruct the baseline (single protocol without localization)
-
-We run the command:
-```bash
-python3 main.py -c project.yml -t reconstruction_baseline
-```
-
-##### 7.3 Reconstruct multi protocol
-
-To reconstruct multi protocol
-We run the command:
-```bash
-python3 main.py -c project.yml -t reconstruction_multi
-```
-##### 7.4 Reconstruct single protocol
-
-To reconstruct single protocol, we run the command:
-```bash
-python3 main.py -c project.yml -t reconstruction_baseline_smart
-```
-
-> Note: For running single protocol or multi protocol, we need to run the baseline first as it prepares data necessary for running these pipelines.
-
-##### 7.5 Reconstruct partial coverage (for multi protocol)
-
-To reconstruct during partial coverage scenario, we run the command
-```bash
-python3 main.py -c project.yml -t partial_reconstruction
-```
-
-To automate step 7.1, 7.2, 7.3, we run the command:
-```bash
-python3 main.py -c project.yml -t reconstruction_without_smart
-```
-
-Finally after reconstruction, the files would be present in ```csv/``` folder.
-
-For baseline, the files would named as:
-
-```baseline_<protocol>_<config file name>.yml```
-
-In our case, it would be for example:
-```baseline_ble_project.csv```, ```baseline_wifi_project.csv```, ```baseline_lte_project.csv```
-
-For single protocol, the files would named as:
-
-```baseline_smart_<protocol>_<config file name>.yml```
-
-In our case, it would be for example:
-```baseline_smart_ble_project.csv```, ```baseline_smart_wifi_project.csv```, ```baseline_smart_lte_project.csv```
-
-For multi protocol,
-we have the file names:
-```multi_protocol_<config file name>.yml```
-
-In our case, it would be:
-```multi_protocol_project.yml```
-
-
-#### 8. Plotting the graphs
+#### 6. Plotting the graphs
 
 Once we have reconstructed and found the user traces, we plot the cdf graph for it.
 
 This can be done using the command:
 ```bash
-python3 main.py -c project.yml -t plot
+python3 main.py -c scenario_result_512_sumo_all.yml -t plot
 ```
-The plots would be present in the ```images/``` folder
+The plots would be present in the ```output/images/scenario_name/``` folder
