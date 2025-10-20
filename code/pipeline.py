@@ -191,7 +191,9 @@ def sanity():
 
 
 def filter_users_polygon():
-    run_command('time python3 simulation/sumo/filter_users_polygon.py')
+    from simulation.sumo.filter_users_polygon import main
+    main()
+    # run_command('time python3 simulation/sumo/filter_users_polygon.py')
     print("filter_users_polygon.py finished.")
 
 

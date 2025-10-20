@@ -12,10 +12,8 @@ from collections import defaultdict
 import json
 import time
 
-from line_profiler import profile
 
 
-@profile
 def main():
     SCENARIO_NAME = os.getenv("SCENARIO_NAME")
     DATA_SOURCE = os.getenv("DATA_SOURCE")
@@ -28,12 +26,12 @@ def main():
     df = pd.read_csv(
         f"data/raw_user_data_{DATA_SOURCE}_{TOTAL_NUMBER_OF_USERS}.csv")  # _{TOTAL_NUMBER_OF_USERS}_filtered.csv")
 
-    # raw_user_data = df.to_dicts()
+    raw_user_data = df.to_dicts()
 
     same_userset: set = set()
 
     user_dict = dict()
-    user_data = []  # why the fuck a deque? nowhere is this even used
+    user_data = deque()  # why the fuck a deque? nowhere is this even used
 
     user_proximity_dict = defaultdict(set)
     user_proximity_refresh_checker = defaultdict()
@@ -46,7 +44,7 @@ def main():
         loc_y = user_["loc_y"]
 
         user: User
-        if user_id in user_dict:  # the fuck? who converts every time a dict to list to test inclusivity?
+        if user_id in list(user_dict):  # the fuck? who converts every time a dict to list to test inclusivity?
             user = user_dict[user_id]
             user.location = [loc_x, loc_y]
 

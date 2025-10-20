@@ -1,0 +1,17 @@
+completed: `sumo`, elapsed: 980.2257971763611 second(s)
+completed: `filter_users_polygon`, elapsed: 349.09437918663025 second(s)
+completed: `filter_users_RI_Count`, elapsed: 23.14671492576599 second(s)
+completed: `generate_user_data`, elapsed: 21.68433690071106 second(s)
+completed: `generate_sniffer_data`, elapsed: 679.6162075996399 second(s)
+completed: `filter_sniffer_data`, elapsed: 1.326826572418213 second(s)
+completed: `aggregate`, elapsed: 0.6303088665008545 second(s)
+completed: `intramap_optimized`, elapsed: 134.21743988990784 second(s)
+completed: `intermap_optimized`, elapsed: 880.2584958076477 second(s)
+completed: `refine_intramap`, elapsed: 0.6656787395477295 second(s)
+completed: `intra_filter`, elapsed: 0.4766042232513428 second(s)
+completed: `reconstruction_multi`, elapsed: 5.913836479187012 second(s)
+completed: `reconstruction_single`, elapsed: 3.970961570739746 second(s)
+completed: `plot`, elapsed: 0.8632709980010986 second(s)
+
+new filter polygon
+parallelism 10 completed: `filter_users_polygon`, elapsed: 124.44189238548279 second(s)

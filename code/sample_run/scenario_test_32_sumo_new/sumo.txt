@@ -1,0 +1,49 @@
+Time taken:  978.5707497596741
+Simulation ended at time: 25201.00.
+Reason: Libsumo requested termination.
+Performance:
+ Duration: 978.84s
+ Real time factor: 25.7457
+ UPS: 36912.433352
+ UPS-Persons: 39110.669433
+Vehicles:
+ Inserted: 10536 (Loaded: 13900)
+ Running: 10367
+ Waiting: 826
+ Teleports: 4448 (Jam: 1257, Yield: 3173, Wrong Lane: 18)
+Persons:
+ Inserted: 13254 (Loaded: 13346)
+ Running: 10915
+ Jammed: 837
+Statistics (avg of 69):
+ RouteLength: 746.82
+ Speed: 0.19
+ Duration: 4030.58
+ WaitingTime: 266.23
+ TimeLoss: 369.40
+ DepartDelay: 9.88
+Bike Statistics (avg of 100):
+ RouteLength: 552.57
+ Speed: 0.18
+ Duration: 3051.29
+ WaitingTime: 216.62
+ TimeLoss: 301.76
+ DepartDelay: 3.88
+Pedestrian Statistics (avg of 1677 walks):
+ RouteLength: 106.31
+ Duration: 265.46
+ TimeLoss: 30.28
+Ride Statistics (avg of 2153 rides):
+ WaitingTime: 2.03
+ RouteLength: 40.08
+ Duration: 219.48
+ Bus: 6
+ Bike: 95
+ Aborted: 2003
+DijkstraRouter answered 48843 queries and explored 11.90 edges on average.
+DijkstraRouter spent 0.30s answering queries (0.01ms on average).
+DijkstraRouter answered 186268 queries and explored 1285.43 edges on average.
+DijkstraRouter spent 103.02s answering queries (0.55ms on average).
+using alternate run command with python exec: /home/debian/.virtualenvs/code/bin/python
+SUMO simulation finished.
+completed: `sumo`, elapsed: 980.2257971763611 second(s)

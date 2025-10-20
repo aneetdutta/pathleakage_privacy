@@ -36,7 +36,7 @@ def main():
 
     try:
         # Simulation loop
-        user_data, users = deque(), dict()
+        user_data, users = [], dict()
         timestep = 17999
         """timestep - Get current simulation time
         user_ids - Get list of user IDs """
@@ -73,7 +73,7 @@ def main():
                 with open(user_file, mode='a', newline='') as file:
                     writer = csv.DictWriter(file, fieldnames=["timestep", "user_id", "loc_x", "loc_y"])
                     writer.writerows(user_data)
-                    user_data = deque()
+                    user_data.clear()
 
             traci.simulationStep()
 
