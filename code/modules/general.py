@@ -6,19 +6,28 @@ import os
 import numpy as np
 import copy
 from collections import defaultdict
+
 from pprint import pprint
 import orjson
-import pandas as pd
+
+# for some reason this line fucks up the importing of libsumo on Windows
+# import pandas as pd
+# we fix this by pre-importing libsumo at program entry
+
 import yaml, bisect
+
+
 from shapely.geometry import Point, Polygon
 import concurrent.futures
 from collections import deque
 import math, random
 import polars as pl
 
+
+
 def merge_nested_dicts(d1, d2):
     merged = defaultdict(dict)
-    
+
     for key in set(d1) | set(d2):  # Combine keys from both dictionaries
         if key in d1 and key in d2:  # If both have the key
             if isinstance(d1[key], dict) and isinstance(d2[key], dict):
@@ -33,7 +42,7 @@ def merge_nested_dicts(d1, d2):
             merged[key] = d1[key]
         else:
             merged[key] = d2[key]
-    
+
     return merged
 
 def to_regular_dict(d):
@@ -45,22 +54,22 @@ def to_regular_dict(d):
 
 def extend_paths(df, target_timestep):
     result = []
-    
+
     # Group by user_id and process each group
     for user_id, group in df.groupby("user_id"):
         max_timestep = group["timestep"].max()
-        
+
         if max_timestep < target_timestep:
             # Extract the original path without changes
             original_path = group.filter(pl.col("timestep") <= max_timestep)
-            
+
             forward_path = original_path[1:]
             # Reverse path for extension, excluding the last element
             reverse_path = original_path[:-1].reverse()
-            
+
             # Combine forward and reverse paths
             combined_path = pl.concat([reverse_path, forward_path], how="vertical")
-            
+
             # Generate the extended path
             extended_path = []
             current_timestep = max_timestep + 1
@@ -77,7 +86,7 @@ def extend_paths(df, target_timestep):
                         }
                     )
                     current_timestep += 1
-            
+
             # Convert the extended path to DataFrame and append to result
             extended_path_df = pl.DataFrame(extended_path)
             result.append(pl.concat([original_path, extended_path_df], how="vertical"))
@@ -103,16 +112,16 @@ def create_grid_index(points, cell_size):
 def remove_random_edges(graph, num_edges_to_remove=10):
     # Ensure the number of edges to remove is not greater than the total number of edges
     num_edges_to_remove = min(num_edges_to_remove, graph.number_of_edges())
-    
+
     # Get all edges in the graph
     edges = list(graph.edges)
-    
+
     # Randomly select edges to remove
     edges_to_remove = random.sample(edges, num_edges_to_remove)
-    
+
     # Remove selected edges from the graph
     graph.remove_edges_from(edges_to_remove)
-    
+
     return edges_to_remove
 
 def convert_numpy_types(obj):
@@ -129,24 +138,24 @@ def contains_subsequence(big_list, small_list):
     # Convert both lists to deques for efficient pops
     big_deque = deque(big_list)
     small_deque = deque(small_list)
-    
+
     # Align the start: Remove elements from the start of big_list until it matches small_list
     while big_deque and small_deque and big_deque[0] != small_deque[0]:
         big_deque.popleft()
-    
+
     # Align the end: Remove elements from the end of small_list until it matches big_list
     while big_deque and small_deque and big_deque[-1] != small_deque[-1]:
         small_deque.pop()
-    
+
     # Check subsequence in aligned lists
     for item in big_deque:
         if not small_deque:  # If all elements in small_list are matched
             return True
         if item == small_deque[0]:  # Match the first element in small_list
             small_deque.popleft()
-    
+
     return not small_deque
-    
+
 
 def clean_mappings_refine(mappings):
     mappings_copy = {k: set(v) for k, v in mappings.items()}
@@ -165,9 +174,9 @@ def clean_mappings_refine(mappings):
             single_length = len(single_mappings)
         else:
             change = False
-    return mappings_copy    
-    
-    
+    return mappings_copy
+
+
 
 
 def clean_mappings(mappings):
@@ -254,7 +263,7 @@ def remove_subsets_from_dict(dictionary):
             # Skip if comparing the same key
             if parent_key == child_key:
                 continue
- 
+
             if (child_values.union({child_key})).issubset((parent_values.union({parent_key}))) and child_values != parent_values:
                 # print(True, child_values, parent_values)
                 # Remove the child values from the parent values
@@ -267,21 +276,21 @@ def create_chain(L1, L2):
     chain = []
     L1, L2 = sorted(set(L1)), sorted(set(L2))
     flag_l1, flag_l2 = True, True
-    
+
     while len(L1) + len(L2) > 0:
         if flag_l1:
             l1 = L1.pop(0)
         if flag_l2:
             l2 = L2.pop(0)
-            
+
         if l1 > l2:
             flag_l2 = True
             flag_l1 = False
-        
+
         elif l2 > l1:
             flag_l2 = False
             flag_l1 = True
-        
+
         if (len(L2) == 0):
             flag_l2 = False
             flag_l1 = True
@@ -322,45 +331,47 @@ def find_all_possible_chains(dictionary):
             chain = build_chain(start_key)
             if chain:
                 all_chains.append(chain)
-    
+
     return all_chains
 
 class UnionFind:
     def __init__(self):
         self.parent = {}
-    
+
     def find(self, item):
         if self.parent[item] != item:
             self.parent[item] = self.find(self.parent[item])
         return self.parent[item]
-    
+
     def union(self, item1, item2):
         root1 = self.find(item1)
         root2 = self.find(item2)
         if root1 != root2:
             self.parent[root2] = root1
-    
+
     def add(self, item):
         if item not in self.parent:
             self.parent[item] = item
 
+
+
 def group_identifiers(tuples_list):
     uf = UnionFind()
-    
+
     for i, time_epoch, type_, identifiers, ta in tuples_list:
         identifiers = list(identifiers)
         for identifier in identifiers:
             uf.add(identifier)
         for i in range(1, len(identifiers)):
             uf.union(identifiers[0], identifiers[i])
-    
+
     groups = {}
     for identifier in uf.parent:
         root = uf.find(identifier)
         if root not in groups:
             groups[root] = set()
         groups[root].add(identifier)
-    
+
     return list(groups.values())
 
 # def group_identifiers(tuples_list):
@@ -369,21 +380,21 @@ def group_identifiers(tuples_list):
 
 #     for i, time_epoch, type_, identifiers, ta in tuples_list:
 #         current_group = None
-        
+
 #         # Find the group for the current tuple
 #         for identifier in identifiers:
 #             if identifier in identifier_to_group:
 #                 current_group = identifier_to_group[identifier]
 #                 break
-        
+
 #         # If no existing group is found, create a new one
 #         if current_group is None:
 #             current_group = len(groups)
 #             groups.append(set())
-        
+
 #         # Add the identifiers to the found/created group
 #         groups[current_group].update(identifiers)
-        
+
 #         # Update the identifier to group mapping
 #         for identifier in identifiers:
 #             identifier_to_group[identifier] = current_group
@@ -391,7 +402,8 @@ def group_identifiers(tuples_list):
 #     # Convert sets to lists for the final output
 #     return [set(group) for group in groups]
 
-IDENTIFIER_LENGTH = os.getenv("IDENTIFIER_LENGTH")
+# must be fetched every time freshly from the env
+# IDENTIFIER_LENGTH = os.getenv("IDENTIFIER_LENGTH")
 
 def str_to_bool(s):
     return {'true': True, 'false': False}.get(s.strip().lower(), None)
@@ -440,7 +452,7 @@ def calculate_privacy_score_single(row, dur):
         return 1
     else:
         return row['total_time'] / row[dur]
-    
+
 def calculate_privacy_score(row):
     if row['total_time'] == 0 and row['ideal_duration'] == 0:
         return 1
@@ -455,18 +467,18 @@ def process_mappings(m1, m2, visited_intra_list):
             continue
         ids1_set = set(ids1)
         ids2_set = set(m2[p1])
-        
+
         if ids1_set.intersection(ids2_set):
             t0_1 = ids1_set - ids2_set
             t1_0 = ids2_set - ids1_set
-        
+
             if t0_1 and t1_0:
                 for i in t0_1:
                     common_set_for_i = visited_intra_list[i].intersection(t1_0)
                     not_common_set = t1_0 - common_set_for_i
                     # local_intra_potential_mapping[i] = set(local_intra_potential_mapping[i])
-                    local_intra_potential_mapping[i].update(not_common_set) 
-                     
+                    local_intra_potential_mapping[i].update(not_common_set)
+
     return local_intra_potential_mapping
 
 def optimized_mapping_comparison(mapping0, mapping1, visited_intra_list, intra_potential_mapping):
@@ -482,18 +494,18 @@ def optimized_mapping_comparison(mapping0, mapping1, visited_intra_list, intra_p
                 if key not in intra_potential_mapping:
                     intra_potential_mapping[key] = set()
                 intra_potential_mapping[key].update(value)
-                
+
     return visited_intra_list, intra_potential_mapping
-                
+
 def combine_values(dicts, keys):
     # Initialize a dictionary to hold combined sets for each key
     combined_dict = {key: set() for key in keys}
-    
+
     # Combine values for each key from all dictionaries
     for d in dicts:
         for key in keys:
             combined_dict[key].update(d.get(key, []))
-    
+
     return combined_dict
 
 def create_exclusion_set(combined_set, element):
@@ -502,16 +514,16 @@ def create_exclusion_set(combined_set, element):
 def combine_and_exclude_all(dicts, result_dict=None):
     # Fetch all unique keys from the provided dictionaries
     keys = {key for d in dicts for key in d.keys()}
-    
+
     # Initialize a dictionary to hold combined sets for each key
     combined_dict = {key: set() for key in keys}
-    
+
     # Combine values for each key from all dictionaries
     for d in dicts:
         for key in keys:
             values = d.get(key, [])
             combined_dict[key].update(values)
-    
+
     # Initialize result_dict if not provided
     if result_dict is None:
         result_dict = {}
@@ -519,7 +531,7 @@ def combine_and_exclude_all(dicts, result_dict=None):
         # Ensure existing result_dict values are sets
         for key in result_dict:
             result_dict[key] = set(result_dict[key])
-    
+
     # Create the final dictionary with each element as key and the set without that element as value
     for key, combined_set in combined_dict.items():
         for element in combined_set:
@@ -527,29 +539,29 @@ def combine_and_exclude_all(dicts, result_dict=None):
                 result_dict[element] = combined_set - {element}
             else:
                 result_dict[element].update(combined_set - {element})
-    
+
     # Convert sets back to lists for the final result
     return {key: set(value) for key, value in result_dict.items()}
 
 # def combine_and_exclude_all(dicts, keys, result_dict=None):
 #     combined_dict = combine_values(dicts, keys)
-    
+
 #     if result_dict is None:
 #         result_dict = {}
 #     else:
 #         # Ensure existing result_dict values are sets
 #         for key in result_dict:
 #             result_dict[key] = set(result_dict[key])
-    
+
 #     with concurrent.futures.ThreadPoolExecutor() as executor:
 #         future_to_element = {}
-        
+
 #         for key in keys:
 #             combined_set = combined_dict[key]
 #             for element in combined_set:
 #                 future = executor.submit(create_exclusion_set, combined_set, element)
 #                 future_to_element[future] = element
-        
+
 #         for future in concurrent.futures.as_completed(future_to_element):
 #             element = future_to_element[future]
 #             exclusion_set = future.result()
@@ -557,10 +569,10 @@ def combine_and_exclude_all(dicts, result_dict=None):
 #                 result_dict[element] = exclusion_set
 #             else:
 #                 result_dict[element].update(exclusion_set)
-    
+
 #     # Convert sets back to lists for the final result
 #     result_dict = {key: value for key, value in result_dict.items()}
-    
+
 #     return result_dict
 
 def remove_subsets(chains):
@@ -600,10 +612,10 @@ def build_chain_for_key(current_key, current_chain:list, visited: set, data: dic
         next_key, next_user_id = result
     else:
         next_key, next_user_id = None, None
-        
+
     if next_user_id != user_id and next_user_id and next_key:
         current_chain.remove(current_key)
-        
+
     if next_key and user_id==next_user_id:
         build_chain_for_key(next_key, current_chain.copy(), visited.copy(), data, all_chains, user_id=user_id)
     else:
@@ -638,7 +650,7 @@ def extract_orjson(filename):
 def dump_orjson(filename, data):
     with open(filename, "wb") as f:
         f.write(orjson.dumps(data, default=serialize_floats))
-    
+
 
 # Function to check if a point is inside the polygon
 def is_point_inside_polygon(x, y, polygon: Polygon):
@@ -649,7 +661,10 @@ def is_point_inside_polygon(x, y, polygon: Polygon):
 Generates Random Device Identifier
 """
 def random_identifier():
-    return "".join(choices(ascii_uppercase + digits, k=int(IDENTIFIER_LENGTH)))
+    id_len = os.environ['IDENTIFIER_LENGTH']
+    if id_len is None:
+        raise RuntimeError("no identifier length defined in config (and thus in env)")
+    return "".join(choices(ascii_uppercase + digits, k=int(id_len)))
 
 
 def dict_to_tuple(dictionary):
@@ -690,17 +705,17 @@ def process_dict(data, threshold):
         current_segment = []
         start_time, start_point = values[0]
         current_segment.append(start_point)
-        
+
         for i in range(1, len(values)):
             next_time, next_point = values[i]
             distance = calculate_distance_l(start_point, next_point)
-            
+
             if distance > threshold:
                 print(distance, threshold)
                 print(start_point, next_point)
                 start_point = next_point
                 current_segment.append(start_point)
-        
+
         segments.extend(current_segment)
         # # Append the last segment if it's not empty
         # if current_segment:
@@ -735,3 +750,5 @@ class UnionFind:
         if item not in self.parent:
             self.parent[item] = item
             self.rank[item] = 0
+
+

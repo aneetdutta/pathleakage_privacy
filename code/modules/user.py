@@ -49,18 +49,19 @@ class User:
         self.randomized_lte = False
         self.randomized = False
     
-        self.BLUETOOTH_MIN_TRANSMIT = float(os.getenv("BLUETOOTH_MIN_TRANSMIT"))
-        self.BLUETOOTH_MAX_TRANSMIT = float(os.getenv("BLUETOOTH_MAX_TRANSMIT"))
-        self.WIFI_MIN_TRANSMIT = float(os.getenv("WIFI_MIN_TRANSMIT"))
-        self.WIFI_MAX_TRANSMIT = float(os.getenv("WIFI_MAX_TRANSMIT"))
-        self.LTE_MIN_TRANSMIT = float(os.getenv("LTE_MIN_TRANSMIT"))
-        self.LTE_MAX_TRANSMIT = float(os.getenv("LTE_MAX_TRANSMIT"))
-        self.BLUETOOTH_MIN_REFRESH = float(os.getenv("BLUETOOTH_MIN_REFRESH"))
-        self.BLUETOOTH_MAX_REFRESH = float(os.getenv("BLUETOOTH_MAX_REFRESH"))
-        self.WIFI_MIN_REFRESH = float(os.getenv("WIFI_MIN_REFRESH"))
-        self.WIFI_MAX_REFRESH = float(os.getenv("WIFI_MAX_REFRESH"))
-        self.LTE_MIN_REFRESH = float(os.getenv("LTE_MIN_REFRESH"))
-        self.LTE_MAX_REFRESH = float(os.getenv("LTE_MAX_REFRESH"))
+        # these clearly should be int
+        self.BLUETOOTH_MIN_TRANSMIT = int(os.getenv("BLUETOOTH_MIN_TRANSMIT"))
+        self.BLUETOOTH_MAX_TRANSMIT = int(os.getenv("BLUETOOTH_MAX_TRANSMIT"))
+        self.WIFI_MIN_TRANSMIT = int(os.getenv("WIFI_MIN_TRANSMIT"))
+        self.WIFI_MAX_TRANSMIT = int(os.getenv("WIFI_MAX_TRANSMIT"))
+        self.LTE_MIN_TRANSMIT = int(os.getenv("LTE_MIN_TRANSMIT"))
+        self.LTE_MAX_TRANSMIT = int(os.getenv("LTE_MAX_TRANSMIT"))
+        self.BLUETOOTH_MIN_REFRESH = int(os.getenv("BLUETOOTH_MIN_REFRESH"))
+        self.BLUETOOTH_MAX_REFRESH = int(os.getenv("BLUETOOTH_MAX_REFRESH"))
+        self.WIFI_MIN_REFRESH = int(os.getenv("WIFI_MIN_REFRESH"))
+        self.WIFI_MAX_REFRESH = int(os.getenv("WIFI_MAX_REFRESH"))
+        self.LTE_MIN_REFRESH = int(os.getenv("LTE_MIN_REFRESH"))
+        self.LTE_MAX_REFRESH = int(os.getenv("LTE_MAX_REFRESH"))
         self.ID_RANDOMIZATION = os.getenv("ID_RANDOMIZATION")
         
         
@@ -115,6 +116,7 @@ class User:
             duration = round(np.random.uniform(low=self.BLUETOOTH_MIN_REFRESH, high=self.BLUETOOTH_MAX_REFRESH))
         else:
             # Follow random
+            # who the fuck feeds float type into randint?
             duration = randint(self.BLUETOOTH_MIN_REFRESH, self.BLUETOOTH_MAX_REFRESH)
 
         self.next_bluetooth_refresh = self.identifier_counter + duration

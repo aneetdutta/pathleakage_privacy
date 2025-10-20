@@ -1,115 +1,158 @@
 import os
+import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 import subprocess
+from typing import Optional, Dict
+
 env_instance = os.environ.copy()
 
+
+# what does this kind of "parallelism" do at all?
 def run_in_parallel(*tasks):
     with ThreadPoolExecutor() as executor:
         futures = [executor.submit(task) for task in tasks]
         for future in futures:
             future.result()
 
-def run_command(command, env=env_instance):
+
+def run_command_old(command, env=env_instance):
     """Run a command with optional environment variables."""
     result = subprocess.run(command, shell=True, env=env)
     if result.returncode != 0:
         print(f"Command failed: {command}")
+
+
+def run_command(command, env=env_instance):
+    if command.startswith('time'):
+        command = command.lstrip('time')
+
+    if 'python3' in command:
+        py_exec = sys.executable
+        print(f"using alternate run command with python exec: {py_exec}")
+        new_command = command.replace('python3', py_exec)
+        run_command_old(new_command, env)
+    else:
+        run_command_old(command, env)
+
 
 def graph_gen():
     """Run graph.py"""
     print("Starting graph_gen simulation...")
     run_command('time python3 simulation/graph/graph.py')
     print("graph_gen finished.")
-    
+
+
 def walk():
     """Run walk.py"""
     print("Starting walk simulation...")
     run_command('time python3 simulation/graph/walk.py')
     print("walk finished.")
-    
+
+
 def graph_raw_data():
     print("Starting graph_raw_data simulation...")
     run_command('time python3 simulation/graph/gen_raw_user_data.py')
     print("graph_raw_data execution completed.")
+
 
 def graph():
     graph_gen()
     walk()
     graph_raw_data()
 
+
 def intermap():
     print("Starting intermap...")
     run_command('time python3 tracing_algorithm/intermap.py')
     print("Intermap finished.")
+
 
 def intermap_optimized():
     print("Starting intermap_optimized optimized...")
     run_command('time python3 tracing_algorithm/intermap_optimized.py')
     print("Intermap optimized finished.")
 
+
 def intermap_new():
     print("Starting intermap_new optimized...")
     run_command('time python3 tracing_algorithm/intermap_new.py')
     print("intermap_new optimized finished.")
-    
+
+
 def intramap():
     print("Starting intramap...")
     run_command('time python3 tracing_algorithm/intramap.py')
     print("Intramap finished.")
-    
+
+
 def intramap_optimized():
     print("Starting intramap_optimized...")
     run_command('time python3 tracing_algorithm/intramap_optimized.py')
     print("intramap_optimized finished.")
-    
+
+
 def intramap_new():
     print("Starting intramap_new...")
     run_command('time python3 tracing_algorithm/intramap_new.py')
     print("intramap_new finished.")
-    
+
+
 def generate_mappings():
     print("Starting generate_mappings...")
     run_command('time python3 tracing_algorithm/generate_mappings.py')
     print("Mappings generated.")
-    
+
+
 def refine_intramap():
     print("Starting refine_intramap...")
     run_command('time python3 tracing_algorithm/refine_intramap.py')
     print("Intramap finished.")
+
 
 def push_to_mongo():
     """Run SUMO simulation."""
     print("pushing to mongo")
     run_command('time python3 analysis/push_to_mongo.py')
     print("data fed to mongo")
-    
+
+
 def sumo():
     """Run SUMO simulation."""
     print("Starting SUMO simulation...")
+    from simulation.sumo.sumo_simulation import main
+    main()
     run_command('time python3 simulation/sumo/sumo_simulation.py')
     print("SUMO simulation finished.")
     # filter_users()
 
+
 def generate_user_data():
     print("Running generate_user_data.py...")
-    run_command('time python3 simulation/generate_user_data.py')
+    from simulation.generate_user_data import main
+    main()
+    # run_command('time python3 simulation/generate_user_data.py')
     print("generate_user_data.py finished.")
+
 
 def generate_user_data_proximity():
     print("Running generate_user_data_proximity.py...")
     run_command('time python3 simulation/generate_user_data_proximity.py')
     print("generate_user_data_proximity.py finished.")
-    
+
+
 def generate_sniffer_data():
     print("Running generate_sniffer_data.py...")
     run_command('time python3 simulation/generate_sniffer_data.py')
     run_command('time python3 simulation/filter_sniffer_data.py')
     print("generate_sniffer_data.py finished.")
-    
+
+
 def filter_sniffer_data():
     print("Running filter_sniffer_data.py...")
     run_command('time python3 simulation/filter_sniffer_data.py')
     print("generate_sniffer_data.py finished.")
+
 
 def user_data():
     """Generate user data and import to MongoDB."""
@@ -118,9 +161,11 @@ def user_data():
     generate_sniffer_data()
     print("User data generation and import finished.")
 
+
 def intra_filter():
     run_command('time python3 tracing_algorithm/intra_filter.py')
     print("intra_filter.py finished.")
+
 
 def aggregate():
     """Running aggregation."""
@@ -138,46 +183,56 @@ def tracing_all():
     reconstruction()
     plot()
 
+
 def sanity():
     print("sanity started")
     run_command('time python3 analysis/sanity.py')
     print("sanity finished.")
 
+
 def filter_users_polygon():
     run_command('time python3 simulation/sumo/filter_users_polygon.py')
     print("filter_users_polygon.py finished.")
+
 
 def filter_users_RI_Count():
     run_command('time python3 simulation/sumo/filter_users_RI_count.py')
     print("filter_users_RI_count.py finished.")
 
+
 def sumo_filter_users():
     filter_users_polygon()
     filter_users_RI_Count()
     print("Filtering completed")
-    
+
+
 def reconstruction_multi():
     run_command('time python3 reconstruction/reconstruction_tracing_multi.py')
     print("reconstruction_multi.py finished.")
+
 
 def reconstruction_single():
     run_command('time python3 reconstruction/reconstruction_tracing_single.py')
     print("reconstruction_single.py finished.")
 
+
 def reconstruction():
     reconstruction_multi()
     reconstruction_single()
-    
+
+
 def plot():
     """Run plotting service."""
     print("Starting plotting service...")
     run_command('python3 modules/plot_reconstruction.py')
     print("plotting service finished.")
 
+
 def clean():
     """Clean up generated files."""
     run_command('rm -f *.pyc')
     run_command('rm -rf __pycache__')
+
 
 def clean_all():
     """Clean up generated files."""
@@ -186,11 +241,12 @@ def clean_all():
     run_command('rm -rf csv/*.csv')
     run_command('rm -rf data/*.csv')
     run_command('rm -rf logs/*.log')
-    run_command('rm -rf images/*.pdf')  
-    
+    run_command('rm -rf images/*.pdf')
+
 
 def partial_reconstruction():
     run_command('python3 reconstruction/reconstruction_precompute_partial.py')
+
 
 tasks = {
     "sumo": sumo,

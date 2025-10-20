@@ -1,6 +1,10 @@
 import os
 import sys
 import argparse
+import time
+
+# pre-import libsumo to avoid library loading failure
+import libsumo
 
 from modules.general import load_yaml_config, set_env_from_config
 
@@ -33,7 +37,10 @@ from pipeline import tasks
 # print(task_name)
 if task_name:
     if task_name in tasks:
+        started = time.time()
         tasks[task_name]()
+        elapsed = time.time() - started
+        print(f"completed: `{task_name}`, elapsed: {elapsed} second(s)")
     else:
         print(f"Error: Task '{task_name}' not found. Available tasks are:")
         for task in tasks.keys():
