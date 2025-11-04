@@ -1,0 +1,3 @@
+[submodule "code-rust"]
+	path = code-rust
+	url = git@projects.cispa.saarland:c01bini/path-leakage-rust.git
