@@ -101,6 +101,11 @@ cost (as opposed to big-and-bulky usages). A quick C# implementation yields prom
 expected
 to cut the run time by a further half.
 
+One important discrepancy moving to native implementation is that we have chosen to use single-precision floating numbers
+(`f32` in Rust) instead of double as used by CPython and numpy by default. This allows more compact storage and slightly faster
+computation, while the loss of precision has so far caused no deviation of results between the new and the original
+implementation.
+
 | Task                 | Baseline | Python multiprocessing | C#             |
 |----------------------|----------|------------------------|----------------|
 | filter_users_polygon | 349.09   | 124.44 (2.8x)          | 10.86 (32.14x) |
