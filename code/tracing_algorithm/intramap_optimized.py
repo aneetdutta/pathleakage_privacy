@@ -1,4 +1,5 @@
 import os, sys
+
 sys.path.append(os.getcwd())
 
 import pandas as pd
@@ -9,6 +10,7 @@ from tqdm import tqdm
 from multiprocessing import Pool
 from collections import defaultdict
 import time
+
 SCENARIO_NAME = os.getenv("SCENARIO_NAME")
 MAX_MOBILITY_FACTOR = float(os.getenv('MAX_MOBILITY_FACTOR'))
 
@@ -18,25 +20,27 @@ df['timestep'] = pd.to_numeric(df['timestep'], errors='coerce')
 
 # Group by 'id' to find min and max timestep and extract the protocol
 id_info = (df.groupby('id')
-             .agg(min=('timestep','min'), 
-                  max=('timestep','max'),
-                  protocol=('protocol','first'))
-             .reset_index())
+           .agg(min=('timestep', 'min'),
+                max=('timestep', 'max'),
+                protocol=('protocol', 'first'))
+           .reset_index())
 
 # id_info.to_csv('id_info.csv', index=False)
-MAX_TRANSMIT_TIME=60
+MAX_TRANSMIT_TIME = 60
 # Convert protocol to category for faster operations
 id_info['protocol'] = id_info['protocol'].astype('category')
 df['protocol'] = df['protocol'].astype('category')
 
+
 # Function to check interval overlap
 def intervals_overlap(max1, min2):
-    if max1<min2:
-        if (min2-max1)<=MAX_TRANSMIT_TIME:
-            return True 
-        #((min2-max1)<=60)
+    if max1 < min2:
+        if (min2 - max1) <= MAX_TRANSMIT_TIME:
+            return True
+            # ((min2-max1)<=60)
     else:
         return False
+
 
 # Find overlapping ids from different protocols
 intramapping_pairs = []
@@ -48,29 +52,37 @@ wifi_df = id_info[id_info['protocol'] == 'WiFi']
 
 # Convert each subset into a dictionary
 comparison_list = {
-    "Bluetooth" : bluetooth_df.to_dict('records'),
+    "Bluetooth": bluetooth_df.to_dict('records'),
     "LTE": lte_df.to_dict('records'),
     "WiFi": wifi_df.to_dict('records'),
 }
+
+for k, v in comparison_list.items():
+    print(f"found {len(v)} records for protocol: {k}")
 
 del id_info, bluetooth_df, lte_df, wifi_df
 
 # print(id_list)
 
-comparisons = ["LTE", "Bluetooth", "WiFi"]
+# comparisons = ["LTE", "Bluetooth", "WiFi"]
+comparisons = ["Bluetooth"]
 
+print("==> STAGE 2: PRELIMINARY LINKING")
 for p1 in comparisons:
     print(p1)
     a = time.time()
+    start = len(intramapping_pairs)
     for id_a in comparison_list[p1]:
         for id_b in comparison_list[p1]:
             if id_a['id'] != id_b['id']:
                 if intervals_overlap(id_a['max'], id_b['min']):
                     intramapping_pairs.append((id_a['id'], id_b['id']))
+    print(f"found {len(intramapping_pairs) - start} pairs for protocol: {p1}")
     print(p1, time.time() - a)
 
 # Print or store the result
 print("Intramapping ids with same protocol:")
+print(len(intramapping_pairs))
 
 
 def compute_localization_error(protocols):
@@ -89,71 +101,83 @@ def compute_localization_error(protocols):
 
 
 def check_compatibility_vectorized(subset1, subset2, protocol_errors):
-
     arr1_x = subset1['sl_x'].values
     arr1_y = subset1['sl_y'].values
     arr1_t = subset1['timestep'].values
     arr1_d = subset1['dist_S_U'].values
     arr1_p = subset1['protocol'].cat.codes.values
-    arr1_sniffer = subset1['sniffer_id'].values 
-     
+    # arr1_sniffer = subset1['sniffer_id'].values
+
     arr2_x = subset2['sl_x'].values
     arr2_y = subset2['sl_y'].values
     arr2_t = subset2['timestep'].values
     arr2_d = subset2['dist_S_U'].values
     arr2_p = subset2['protocol'].cat.codes.values
-    arr2_sniffer = subset2['sniffer_id'].values
+    # arr2_sniffer = subset2['sniffer_id'].values
+
+    # add the protocol errors to the previously computed
+    # distance from the device to the observer
     r1 = arr1_d + protocol_errors[arr1_p]
     r2 = arr2_d + protocol_errors[arr2_p]
-    
-    
+
+    # basically here we compute the location from each observer for 1
+    # to each observer for 2 (not sure why this needs to be computed)
     dx = arr1_x[:, None] - arr2_x[None, :]
     dy = arr1_y[:, None] - arr2_y[None, :]
-    d = np.sqrt(dx*dx + dy*dy)
+    d = np.sqrt(dx * dx + dy * dy)
 
+    # then we also compute the sum of the distance from observer
+    # to observed devices both for 1 and 2
     R = r1[:, None] + r2[None, :]
-    
-    
-    
-   
-    
-    
-    
+
     min_distance = d - R
-   
-   
+
+    # is this step necessary?
     min_distance[min_distance < 0] = 0
-    
-    
+
     delta_t = np.abs(arr1_t[:, None] - arr2_t[None, :])
-    
+
     compatible_matrix = (
-    (min_distance <= (delta_t * MAX_MOBILITY_FACTOR)) 
-)
-    
+        (min_distance <= (delta_t * MAX_MOBILITY_FACTOR))
+    )
+
+    # check if the two IDs are compatible (i.e. possible of linkage)
+    # under all combination cases
     return compatible_matrix.all()
 
 
 print("Starting intramapping pairs")
+print("==> STAGE 3: COMPATIBILITY LINKING")
 
-intramap=dict() 
+intramap = dict()
 df['protocol'] = df['protocol'].astype('category')
 protocol_errors = compute_localization_error(df['protocol'])
 # grouped = df.groupby('id')
-grouped_dict = {id_val: group[['timestep', 'id', 'sniffer_id', 'sl_x', 'sl_y', 'dist_S_U', 'protocol']] for id_val, group in df.groupby('id')}
+print("Grouping actual ids")
+grouped_dict = {id_val: group[['timestep', 'id', 'sniffer_id', 'sl_x', 'sl_y', 'dist_S_U', 'protocol', 'user_id']] for
+                id_val, group in df.groupby('id')}
 
+wrong_compatible_count = 0
 for id1, id2 in tqdm(intramapping_pairs, total=len(intramapping_pairs)):
     subset1 = grouped_dict[id1]
     subset2 = grouped_dict[id2]
 
-    compatible = check_compatibility_vectorized(subset1, subset2,protocol_errors)
+    compatible = check_compatibility_vectorized(subset1, subset2, protocol_errors)
 
     if compatible:
+        if subset1['user_id'].iloc[0] != subset2['user_id'].iloc[0]:
+            wrong_compatible_count += 1
+            # print(f"found wrong compatible pair: {id1} ({subset1['user_id'].iloc[0]}) and "
+            #       f"{id2} ({subset2['user_id'].iloc[0]})")
+
         if id1 not in intramap.keys():
-            intramap[id1]=[id2]
+            intramap[id1] = [id2]
         else:
             intramap[id1].append(id2)
-            
+
+print(f"found {sum(len(x) for x in intramap.values())} compatible pairs")
+print(f"in which {wrong_compatible_count} pairs are incorrect")
+
 np.save(f'data/{SCENARIO_NAME}/intramap_{SCENARIO_NAME}.npy', intramap, allow_pickle=True)
 np.save(f'data/{SCENARIO_NAME}/intramap_single_{SCENARIO_NAME}.npy', intramap, allow_pickle=True)
 

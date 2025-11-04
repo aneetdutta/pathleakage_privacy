@@ -2,23 +2,31 @@
 # variables:
 #   &user_timesteps 18400
 
+accel_settings:
+  intra_map:
+    trim_threshold: 5
+    trim_grace_period: 60
+    time_delta_threshold: 60
+  inter_map:
+    trim_grace_period: 60
+
 general:
   USER_TIMESTEPS: 25200       # Number of user timesteps
   DATA_SOURCE: "scenario_sumo"
   IDENTIFIER_LENGTH: 5
-  
+
 
 user_threshold:
   TOTAL_NUMBER_OF_USERS: 32          # Create only same set of users for different run
 
 movement_parameters:
-  POLYGON_COORDS:                     # Polygon coordinates
-    - [3499.77, 1500.07]
-    - [5798.43, 3799.93]
-    - [6452.11, 3150.56]
-    - [5401.44, 2099.71]
-    - [5751.91, 1749.63]
-    - [4500.10, 498.92]
+  POLYGON_COORDS: # Polygon coordinates
+    - [ 3499.77, 1500.07 ]
+    - [ 5798.43, 3799.93 ]
+    - [ 6452.11, 3150.56 ]
+    - [ 5401.44, 2099.71 ]
+    - [ 5751.91, 1749.63 ]
+    - [ 4500.10, 498.92 ]
 
 # Randomization Intervals
 randomization_intervals:
@@ -72,7 +80,7 @@ sniffer:
   ENABLE_PARTIAL_COVERAGE: false
   ENABLE_MULTILATERATION: false
   ENABLE_BLUETOOTH: true       # Enable Bluetooth
-  ENABLE_WIFI: false            # Enable Bluetooth
+  ENABLE_WIFI: true           # Enable Bluetooth
   ENABLE_LTE: true             # Enable Bluetooth
   TRANSMIT_WHEN_RANDOMIZED: false
   SNIFFER_PROCESSING_BATCH_SIZE: 100 # Sniffer processing batch size
