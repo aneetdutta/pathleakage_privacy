@@ -1,0 +1,20 @@
+[package]
+name = "pathleak-rust"
+version = "0.1.0"
+edition = "2024"
+
+[profile.release]
+debug = true
+
+[dependencies]
+csv = "1.4.0"
+yaml-rust2 = "0.10.4"
+serde_json = "1.0"
+rayon = "1.11"
+binrw = "0.15.0"
+serde = { version = "1.0.228", features = ["derive"] }
+
+[features]
+intra_map_disable_trim = []
+intra_map_report_wrong_pairs = []
+inter_map_disable_trim = []
